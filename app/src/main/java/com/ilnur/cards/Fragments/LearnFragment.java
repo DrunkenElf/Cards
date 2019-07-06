@@ -52,6 +52,10 @@ public class LearnFragment extends Fragment {
             + "</head>"
             + "<body> <div class=\"center\"> <p>";
     private Card curr_card;
+    int right = 0;
+    int wrongs = 0;
+    ArrayList<Card> list;
+    String c;
     public void setLearnFragment(String subj, String title, int id, boolean revers, boolean parent){
         this.subj = subj;
         this.title = title;
@@ -72,12 +76,17 @@ public class LearnFragment extends Fragment {
         RaiflatButton learn = col.findViewById(R.id.learn);
         RaiflatButton watch = col.findViewById(R.id.watch);
         RaiflatImageButton rever = col.findViewById(R.id.rever);
+
+
         learn.setVisibility(View.GONE);
         watch.setVisibility(View.GONE);
         rever.setVisibility(View.GONE);
         AppBarLayout apbar = AppBarLayout.class.cast(getActivity().findViewById(R.id.apbar));
         apbar.setExpanded(false);
-        ArrayList<Card> list;
+        StringBuilder wrong = new StringBuilder();
+        wrong.append("<table>");
+
+
         if (parent)
             list = MyDB.getParentCards(subj, id);
         else
@@ -92,12 +101,14 @@ public class LearnFragment extends Fragment {
         TextView count = rootview.findViewById(R.id.count);
 
         Button check = rootview.findViewById(R.id.check_but);
+        RaiflatButton again = rootview.findViewById(R.id.again);
+        again.setVisibility(View.GONE);
 
         Button dontknow = rootview.findViewById(R.id.dontkn);
         Button know = rootview.findViewById(R.id.know);
         Button learned = rootview.findViewById(R.id.learned);
 
-        String c = "/"+String.valueOf(list.size());
+        c = "/"+String.valueOf(list.size());
 
 
 
@@ -137,19 +148,56 @@ public class LearnFragment extends Fragment {
             i = i +1;
 
         });
+        again.setOnClickListener(v -> {
+            i = 0;
+            list = new ArrayList<>();
+            if (parent)
+                list = MyDB.getParentCards(subj, id);
+            else
+                list = MyDB.getChildCards(subj, title, id);
+            curr_card = list.get(i);
+            if (revers) {
+                web.loadDataWithBaseURL(null, curr_card.getRevers(), "text/html",
+                        "utf-8", "about:blank");
+            } else
+                web.loadDataWithBaseURL(null, curr_card.getAvers(), "text/html",
+                        "utf-8", "about:blank");
+            c = "/"+list.size();
+            count.setText(String.valueOf(i + 1) + c);
+            again.setVisibility(View.GONE);
+            check.setVisibility(View.VISIBLE);
+            /*LearnFragment lf = new LearnFragment();
+            lf.setLearnFragment(subj, title, id, revers, parent);
+            getFragmentManager().beginTransaction()
+                    .remove(LearnFragment.this)
+                    .replace(R.id.parent, lf)
+                    .addToBackStack(null)
+                    .commit();*/
+
+        });
 
         dontknow.setOnClickListener(v -> {
             Log.i("BUtton","dont");
+            wrongs++;
             check.setVisibility(View.VISIBLE);
             dontknow.setVisibility(View.GONE);
             know.setVisibility(View.GONE);
             learned.setVisibility(View.GONE);
-
+            if (curr_card.getRevers().length() == 1){
+                wrong.append("<tr><td>"+checkCard(curr_card).getRevers()+"</td></tr><tr>\n" +
+                        "        <td colspan=\"2\" class=\"divider\"><hr /></td>\n" +
+                        "    </tr>");
+            } else {
+                wrong.append("<tr><td>"+curr_card.getAvers()+"</td><td class=\"line\">"+curr_card.getRevers()+"</td></tr><tr>\n" +
+                        "        <td colspan=\"2\" class=\"divider\"><hr /></td>\n" +
+                        "    </tr>");
+            }
             //web.setText(list.get(i).getAvers());
             if (i == list.size()){
-                web.loadDataWithBaseURL(null, append("Конец"), "text/html",
-                        "utf-8", "about:blank");
                 check.setVisibility(View.GONE);
+                again.setVisibility(View.VISIBLE);
+                web.loadDataWithBaseURL(null, showWrong(wrong.toString()), "text/html",
+                        "utf-8", "about:blank");
                 if (!MainActivity.logged && MainActivity.show) {
                     new AlertDialog.Builder(rootview.getContext())
                             .setTitle("Хотите войти или зарегистрироваться?")
@@ -183,6 +231,7 @@ public class LearnFragment extends Fragment {
 
         know.setOnClickListener(v -> {
             Log.i("BUtton","know");
+            right++;
             check.setVisibility(View.VISIBLE);
             dontknow.setVisibility(View.GONE);
             know.setVisibility(View.GONE);
@@ -190,9 +239,10 @@ public class LearnFragment extends Fragment {
             new updateCard().execute(new params(subj, curr_card.getId(), 1, curr_card.getResult()));
             //MyDB.updateCard(subj, curr_card.getId(), 1, curr_card.getResult());
             if (i == list.size()){
-                web.loadDataWithBaseURL(null, append("Стопка закончилась"), "text/html",
+                web.loadDataWithBaseURL(null, showWrong(wrong.toString()), "text/html",
                         "utf-8", "about:blank");
                 check.setVisibility(View.GONE);
+                again.setVisibility(View.VISIBLE);
                 if (!MainActivity.logged && MainActivity.show) {
                     new AlertDialog.Builder(rootview.getContext())
                             .setTitle("Хотите войти или зарегистрироваться?")
@@ -216,6 +266,7 @@ public class LearnFragment extends Fragment {
 
         learned.setOnClickListener(v -> {
             Log.i("BUtton","learned");
+            right++;
             check.setVisibility(View.VISIBLE);
             dontknow.setVisibility(View.GONE);
             know.setVisibility(View.GONE);
@@ -223,9 +274,10 @@ public class LearnFragment extends Fragment {
             new updateCard().execute(new params(subj, curr_card.getId(), 4, curr_card.getResult()));
             //MyDB.updateCard(subj, curr_card.getId(), 4, curr_card.getResult());
             if (i == list.size()){
-                web.loadDataWithBaseURL(null, append("Конец"), "text/html",
+                web.loadDataWithBaseURL(null, showWrong(wrong.toString()), "text/html",
                         "utf-8", "about:blank");
                 check.setVisibility(View.GONE);
+                again.setVisibility(View.VISIBLE);
                 if (!MainActivity.logged && MainActivity.show) {
                     new AlertDialog.Builder(rootview.getContext())
                             .setTitle("Хотите войти или зарегистрироваться?")
@@ -263,6 +315,17 @@ public class LearnFragment extends Fragment {
     }
     private String append(String s){
         return strBody+s+"</p> </div> </body></html>";
+    }
+    private String showWrong(String table){
+        table = table+"</table>";
+        String style = "<style> .line {\n" +
+                "  border-left: thin solid #000000;\n" +
+                "  padding: 2px;\n" +
+                "}</style>";
+        String html = "<html>"+style+"<body><div><p>Стопка закончилась</p><p></p><p>Верных ответов: "+
+                right+"</p><p>Неверных ответов: "+ wrongs+"</p><p></p><p></p>";
+        html = html +"<p>Допущенные ошибки</p>"+table + "</div></body></html>";
+        return html;
     }
     /*private String rev(String s){
         if (revers){

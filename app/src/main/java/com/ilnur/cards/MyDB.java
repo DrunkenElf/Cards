@@ -508,7 +508,7 @@ public class MyDB extends SQLiteOpenHelper {
             tmp.setRevers(cursor.getString(2));
             tmp.setResult(cursor.getInt(3));
             tmp.setResult_stamp(cursor.getString(4));
-
+            Log.i("date ", "" +curTime+" "+tmp.getDate());
             switch (tmp.getResult()) {
                 case 0:
                     list.add(tmp);
@@ -534,9 +534,12 @@ public class MyDB extends SQLiteOpenHelper {
         }
 
         cursor.moveToFirst();
+        Log.i("CURScount", String.valueOf(cursor.getCount()));
         if (list.size() < 20) {
             for (int i = 0; i < cursor.getCount(); i++) {
                 if (list.size() == 20)
+                    break;
+                if (list.size() == cursor.getCount())
                     break;
                 tmp = new Card();
                 tmp.setId(cursor.getInt(0));
@@ -848,81 +851,19 @@ public class MyDB extends SQLiteOpenHelper {
 
         }
     }
-        /*String cards;
-        String cats;
-        Stupid cat;
-        Category[] mas;
-        Category temp;
-        StupCard tmp;
-        Connection.Response resp;
-        BufferedInputStream bis;
-        InputStreamReader isr;
-        JsonReader reader;
-        ContentValues values = new ContentValues();
+    public static boolean isSubjAdded(String parent){
         SQLiteDatabase sqdb = instance.getReadableDatabase();
-        Cursor cursor = null;
-        boolean log;
-        for (pair p : pairs) {
-
-            Log.i("adding", p.subj_db);
-            cursor = sqdb.rawQuery("SELECT added FROM subj WHERE name = ?", new String[]{p.subj_db});
-            cursor.moveToFirst();
-            if (cursor.getInt(0) == 0) {
-                log = false;
-                cards = "https://" + p.link + "-ege.sdamgia.ru/api?protocolVersion=1&type=card&category_id=";
-                cats = Jsoup.connect("https://" + p.link + "-ege.sdamgia.ru/api?protocolVersion=1&type=card_cat")
-                        .ignoreContentType(true).get().select("body").text();
-                cat = new Gson().fromJson(cats, Stupid.class);
-                mas = cat.getData();
-                if (!MainActivity.logged)
-                    log = false;
-
-                //Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-                for (int i = 0; i < mas.length; i++) {
-                    temp = mas[i];
-                    if (MainActivity.logged) {
-                        Log.i("adding", "with logged");
-                        log = true;
-                    } else {
-                        log = false;
-                    }
-                    //Log.i("mas[i]", temp.getTitle());
-                    if (MainActivity.logged)
-                        resp = Jsoup.connect(cards + temp.getId() + "&session=" + MainActivity.user.getSession_id()).ignoreContentType(true)
-                                .maxBodySize(0).timeout(2000000).method(Connection.Method.GET).execute();
-                    else
-                        resp = Jsoup.connect(cards + temp.getId()).ignoreContentType(true)
-                                .maxBodySize(0).timeout(2000000).method(Connection.Method.GET).execute();
-
-                    bis = resp.bodyStream();
-                    isr = new InputStreamReader(bis);
-                    reader = new JsonReader(isr);
-                    reader.setLenient(true);
-            *//*resp = Jsoup.connect(cards+temp.getId()).ignoreContentType(true)
-                    .maxBodySize(0).timeout(20000000).get().select("body").html();*//*
-                    //Log.i("data", data);
-                    tmp = new Gson().fromJson(reader, StupCard.class);
-                    updCat(temp, p.subj_db);
-                    if (tmp.getData() != null) {
-                        for (Card s : tmp.getData()) {
-                            updCard(s, p.subj_db);
-                        }
-                    }
-                }
-                Log.i(p.subj_db, "Added");
-                values.put("name", p.subj_db);
-                values.put("added", 1);
-                if (log && MainActivity.logged)
-                    values.put("added_with_log", 1);
-
-                sqliteDb.update("subj", values, "name = ?", new String[]{p.subj_db});
-                values.clear();
-            }
-        }
-        cursor.close();*/
-        /*if (MainActivity.logged)
-            syncSubj();*/
-
+        if (parent.contains(" "))
+            parent = parent.replace(" ", "_");
+        Cursor cursor = sqdb.rawQuery("SELECT added FROM subj" + " WHERE name = ?", new String[]{parent});
+        cursor.moveToFirst();
+        int id = cursor.getInt(0);
+        cursor.close();
+        if (id==1)
+            return true;
+        else
+            return false;
+    }
 
     public static void updCard(Card card, String table) {
         ContentValues values = new ContentValues();

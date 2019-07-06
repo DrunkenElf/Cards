@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.Toast;
 
 import com.github.rubensousa.raiflatbutton.RaiflatButton;
 import com.github.rubensousa.raiflatbutton.RaiflatImageButton;
@@ -52,6 +53,9 @@ public class ListFragment extends Fragment {
         rever.setVisibility(View.GONE);
         AppBarLayout apbar = AppBarLayout.class.cast(getActivity().findViewById(R.id.apbar));
         apbar.setExpanded(false);
+
+        if (!MyDB.isSubjAdded(title))
+            Toast.makeText(rootview.getContext(), "Некоторые темы все еще добавляются", Toast.LENGTH_SHORT).show();
 
         GridView grid = rootview.findViewById(R.id.list);
         //final String[] mas = MyDB.getCatNames(title);

@@ -278,26 +278,23 @@ public class RegisterActivity extends AppCompatActivity {
             } else if (!validateMail(mail.getText().toString(), EMAIL_PATTERN)) {
                 mailLay.setError("Введите корректную почту");
                 valid = false;
-            } else {
+            } else
                 mailLay.setError(null);
-                valid = true;
-            }
+
             //validity of name
             if (name.getText() == null || name.getText().toString().equals("")) {
                 nameLay.setError("Вы не ввели свое имя");
                 valid = false;
-            } else {
+            } else
                 nameLay.setError(null);
-                valid = true;
-            }
+
             //validity of surname
             if (surname.getText() == null || surname.getText().toString().equals("")) {
                 surnameLay.setError("Вы не ввели свою фамилию");
                 valid = false;
-            } else {
+            } else
                 surnameLay.setError(null);
-                valid = true;
-            }
+
             //validity of password
             if (pas.getText() == null || pas.getText().toString().equals("")) {
                 pasLay.setError("Вы не ввели пароль");
@@ -312,7 +309,6 @@ public class RegisterActivity extends AppCompatActivity {
             } else {
                 pasLay.setError(null);
                 pasAgainLay.setError(null);
-                valid = true;
             }
 
             if (valid) {

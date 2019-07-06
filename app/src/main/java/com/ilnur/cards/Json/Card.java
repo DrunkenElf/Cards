@@ -38,6 +38,9 @@ public class Card {
         } catch (ParseException e) {
             e.printStackTrace();
             return date;
+        } catch (NullPointerException n){
+            n.printStackTrace();
+            return date;
         }
     }
 

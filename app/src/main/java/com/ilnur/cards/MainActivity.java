@@ -155,10 +155,12 @@ public class MainActivity extends AppCompatActivity
                     Toast.LENGTH_LONG).show();
         } else {
             //add subjects
-            Runnable addSubh = () -> MyDB.add();
-            Thread add = new Thread(addSubh);
-            add.setName("add");
-            add.start();
+            if (logged) {
+                Runnable addSubh = () -> MyDB.add();
+                Thread add = new Thread(addSubh);
+                add.setName("add");
+                add.start();
+            }
         }
 
 
