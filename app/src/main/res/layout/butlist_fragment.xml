@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/superLight"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/nothing"
+        android:visibility="gone"
+        android:layout_gravity="center"
+        android:layout_marginTop="30dp"
+        android:gravity="center"
+        android:text="Скоро тут появятся разделы(Но это не точно)"
+        android:textSize="23sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+    </TextView>
+
+    <!--<TextView
+        android:id="@+id/text_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textSize="23sp" />-->
+
+    <!--<LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:background="@color/colorPrimary"
+        android:orientation="horizontal">
+
+        <com.github.rubensousa.raiflatbutton.RaiflatButton
+            android:id="@+id/learn"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            style="@style/Base.Widget.AppCompat.Button.Colored"
+            android:text="Учить"
+            android:layout_weight="1"/>
+
+        <com.github.rubensousa.raiflatbutton.RaiflatButton
+            android:id="@+id/watch"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            style="@style/Base.Widget.AppCompat.Button.Colored"
+            android:text="Список"
+            android:layout_weight="1"/>
+        <com.github.rubensousa.raiflatbutton.RaiflatImageButton
+            android:id="@+id/rever"
+            style="@style/Base.Widget.AppCompat.Button.Colored"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:src="@drawable/ic_revers_black_24dp"
+            android:textAllCaps="false"
+            />
+    </LinearLayout>-->
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/list_but"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/superLight"
+        android:numColumns="1"/>
+</LinearLayout>

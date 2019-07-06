@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#FF9800</color>
+    <color name="colorPrimaryDark">#F57C00</color>
+    <color name="colorAccent">#00B8D4</color>
+    <color name="colorPrimaryLight">#FFE0B2</color>
+    <color name="superLight">#EEEEEE</color>
+    <color name="one">#ffffd0</color>
+    <color name="two">#f0ffd0</color>
+    <color name="three">#e0ffd0</color>
+    <color name="four">#d0ffd0</color>
+    <color name="white">#FFFFFF</color>
+    <color name="grey">#f7f6f4</color>
+    <color name="ultragrey">#d8d2d2</color>
+    <color name="black">#000000</color>
+    <color name="wh">#f6f7d7</color>
+    <color name="bl">#3ec1d3</color>
+    <color name="or">#ff9a00</color>
+    <color name="pi">#ff165d</color>
+</resources>

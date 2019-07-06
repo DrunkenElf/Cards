@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
+
+    <ImageView
+        android:id="@+id/close_krest"
+        android:src="@drawable/ic_clear_36dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <ImageView
+        android:id="@+id/lable"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="24dp"
+         />
+    <TextView
+        android:id="@+id/resh_kart"
+        android:layout_width="match_parent"
+        android:layout_height="26dp"
+        android:layout_marginTop="16dp"
+        android:gravity="center"
+        android:textSize="22sp"
+        android:textColor="@color/black"
+        android:text="Решу ЕГЭ. Карточки"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="bottom"
+        android:focusable="auto"
+        android:gravity="bottom"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/login_info"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:gravity="bottom|center_horizontal"
+            android:text="Для сохранения ваших результатов войдите или зарегистрируйтесь" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/login_lay"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:errorTextAppearance="@style/MyErrorText"
+            app:errorEnabled="true">
+
+            <androidx.appcompat.widget.AppCompatEditText
+                android:id="@+id/login_login"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:hint="Логин"
+                android:inputType="textEmailAddress"
+                android:singleLine="true"
+                android:textColorHighlight="@color/colorAccent"
+                android:textColorLink="@color/colorAccent" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/password_lay"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:errorTextAppearance="@style/MyErrorText"
+            app:errorEnabled="true">
+
+            <androidx.appcompat.widget.AppCompatEditText
+                android:id="@+id/login_password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:hint="Пароль"
+                android:inputType="textPassword"
+                android:singleLine="true"
+                android:textColorHighlight="@color/colorAccent"
+                android:textColorLink="@color/colorAccent" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.github.rubensousa.raiflatbutton.RaiflatButton
+            android:id="@+id/sign_in"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginStart="40dp"
+            android:layout_marginEnd="40dp"
+            android:background="@drawable/button_back"
+            android:text="Войти" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/register"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="40dp"
+            android:layout_marginEnd="40dp"
+            android:text="Зарегистрироваться" />
+
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/not_now"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="50dp"
+            android:background="@color/colorPrimary"
+            android:text=" Напомнить позже "
+            android:textColorHighlight="@color/colorAccent"
+            android:textColorLink="@color/colorAccent" />
+    </LinearLayout>
+
+</LinearLayout>

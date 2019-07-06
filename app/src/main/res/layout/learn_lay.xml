@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <com.github.rubensousa.raiflatbutton.RaiflatButton
+        android:id="@+id/check_but"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_alignParentBottom="true"
+        style="@style/Base.Widget.AppCompat.Button.Colored"
+        android:text="проверить"
+        />
+
+    <LinearLayout
+        android:id="@+id/buttons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:gravity="bottom"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal">
+
+        <com.github.rubensousa.raiflatbutton.RaiflatButton
+            android:id="@+id/dontkn"
+            style="@style/Base.Widget.AppCompat.Button.Colored"
+            android:text="Не знаю"
+            android:layout_width="match_parent"
+            android:visibility="invisible"
+            android:layout_height="48dp"
+            android:layout_weight="1" />
+
+        <com.github.rubensousa.raiflatbutton.RaiflatButton
+            android:id="@+id/know"
+            style="@style/Base.Widget.AppCompat.Button.Colored"
+            android:text="знаю"
+            android:visibility="invisible"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_weight="1" />
+
+        <com.github.rubensousa.raiflatbutton.RaiflatButton
+            android:id="@+id/learned"
+            style="@style/Base.Widget.AppCompat.Button.Colored"
+            android:text="выучено"
+            android:visibility="invisible"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_weight="1" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/count"
+        android:gravity="right"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="48dp"
+        android:layout_width="match_parent"
+        android:layout_height="20dp" />
+
+    <include
+        layout="@layout/learn_include_fr"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_marginBottom="68dp"
+        android:layout_gravity="top">
+
+    </include>
+
+</RelativeLayout>

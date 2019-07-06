@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/obolochka"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="5dp"
+    app:cardCornerRadius="0dp"
+    app:cardElevation="2dp"
+    app:cardUseCompatPadding="true">
+
+    <TextView
+        android:id="@+id/item_spisok"
+        android:paddingLeft="5dp"
+        android:gravity="center_vertical"
+        android:singleLine="false"
+        android:layout_gravity="left"
+        android:layout_weight="3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+    </TextView>
+    <ImageView
+        android:layout_width="2dp"
+        android:layout_height="match_parent"
+        />
+
+    <TextView
+        android:id="@+id/item_spisok1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        android:layout_marginRight="5dp"
+        android:layout_weight="2"
+        android:gravity="right"
+        android:paddingRight="5dp"
+        android:singleLine="false"
+        />
+
+</LinearLayout>
+
