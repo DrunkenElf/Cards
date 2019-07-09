@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -43,6 +45,7 @@ public class ButListFragment extends Fragment {
     private int id;
     //private Context context;
     List<TreeNode> nodes = new ArrayList<>();
+
 
     public void setButListFragment(String subj, String parent, String title, ArrayList<Category> list,
                                    int layout, boolean checkRever, int id, Context context){
@@ -62,6 +65,12 @@ public class ButListFragment extends Fragment {
         //getActivity().setTitle(title);
         /*TextView tv = rootview.findViewById(R.id.text_title);
         tv.setText(title);*/
+        if (savedInstanceState != null){
+            subj = savedInstanceState.getString("subj");
+            title = savedInstanceState.getString("title");
+            id = savedInstanceState.getInt("id");
+            list = savedInstanceState.getParcelableArrayList("key");
+        }
 
         Toolbar bar = Toolbar.class.cast(getActivity().findViewById(R.id.toolbar));
         CollapsingToolbarLayout col = CollapsingToolbarLayout.class.cast(getActivity().findViewById(R.id.collapsing_toolbar));
@@ -100,7 +109,7 @@ public class ButListFragment extends Fragment {
                 lf.setLearnFragment(subj, title, id, false, true);
                 getFragmentManager().beginTransaction()
                         .replace(R.id.parent, lf)
-                        .addToBackStack(null)
+                        .addToBackStack("lf")
                         .commit();
             }
         });
@@ -109,7 +118,7 @@ public class ButListFragment extends Fragment {
             wf.setWatchFragment(subj, title, id, true);
             getFragmentManager().beginTransaction()
                     .replace(R.id.parent, wf)
-                    .addToBackStack(null)
+                    .addToBackStack("watch")
                     .commit();
         });
 
@@ -179,5 +188,32 @@ public class ButListFragment extends Fragment {
         apbar.setExpanded(false);
     }
 
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putCharSequence("subj", subj);
+        outState.putCharSequence("title", title);
+        outState.putInt("id", id);
+        outState.putParcelableArrayList("key", list);
+    }
 
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if (savedInstanceState != null){
+            subj = savedInstanceState.getString("subj");
+            title = savedInstanceState.getString("title");
+            id = savedInstanceState.getInt("id");
+        }
+    }
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        if (savedInstanceState != null){
+            subj = savedInstanceState.getString("subj");
+            title = savedInstanceState.getString("title");
+            id = savedInstanceState.getInt("id");
+        }
+    }
 }

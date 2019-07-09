@@ -26,7 +26,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 
 public class SubjFragment extends Fragment {
-    private String[] subjects = {"Русский язык", "Физика", "Математика", "Английский язык", "История"};
+    private static String[] subjects = {"Русский язык", "Физика", "Математика", "Английский язык", "История"};
 
 
     @Override
@@ -34,6 +34,9 @@ public class SubjFragment extends Fragment {
         final View rootview = inflater.inflate(R.layout.subj_layout, container, false);
         //getActivity().setTitle("Решу ЕГЭ. Карточки");
 
+        if (savedInstanceState!=null){
+            subjects = savedInstanceState.getStringArray("subj");
+        }
         Toolbar bar = Toolbar.class.cast(getActivity().findViewById(R.id.toolbar));
         CollapsingToolbarLayout col = CollapsingToolbarLayout.class.cast(getActivity().findViewById(R.id.collapsing_toolbar));
         col.setTitle("Решу ЕГЭ. Карточки");
@@ -81,7 +84,7 @@ public class SubjFragment extends Fragment {
                     getFragmentManager().beginTransaction()
                             .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.from_left, R.anim.to_right)
                             .replace(R.id.parent, blf)
-                            .addToBackStack(null)
+                            .addToBackStack("btl")
                             .commit();
                 } else {
                     ListFragment lf = new ListFragment();
@@ -89,7 +92,7 @@ public class SubjFragment extends Fragment {
                     getFragmentManager().beginTransaction()
                             .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.from_left, R.anim.to_right)
                             .replace(R.id.parent, lf)
-                            .addToBackStack(null)
+                            .addToBackStack("lf")
                             .commit();
                 }
             }
@@ -105,6 +108,26 @@ public class SubjFragment extends Fragment {
         apbar.setExpanded(false);
     }
 
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putCharSequenceArray("subj", subjects);
+    }
 
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
 
+        if (savedInstanceState!=null){
+            subjects = savedInstanceState.getStringArray("subj");
+        }
+    }
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        if (savedInstanceState!=null){
+            subjects = savedInstanceState.getStringArray("subj");
+        }
+    }
 }

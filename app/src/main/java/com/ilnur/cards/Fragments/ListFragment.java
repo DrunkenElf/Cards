@@ -21,6 +21,8 @@ import com.ilnur.cards.R;
 
 import net.opacapp.multilinecollapsingtoolbar.CollapsingToolbarLayout;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 
@@ -38,6 +40,10 @@ public class ListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View rootview = inflater.inflate(R.layout.list_fragment, container, false);
         //getActivity().setTitle(title);
+        if (savedInstanceState != null){
+            mas = savedInstanceState.getStringArray("mas");
+            title = savedInstanceState.getString("title");
+        }
 
         Toolbar bar = Toolbar.class.cast(getActivity().findViewById(R.id.toolbar));
         CollapsingToolbarLayout col = CollapsingToolbarLayout.class.cast(getActivity().findViewById(R.id.collapsing_toolbar));
@@ -54,8 +60,10 @@ public class ListFragment extends Fragment {
         AppBarLayout apbar = AppBarLayout.class.cast(getActivity().findViewById(R.id.apbar));
         apbar.setExpanded(false);
 
-        if (!MyDB.isSubjAdded(title))
-            Toast.makeText(rootview.getContext(), "Некоторые темы все еще добавляются", Toast.LENGTH_SHORT).show();
+        if (savedInstanceState == null) {
+            if (!MyDB.isSubjAdded(title))
+                Toast.makeText(rootview.getContext(), "Некоторые темы все еще добавляются", Toast.LENGTH_SHORT).show();
+        }
 
         GridView grid = rootview.findViewById(R.id.list);
         //final String[] mas = MyDB.getCatNames(title);
@@ -85,7 +93,7 @@ public class ListFragment extends Fragment {
                 getFragmentManager().beginTransaction()
                         .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.from_left, R.anim.to_right)
                         .replace(R.id.parent, blf)
-                        .addToBackStack(null)
+                        .addToBackStack("btl")
                         .commit();
 
             }
@@ -99,5 +107,31 @@ public class ListFragment extends Fragment {
         super.onDestroyView();
         AppBarLayout apbar = AppBarLayout.class.cast(getActivity().findViewById(R.id.apbar));
         apbar.setExpanded(false);
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putCharSequenceArray("mas", mas);
+        outState.putCharSequence("title", title);
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if (savedInstanceState != null){
+            mas = savedInstanceState.getStringArray("mas");
+            title = savedInstanceState.getString("title");
+        }
+    }
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        if (savedInstanceState != null){
+            mas = savedInstanceState.getStringArray("mas");
+            title = savedInstanceState.getString("title");
+        }
     }
 }

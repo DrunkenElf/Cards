@@ -18,6 +18,7 @@ import com.ilnur.cards.Fragments.SubjFragment;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -54,6 +55,7 @@ public class MainActivity extends AppCompatActivity
     public static boolean show = true;
     public static boolean addsub = false;
     public static boolean syncsub = false;
+    public Context context;
     Toolbar toolbar;
     AppBarLayout apbar;
     DrawerLayout drawer;
@@ -62,115 +64,173 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onStart() {
+        Log.i("Start", "Created");
         super.onStart();
+       /* try {
+            super.onStart();
+        } catch (NullPointerException e){
+            e.printStackTrace();
+            onRestart();
+        }*/
     }
 
 
     @Override
     protected void onPause() {
         super.onPause();
-
+        Log.i("Pause", "Created");
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-
+        Log.i("Stop", "Created");
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        changeNavHead(navigationView, logged);
+        Log.i("Ressume", "Created");
+        //changeNavHead(navigationView, logged);
         Log.i("count  ", String.valueOf(getSupportFragmentManager().getBackStackEntryCount()));
     }
 
     @Override
     protected void onRestart() {
         super.onRestart();
+        Log.i("Ressume", "Created");
 
     }
 
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        Log.i("SaveInstanceMain", "Created");
+        super.onSaveInstanceState(outState);
+        //context = getSupportFragmentManager().getFragment(outState, )
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.i("MainActivity", "Created");
 
         //requestWindowFeature(Window.FEATURE_NO_TITLE);
         //getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
 
+        if (savedInstanceState != null) {
+            Log.i("saved", "not null");
+            toolbar = findViewById(R.id.toolbar);
+            setSupportActionBar(toolbar);
 
-        toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+            apbar = findViewById(R.id.apbar);
+            apbar.setExpanded(false);
 
-        apbar = findViewById(R.id.apbar);
-        apbar.setExpanded(false);
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+            //ImageLoaderConfiguration conf = new ImageLoaderConfig
+            ImageLoader.getInstance().init(ImageLoaderConfiguration.createDefault(getApplicationContext()));
 
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-        StrictMode.setThreadPolicy(policy);
-        //ImageLoaderConfiguration conf = new ImageLoaderConfig
-        ImageLoader.getInstance().init(ImageLoaderConfiguration.createDefault(getApplicationContext()));
-
-        drawer = findViewById(R.id.drawer_layout);
-        toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
-
-
-        navigationView = findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
+            drawer = findViewById(R.id.drawer_layout);
+            toggle = new ActionBarDrawerToggle(
+                    this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+            drawer.addDrawerListener(toggle);
+            toggle.syncState();
 
 
+            navigationView = findViewById(R.id.nav_view);
+            navigationView.setNavigationItemSelectedListener(this);
+            changeNavHead(logged);
 
-        //Param main = new Param(getApplicationContext(), false, navigationView);
+            //Param main = new Param(getApplicationContext(), false, navigationView);
 
-        //new AddingDB().execute(main);
-        // init db
-        MyDB db = new MyDB(this);
-        MyDB.init(db, false);
-
-
-        user = MyDB.getUser();
-        if (user.getLogin() == null) {
-            logged = false;
-        } else {
-            Log.i("OLD_SESSION", user.getSession_id());
-            if (checkValid(false)) {
-                //значит все валидно
-                //запуск добавления предметов
-                Toast.makeText(getApplicationContext(), "Вы вошли под логином " + user.getLogin(), Toast.LENGTH_SHORT).show();
-                logged = true;
+            //new AddingDB().execute(main);
+            // init db
+            MyDB db = new MyDB(this);
+            MyDB.init(db, false);
+            if (!isNetworkConnected()) {
+                Toast.makeText(getApplicationContext(), "Подключение к интернету отсутствует, скачивание данных невозможно",
+                        Toast.LENGTH_LONG).show();
             } else {
-                logged = false;
+                //add subjects
+                if (!logged) {
+                    Runnable addSubh = () -> MyDB.add();
+                    Thread add = new Thread(addSubh);
+                    add.setName("add");
+                    add.start();
+                }
             }
-        }
-        if (!logged)
-            startActivity(new Intent(this, LoginActivity.class));
-
-
-        if (!isNetworkConnected()) {
-            Toast.makeText(getApplicationContext(), "Подключение к интернету отсутствует, скачивание данных невозможно",
-                    Toast.LENGTH_LONG).show();
         } else {
-            //add subjects
-            if (logged) {
-                Runnable addSubh = () -> MyDB.add();
-                Thread add = new Thread(addSubh);
-                add.setName("add");
-                add.start();
+
+            toolbar = findViewById(R.id.toolbar);
+            setSupportActionBar(toolbar);
+
+            apbar = findViewById(R.id.apbar);
+            apbar.setExpanded(false);
+
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+            //ImageLoaderConfiguration conf = new ImageLoaderConfig
+            ImageLoader.getInstance().init(ImageLoaderConfiguration.createDefault(getApplicationContext()));
+
+            drawer = findViewById(R.id.drawer_layout);
+            toggle = new ActionBarDrawerToggle(
+                    this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+            drawer.addDrawerListener(toggle);
+            toggle.syncState();
+
+
+            navigationView = findViewById(R.id.nav_view);
+            navigationView.setNavigationItemSelectedListener(this);
+
+            MyDB db = new MyDB(this);
+            MyDB.init(db, false);
+
+            user = MyDB.getUser();
+            if (user.getLogin() == null) {
+                logged = false;
+            } else {
+                Log.i("OLD_SESSION", user.getSession_id());
+                if (checkValid(false)) {
+                    //значит все валидно
+                    //запуск добавления предметов
+                    Toast.makeText(getApplicationContext(), "Вы вошли под логином " + user.getLogin(), Toast.LENGTH_SHORT).show();
+                    logged = true;
+                } else {
+                    logged = false;
+                }
             }
-        }
+            changeNavHead(logged);
+            if (!logged)
+                startActivity(new Intent(this, LoginActivity.class));
 
 
-        SubjFragment subjFragment = new SubjFragment();
-        subjFragment.setRetainInstance(true);
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.parent, subjFragment)
-                .addToBackStack(null)
-                .commit();
-        //show login activity if you're not logged
+            if (!isNetworkConnected()) {
+                Toast.makeText(getApplicationContext(), "Подключение к интернету отсутствует, скачивание данных невозможно",
+                        Toast.LENGTH_LONG).show();
+            } else {
+                //add subjects
+                if (!logged) {
+                    Runnable addSubh = () -> MyDB.add();
+                    Thread add = new Thread(addSubh);
+                    add.setName("add");
+                    add.start();
+                }
+            }
+
+
+            SubjFragment subjFragment = new SubjFragment();
+            subjFragment.setRetainInstance(true);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.parent, subjFragment)
+                    .addToBackStack("subj")
+                    .commit();
+            //show login activity if you're not logged
         /*if (!logged)
             startActivity(new Intent(this, LoginActivity.class));
         //change na header
@@ -183,6 +243,7 @@ public class MainActivity extends AppCompatActivity
                 .replace(R.id.parent, subjFragment)
                 .addToBackStack(null)
                 .commit();*/
+        }
 
     }
 
@@ -199,10 +260,18 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    public void changeNavHead(NavigationView navigationView, boolean logged) {
+    public void changeNavHead(boolean logged) {
+        Log.i("CCCC", ""+navigationView.getHeaderCount());
         if (logged) {
-            navigationView.removeHeaderView(navigationView.getHeaderView(0));
+
+           /* navigationView.removeHeaderView(navigationView.getHeaderView(0));
+            if (navigationView.getHeaderCount()>0)
+                navigationView.removeHeaderView(navigationView.getHeaderView(0));*/
+            //navigationView.removeHeaderView(navigationView.getHeaderView(0));
+            //navigationView;
             View navheader = navigationView.inflateHeaderView(R.layout.nav_header_sucsess);
+            navigationView.removeHeaderView(navigationView.getHeaderView(0));
+            navigationView.addHeaderView(navheader);
             ImageView iv = navheader.findViewById(R.id.nav_icon);
             TextView title = navheader.findViewById(R.id.nav_title);
 
@@ -216,12 +285,17 @@ public class MainActivity extends AppCompatActivity
                 user.setLogin(null);
                 user.setPassword(null);
                 user.setSession_id(null);
-                changeNavHead(navigationView, false);
+                changeNavHead(false);
             });
 
         } else {
-            navigationView.removeHeaderView(navigationView.getHeaderView(0));
+
+            /*navigationView.removeHeaderView(navigationView.getHeaderView(0));
+            if (navigationView.getHeaderCount()>0)
+                navigationView.removeHeaderView(navigationView.getHeaderView(0));*/
+            //navigationView.removeHeaderView(navigationView.getHeaderView(0));
             View navheader = navigationView.inflateHeaderView(R.layout.nav_header_login);
+            navigationView.removeHeaderView(navigationView.getHeaderView(0));
             navigationView.addHeaderView(navheader);
             RaiflatButton enter = navheader.findViewById(R.id.enter);
 

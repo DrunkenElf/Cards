@@ -19,6 +19,7 @@ import net.opacapp.multilinecollapsingtoolbar.CollapsingToolbarLayout;
 
 import java.util.ArrayList;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
@@ -29,6 +30,7 @@ public class WatchFragment extends Fragment {
     private int id;
     private boolean parent;
     private AdapterWatch adapter;
+    ArrayList<Card> list;
 
 
     public void setWatchFragment(String subj, String title, int id, boolean parent) {
@@ -39,9 +41,56 @@ public class WatchFragment extends Fragment {
     }
 
     @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Log.i("Watch", "saved");
+        outState.putCharSequence("subj", subj);
+        outState.putCharSequence("title", title);
+        outState.putInt("id", id);
+        outState.putBoolean("parent", parent);
+        outState.putParcelableArrayList("watch", list);
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        Log.i("Watch", "created");
+        if (savedInstanceState!= null){
+            subj = savedInstanceState.getString("subj");
+            title = savedInstanceState.getString("title");
+            id = savedInstanceState.getInt("id");
+            parent = savedInstanceState.getBoolean("parent");
+            list = savedInstanceState.getParcelableArrayList("watch");
+        }
+    }
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        Log.i("Watch", "restored");
+        if (savedInstanceState!= null){
+            subj = savedInstanceState.getString("subj");
+            title = savedInstanceState.getString("title");
+            id = savedInstanceState.getInt("id");
+            parent = savedInstanceState.getBoolean("parent");
+            list = savedInstanceState.getParcelableArrayList("watch");
+        }
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View rootview = inflater.inflate(R.layout.watch_lay, container, false);
+        /*if (savedInstanceState !=null){
+            onViewStateRestored(savedInstanceState);
+        }*/
         //getActivity().setTitle(title);
+        if (savedInstanceState != null){
+            subj = savedInstanceState.getString("subj");
+            title = savedInstanceState.getString("title");
+            id = savedInstanceState.getInt("id");
+            parent = savedInstanceState.getBoolean("parent");
+            list = savedInstanceState.getParcelableArrayList("watch");
+        }
         Toolbar bar = Toolbar.class.cast(getActivity().findViewById(R.id.toolbar));
         CollapsingToolbarLayout col = CollapsingToolbarLayout.class.cast(getActivity().findViewById(R.id.collapsing_toolbar));
         col.setTitle(title);
@@ -54,11 +103,15 @@ public class WatchFragment extends Fragment {
         rever.setVisibility(View.GONE);
         AppBarLayout apbar = AppBarLayout.class.cast(getActivity().findViewById(R.id.apbar));
         apbar.setExpanded(false);
-        ArrayList<Card> list;
-        if (parent)
-            list = MyDB.getParentCardsWatch(subj, title, id);
-        else
-            list = MyDB.getChildCardsWatch(subj, title, id);
+        Log.i("subj",subj);
+        Log.i("title", title);
+        Log.i("id", "" +id);
+        if (savedInstanceState == null || !savedInstanceState.containsKey("watch")) {
+            if (parent)
+                list = MyDB.getParentCardsWatch(subj, title, id);
+            else
+                list = MyDB.getChildCardsWatch(subj, title, id);
+        }
 
         ListView lw = rootview.findViewById(R.id.watch_list);
         //AdapterWatchList adapter = new AdapterWatchList(rootview.getContext(), list, subj);
@@ -71,10 +124,7 @@ public class WatchFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        adapter.clearCache();
-        adapter = null;
-        System.gc();
-        Runtime.getRuntime().gc();
+
         Log.i("onDestroy", " 2");
     }
 

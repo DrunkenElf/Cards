@@ -41,7 +41,7 @@ public class AdapterWatch extends BaseAdapter {
         this.context = context;
         this.subj = subj;
         this.list = list;
-        spans = new Spans();
+        spans = new Spans(context);
         if (list.get(0).getAvers().length() > list.get(0).getRevers().length()){
             AvBig = true;
         } else
@@ -185,13 +185,15 @@ public class AdapterWatch extends BaseAdapter {
 
     }
 
-    private class Spans {
+    private static class Spans {
         //private Spans instance;
         private LruCache<String, Spanned> mMemoryCache = null;
         private int cacheSize = 1024 * 1024 * 10;
+        private Context context;
 
-        private Spans() {
+        private Spans(Context context) {
             mMemoryCache = new LruCache<String, Spanned>(cacheSize);
+            this.context = context;
         }
         /*public Spans getInstance(){
             if (instance == null){
@@ -202,9 +204,11 @@ public class AdapterWatch extends BaseAdapter {
 
         private class getSpanned extends AsyncTask<String, Void, Spanned> {
             private WeakReference<TextView> tv;
+            private Context cont;
 
-            public getSpanned(TextView tv) {
+            public getSpanned(TextView tv, Context cont) {
                 this.tv = new WeakReference<>(tv);
+                this.cont = cont;
             }
 
             @Override
@@ -223,7 +227,7 @@ public class AdapterWatch extends BaseAdapter {
                         bitmap = imageFromSVGString(source.split(",")[1]);
                     }
                     //Bitmap bitmap = imageFromString(source.split(",")[1]);
-                    BitmapDrawable bitmapDrawable = new BitmapDrawable(context.getResources(), bitmap);
+                    BitmapDrawable bitmapDrawable = new BitmapDrawable(cont.getResources(), bitmap);
                     bitmapDrawable.setBounds(0, 0, bitmapDrawable.getIntrinsicWidth(), bitmapDrawable.getIntrinsicHeight());
 
                     //Log.i("HEITS", String.valueOf(bitmapDrawable.getIntrinsicWidth())+" "+String.valueOf(bitmapDrawable.getIntrinsicHeight()));
@@ -235,15 +239,20 @@ public class AdapterWatch extends BaseAdapter {
 
             @Override
             protected void onPostExecute(Spanned s) {
-                if (tv.get().getTag() == this) {
-                    tv.get().setTag(null);
+                try {
+                    if (tv.get().getTag() == this) {
+                        tv.get().setTag(null);
 
-                    if (s != null)
-                        tv.get().setText(s);
-                } else if (tv.get().getTag() != null) {
+                        if (s != null)
+                            tv.get().setText(s);
+                    } else if (tv.get().getTag() != null) {
 
-                    ((getSpanned) tv.get().getTag()).cancel(true);
+                        ((getSpanned) tv.get().getTag()).cancel(true);
+                        tv.get().setTag(null);
+                    }
+                } catch (NullPointerException e){
                     tv.get().setTag(null);
+                    e.printStackTrace();
                 }
             }
         }
@@ -258,7 +267,7 @@ public class AdapterWatch extends BaseAdapter {
 
             if (s == null) {
 
-                final getSpanned task = (getSpanned) new getSpanned(tv);
+                final getSpanned task = (getSpanned) new getSpanned(tv, context);
 
                 tv.setTag(task);
 

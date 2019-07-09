@@ -13,16 +13,19 @@
 
     <ImageView
         android:id="@+id/lable"
-        android:layout_width="150dp"
-        android:layout_height="150dp"
+        android:minWidth="140dp"
+        android:minHeight="140dp"
+        android:layout_width="145dp"
+        android:layout_height="145dp"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="20dp"
          />
     <TextView
         android:id="@+id/resh_kart"
         android:layout_width="match_parent"
+        android:minHeight="24dp"
         android:layout_height="26dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="10dp"
         android:gravity="center"
         android:textSize="22sp"
         android:textColor="@color/black"
@@ -39,7 +42,7 @@
         <TextView
             android:id="@+id/login_info"
             android:layout_width="match_parent"
-            android:layout_height="40dp"
+            android:layout_height="35dp"
             android:gravity="bottom|center_horizontal"
             android:text="Для сохранения ваших результатов войдите или зарегистрируйтесь" />
 
@@ -86,7 +89,8 @@
         <com.github.rubensousa.raiflatbutton.RaiflatButton
             android:id="@+id/sign_in"
             android:layout_width="match_parent"
-            android:layout_height="40dp"
+            android:layout_height="35dp"
+            android:minHeight="35dp"
             android:layout_marginStart="40dp"
             android:layout_marginEnd="40dp"
             android:background="@drawable/button_back"
@@ -97,6 +101,7 @@
             style="@style/Widget.AppCompat.Button.Borderless"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:minHeight="35dp"
             android:layout_marginStart="40dp"
             android:layout_marginEnd="40dp"
             android:text="Зарегистрироваться" />
@@ -105,9 +110,10 @@
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/not_now"
             android:layout_width="match_parent"
-            android:layout_height="40dp"
+            android:layout_height="35dp"
+            android:minHeight="35dp"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="50dp"
+            android:layout_marginTop="35dp"
             android:background="@color/colorPrimary"
             android:text=" Напомнить позже "
             android:textColorHighlight="@color/colorAccent"

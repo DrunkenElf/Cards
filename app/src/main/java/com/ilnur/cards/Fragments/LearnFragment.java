@@ -29,6 +29,8 @@ import org.jsoup.Jsoup;
 import java.util.ArrayList;
 
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
@@ -56,6 +58,60 @@ public class LearnFragment extends Fragment {
     int wrongs = 0;
     ArrayList<Card> list;
     String c;
+    private StringBuilder wrong = new StringBuilder();
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if (savedInstanceState != null){
+            //restore it
+            subj = savedInstanceState.getString("subj");
+            title = savedInstanceState.getString("title");
+            id = savedInstanceState.getInt("id");
+            i = savedInstanceState.getInt("i");
+            parent = savedInstanceState.getBoolean("parent");
+            revers = savedInstanceState.getBoolean("revers");
+            list = savedInstanceState.getParcelableArrayList("learn");
+            wrong = new StringBuilder();
+            wrong.append("<table>").append(savedInstanceState.getString("sb"));
+        }
+    }
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        if (savedInstanceState != null){
+            //restore it
+            subj = savedInstanceState.getString("subj");
+            title = savedInstanceState.getString("title");
+            id = savedInstanceState.getInt("id");
+            i = savedInstanceState.getInt("i");
+            right = savedInstanceState.getInt("right");
+            wrongs = savedInstanceState.getInt("wrongs");
+            parent = savedInstanceState.getBoolean("parent");
+            revers = savedInstanceState.getBoolean("revers");
+            list = savedInstanceState.getParcelableArrayList("learn");
+            wrong = new StringBuilder();
+            wrong.append("<table>").append(savedInstanceState.getString("sb"));
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        //save fragment state
+        outState.putCharSequence("subj", subj);
+        outState.putCharSequence("title", title);
+        outState.putInt("id", id);
+        outState.putInt("i", i);
+        outState.putInt("right", right);
+        outState.putInt("wrongs", wrongs);
+        outState.putBoolean("parent", parent);
+        outState.putBoolean("revers", revers);
+        outState.putParcelableArrayList("learn", list);
+        outState.putCharSequence("sb", wrong.toString());
+    }
+
     public void setLearnFragment(String subj, String title, int id, boolean revers, boolean parent){
         this.subj = subj;
         this.title = title;
@@ -69,6 +125,20 @@ public class LearnFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View rootview = inflater.inflate(R.layout.learn_lay, container, false);
         //getActivity().setTitle(title);
+        if (savedInstanceState != null){
+            //restore it
+            subj = savedInstanceState.getString("subj");
+            title = savedInstanceState.getString("title");
+            id = savedInstanceState.getInt("id");
+            i = savedInstanceState.getInt("i");
+            parent = savedInstanceState.getBoolean("parent");
+            revers = savedInstanceState.getBoolean("revers");
+            list = savedInstanceState.getParcelableArrayList("learn");
+            right = savedInstanceState.getInt("right");
+            wrongs = savedInstanceState.getInt("wrongs");
+            wrong = new StringBuilder();
+            wrong.append("<table>").append(savedInstanceState.getString("sb"));
+        }
         Toolbar bar = Toolbar.class.cast(getActivity().findViewById(R.id.toolbar));
         CollapsingToolbarLayout col = CollapsingToolbarLayout.class.cast(getActivity().findViewById(R.id.collapsing_toolbar));
         col.setTitle(title);
@@ -83,15 +153,15 @@ public class LearnFragment extends Fragment {
         rever.setVisibility(View.GONE);
         AppBarLayout apbar = AppBarLayout.class.cast(getActivity().findViewById(R.id.apbar));
         apbar.setExpanded(false);
-        StringBuilder wrong = new StringBuilder();
-        wrong.append("<table>");
+        //StringBuilder wrong = new StringBuilder();
+        //wrong.append("<table>");
 
-
-        if (parent)
-            list = MyDB.getParentCards(subj, id);
-        else
-            list = MyDB.getChildCards(subj, title, id);
-
+        if (savedInstanceState == null || !savedInstanceState.containsKey("learn")) {
+            if (parent)
+                list = MyDB.getParentCards(subj, id);
+            else
+                list = MyDB.getChildCards(subj, title, id);
+        }
         /*for (Card c: list){
 
         }*/

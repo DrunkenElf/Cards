@@ -1,12 +1,15 @@
 package com.ilnur.cards.Json;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.SerializedName;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class Card {
+public class Card implements Parcelable {
     @SerializedName("id")
     private int id;
     @SerializedName("avers")
@@ -21,6 +24,22 @@ public class Card {
     private String result_stamp;
 
     public Card(){}
+
+    private Card(Parcel in){
+        id = in.readInt();
+        avers = in.readString();
+        revers = in.readString();
+        result_stamp = in.readString();
+        category_id = in.readInt();
+        result = in.readInt();
+        //dest.writeInt(id);
+        //        dest.writeString(avers);
+        //        dest.writeString(revers);
+        //        dest.writeString(result_stamp);
+        //        dest.writeInt(category_id);
+        //        dest.writeInt(result);
+    }
+
     public Card(int id,String avers,String revers, int category_id, int result, String result_stamp){
         this.id = id;
         this.avers = avers;
@@ -91,4 +110,30 @@ public class Card {
     public String getRevers() {
         return revers;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        //int id,String avers,String revers, int category_id, int result, String result_stamp
+        dest.writeInt(id);
+        dest.writeString(avers);
+        dest.writeString(revers);
+        dest.writeString(result_stamp);
+        dest.writeInt(category_id);
+        dest.writeInt(result);
+    }
+
+    public static final Parcelable.Creator<Card> CREATOR = new Parcelable.Creator<Card>() {
+        public Card createFromParcel(Parcel in) {
+            return new Card(in);
+        }
+
+        public Card[] newArray(int size) {
+            return new Card[size];
+        }
+    };
 }
