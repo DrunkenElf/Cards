@@ -29,8 +29,7 @@ public class WatchFragment extends Fragment {
     private String title;
     private int id;
     private boolean parent;
-    private AdapterWatch adapter;
-    ArrayList<Card> list;
+    private ArrayList<Card> list;
 
 
     public void setWatchFragment(String subj, String title, int id, boolean parent) {
@@ -115,7 +114,7 @@ public class WatchFragment extends Fragment {
 
         ListView lw = rootview.findViewById(R.id.watch_list);
         //AdapterWatchList adapter = new AdapterWatchList(rootview.getContext(), list, subj);
-        adapter = new AdapterWatch(rootview.getContext(), subj, list);
+        AdapterWatch adapter = new AdapterWatch(rootview.getContext(), subj, list);
         lw.setAdapter(adapter);
         Log.i("count  ",String.valueOf(getFragmentManager().getBackStackEntryCount()));
         return rootview;

@@ -38,7 +38,6 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.login_activity);
         AppCompatButton close = findViewById(R.id.not_now);
         ImageView close_kr = findViewById(R.id.close_krest);
@@ -111,29 +110,16 @@ public class LoginActivity extends AppCompatActivity {
                 logg.setError("Вы не ввели логин");
                 pass.setError("Вы не ввели пароль");
                 login.requestFocus();
-                //inputLayout.setError(null);
-                //inputLayout1.setError(null);
-                //login.setError(ssbuilder);
-                //password.setError("");
-
-                //Toast.makeText(getApplicationContext(), "Пожалуйста, заполните необходимые поля", Toast.LENGTH_SHORT).show();
             } else if (user.getLogin().equals("") || user.getLogin() == null) {
                 String er = "Вы не ввели логин";
                 pass.setError(null);
                 logg.setError(er);
                 login.requestFocus();
-                //inputLayout.setError(null);
-                //login.setError(ssbuilder);
-                //Toast.makeText(getApplicationContext(), "Вы не ввели логин", Toast.LENGTH_SHORT).show();
             } else if (user.getPassword().equals("") || user.getPassword() == null) {
                 String er = "Вы не ввели пароль";
                 logg.setError(null);
                 pass.setError(er);
                 password.requestFocus();
-                //inputLayout.setError(null);
-                //password.setError(ssbuilder);
-
-                //Toast.makeText(getApplicationContext(), "Вы не ввели пароль", Toast.LENGTH_SHORT).show();
             } else if (checkValid(true)) {
                 MainActivity.logged = true;
                 try {
@@ -146,10 +132,7 @@ public class LoginActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "Авторизация прошла успешно", Toast.LENGTH_SHORT).show();
                 Runnable sync = MyDB::syncSubj;
                 new Thread(sync).start();
-                //Log.i("Threads", String.valueOf(Thread.));
-                //Log.i("Threads", String.valueOf(Thread.activeCount()));
                 this.finish();
-                //getSupportFragmentManager()
             }
 
         });

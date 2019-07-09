@@ -37,7 +37,6 @@ public class SubjFragment extends Fragment {
         if (savedInstanceState!=null){
             subjects = savedInstanceState.getStringArray("subj");
         }
-        Toolbar bar = Toolbar.class.cast(getActivity().findViewById(R.id.toolbar));
         CollapsingToolbarLayout col = CollapsingToolbarLayout.class.cast(getActivity().findViewById(R.id.collapsing_toolbar));
         col.setTitle("Решу ЕГЭ. Карточки");
         //col.set
@@ -70,15 +69,12 @@ public class SubjFragment extends Fragment {
                     //MainActivity.exit = false;
                     ButListFragment blf = new ButListFragment();
 
-                    int layout;
                     boolean checkRever = MyDB.checkRevers(subjects[position], mas[0]);
-                    if (checkRever) layout = R.layout.list_item_rever_lay;
-                    else layout = R.layout.list_item_lay;
 
                     int id_tittle = MyDB.getParentId(subjects[position], mas[0]);
 
-                    blf.setButListFragment(subjects[position], subjects[position], mas[0], MyDB.getSubCatNames(
-                            subjects[position], mas[0]), layout, checkRever, id_tittle, rootview.getContext());
+                    blf.setButListFragment(subjects[position], mas[0], MyDB.getSubCatNames(
+                            subjects[position], mas[0]), checkRever, id_tittle);
 
                     //Log.i("POs", mas[position]);
                     getFragmentManager().beginTransaction()

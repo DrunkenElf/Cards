@@ -42,22 +42,11 @@ public class LearnFragment extends Fragment {
     private static int i = 0;
     private boolean revers;
     private boolean parent;
-    private String strBody = "<html>"
-            + "<head>"
-            + "     <style type=\"text/css\">"
-            + "         .center {"
-            + "             padding: 70px 0;"
-            + "             text-align: center;"
-            + "         }"
-            + "     </style>"
-            + ""
-            + "</head>"
-            + "<body> <div class=\"center\"> <p>";
     private Card curr_card;
-    int right = 0;
-    int wrongs = 0;
-    ArrayList<Card> list;
-    String c;
+    private int right = 0;
+    private int wrongs = 0;
+    private ArrayList<Card> list;
+    private String c;
     private StringBuilder wrong = new StringBuilder();
 
     @Override
@@ -139,7 +128,7 @@ public class LearnFragment extends Fragment {
             wrong = new StringBuilder();
             wrong.append("<table>").append(savedInstanceState.getString("sb"));
         }
-        Toolbar bar = Toolbar.class.cast(getActivity().findViewById(R.id.toolbar));
+        //Toolbar bar = Toolbar.class.cast(getActivity().findViewById(R.id.toolbar));
         CollapsingToolbarLayout col = CollapsingToolbarLayout.class.cast(getActivity().findViewById(R.id.collapsing_toolbar));
         col.setTitle(title);
         col.setExpandedTitleMarginBottom((int) getContext().getResources().getDimension(R.dimen.margin_title_col));
@@ -178,7 +167,7 @@ public class LearnFragment extends Fragment {
         Button know = rootview.findViewById(R.id.know);
         Button learned = rootview.findViewById(R.id.learned);
 
-        c = "/"+String.valueOf(list.size());
+        c = "/"+list.size();
 
 
 
@@ -190,7 +179,7 @@ public class LearnFragment extends Fragment {
             count.setText("0"+c);
             web.loadDataWithBaseURL(null, append("Похоже, что на сегодня вы все повторили или выучили"),"text/html", "utf-8", "about:blank");
         } else {
-            count.setText(String.valueOf(i + 1) + c);
+            count.setText(i + 1 + c);
             //int i = 0;
 
             curr_card = list.get(i);
@@ -236,14 +225,6 @@ public class LearnFragment extends Fragment {
             count.setText(String.valueOf(i + 1) + c);
             again.setVisibility(View.GONE);
             check.setVisibility(View.VISIBLE);
-            /*LearnFragment lf = new LearnFragment();
-            lf.setLearnFragment(subj, title, id, revers, parent);
-            getFragmentManager().beginTransaction()
-                    .remove(LearnFragment.this)
-                    .replace(R.id.parent, lf)
-                    .addToBackStack(null)
-                    .commit();*/
-
         });
 
         dontknow.setOnClickListener(v -> {
@@ -272,18 +253,8 @@ public class LearnFragment extends Fragment {
                     new AlertDialog.Builder(rootview.getContext())
                             .setTitle("Хотите войти или зарегистрироваться?")
                             .setMessage("Для сохранения статистики на сервере необходимо авторизироваться или зарегистрироваться")
-                            .setPositiveButton("Да", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    startActivity(new Intent(getActivity(), LoginActivity.class));
-                                }
-                            })
-                            .setNegativeButton("Позже", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    MainActivity.show = false;
-                                }
-                            })
+                            .setPositiveButton("Да", (dialog, which) -> startActivity(new Intent(getActivity(), LoginActivity.class)))
+                            .setNegativeButton("Позже", (dialog, which) -> MainActivity.show = false)
                             .show();
                 }
             } else {
@@ -330,7 +301,7 @@ public class LearnFragment extends Fragment {
                     web.loadDataWithBaseURL(null, curr_card.getAvers(), "text/html",
                             "utf-8", "about:blank");
                 }
-                count.setText(String.valueOf(i+1)+c);
+                count.setText((i + 1) +c);
             }
         });
 
@@ -352,18 +323,8 @@ public class LearnFragment extends Fragment {
                     new AlertDialog.Builder(rootview.getContext())
                             .setTitle("Хотите войти или зарегистрироваться?")
                             .setMessage("Для сохранения статистики на сервере необходимо авторизироваться или зарегистрироваться")
-                            .setPositiveButton("Да", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    startActivity(new Intent(getActivity(), LoginActivity.class));
-                                }
-                            })
-                            .setNegativeButton("Позже", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    MainActivity.show = false;
-                                }
-                            })
+                            .setPositiveButton("Да", (dialog, which) -> startActivity(new Intent(getActivity(), LoginActivity.class)))
+                            .setNegativeButton("Позже", (dialog, which) -> MainActivity.show = false)
                             .show();
                 }
 
@@ -376,7 +337,7 @@ public class LearnFragment extends Fragment {
                     web.loadDataWithBaseURL(null, curr_card.getAvers(), "text/html",
                             "utf-8", "about:blank");
                 }
-                count.setText(String.valueOf(i+1)+c);
+                count.setText((i + 1) +c);
             }
         });
 
@@ -384,7 +345,18 @@ public class LearnFragment extends Fragment {
         return rootview;
     }
     private String append(String s){
-        return strBody+s+"</p> </div> </body></html>";
+        String strBody = "<html>"
+                + "<head>"
+                + "     <style type=\"text/css\">"
+                + "         .center {"
+                + "             padding: 70px 0;"
+                + "             text-align: center;"
+                + "         }"
+                + "     </style>"
+                + ""
+                + "</head>"
+                + "<body> <div class=\"center\"> <p>";
+        return strBody +s+"</p> </div> </body></html>";
     }
     private String showWrong(String table){
         table = table+"</table>";

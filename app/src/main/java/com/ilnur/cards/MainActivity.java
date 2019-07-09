@@ -66,12 +66,6 @@ public class MainActivity extends AppCompatActivity
     protected void onStart() {
         Log.i("Start", "Created");
         super.onStart();
-       /* try {
-            super.onStart();
-        } catch (NullPointerException e){
-            e.printStackTrace();
-            onRestart();
-        }*/
     }
 
 
@@ -106,7 +100,6 @@ public class MainActivity extends AppCompatActivity
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         Log.i("SaveInstanceMain", "Created");
         super.onSaveInstanceState(outState);
-        //context = getSupportFragmentManager().getFragment(outState, )
     }
 
     @Override
@@ -118,9 +111,6 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.i("MainActivity", "Created");
-
-        //requestWindowFeature(Window.FEATURE_NO_TITLE);
-        //getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
 
         if (savedInstanceState != null) {
@@ -147,9 +137,6 @@ public class MainActivity extends AppCompatActivity
             navigationView.setNavigationItemSelectedListener(this);
             changeNavHead(logged);
 
-            //Param main = new Param(getApplicationContext(), false, navigationView);
-
-            //new AddingDB().execute(main);
             // init db
             MyDB db = new MyDB(this);
             MyDB.init(db, false);
@@ -231,18 +218,6 @@ public class MainActivity extends AppCompatActivity
                     .addToBackStack("subj")
                     .commit();
             //show login activity if you're not logged
-        /*if (!logged)
-            startActivity(new Intent(this, LoginActivity.class));
-        //change na header
-        changeNavHead(navigationView, logged);
-        //new addSubjs().execute();
-        //show list of subjects
-        SubjFragment subjFragment = new SubjFragment();
-        subjFragment.setRetainInstance(true);
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.parent, subjFragment)
-                .addToBackStack(null)
-                .commit();*/
         }
 
     }

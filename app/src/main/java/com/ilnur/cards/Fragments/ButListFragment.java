@@ -37,23 +37,18 @@ import tellh.com.recyclertreeview_lib.TreeViewAdapter;
 
 public class ButListFragment extends Fragment {
     private String subj;
-    private String parent;
     private String title;
-    private int layout;
     private boolean checkRever;
     private ArrayList<Category> list;
     private int id;
-    //private Context context;
-    List<TreeNode> nodes = new ArrayList<>();
+    private List<TreeNode> nodes = new ArrayList<>();
 
 
-    public void setButListFragment(String subj, String parent, String title, ArrayList<Category> list,
-                                   int layout, boolean checkRever, int id, Context context){
+    public void setButListFragment(String subj, String title, ArrayList<Category> list,
+                                   boolean checkRever, int id){
         this.subj = subj;
-        this.parent = parent;
         this.title = title;
         this.list = list;
-        this.layout = layout;
         this.checkRever = checkRever;
         this.id = id;
     }
@@ -62,9 +57,8 @@ public class ButListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View rootview = inflater.inflate(R.layout.butlist_fragment, container, false);
-        //getActivity().setTitle(title);
-        /*TextView tv = rootview.findViewById(R.id.text_title);
-        tv.setText(title);*/
+
+        //restore saved instance
         if (savedInstanceState != null){
             subj = savedInstanceState.getString("subj");
             title = savedInstanceState.getString("title");
@@ -122,24 +116,20 @@ public class ButListFragment extends Fragment {
                     .commit();
         });
 
-        //GridView lv = rootview.findViewById(R.id.list_but);
-        //lv.setLayoutManager(new LinearLayoutManager(rootview.getContext()));
-        //Arrays.sort(list.toArray());
-        //AdapterButList adapter = new AdapterButList(rootview.getContext(), list, layout, subj);
         RecyclerView rv = rootview.findViewById(R.id.list_but);
         rv.setLayoutManager(new LinearLayoutManager(rootview.getContext()));
+        //create treeview if node is empty
         if (nodes.isEmpty())
             init(rootview.getContext());
 
-
+        //if there are no subcategories
         if (nodes.isEmpty()){
             TextView nothing = rootview.findViewById(R.id.nothing);
             nothing.setVisibility(View.VISIBLE);
         }
-
+        //creating adapter and its listener
         TreeViewAdapter adapter = new TreeViewAdapter(nodes, Arrays.asList(new Cat_head_binder(),
                 new Cat_butt_binder(), new Cat_butt_rev_binder()));
-
         adapter.setOnTreeNodeListener(new TreeViewAdapter.OnTreeNodeListener() {
             @Override
             public boolean onClick(TreeNode node, RecyclerView.ViewHolder holder) {
@@ -153,19 +143,19 @@ public class ButListFragment extends Fragment {
                 }
                 return false;
             }
-
             @Override
             public void onToggle(boolean b, RecyclerView.ViewHolder viewHolder) {
 
             }
         });
-        //lv.setAdapter(adapter);
-
         rv.setAdapter(adapter);
+
+
         Log.i("count  ",String.valueOf(getFragmentManager().getBackStackEntryCount()));
         return rootview;
     }
 
+    //init treeview
     public void init(Context context){
         for (Category cat: list){
             TreeNode<Cat_head> head = new TreeNode<>(new Cat_head(cat.getTitle()));
@@ -188,6 +178,8 @@ public class ButListFragment extends Fragment {
         apbar.setExpanded(false);
     }
 
+
+    //save state
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -196,7 +188,7 @@ public class ButListFragment extends Fragment {
         outState.putInt("id", id);
         outState.putParcelableArrayList("key", list);
     }
-
+    //also save state
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -207,6 +199,8 @@ public class ButListFragment extends Fragment {
         }
     }
 
+
+    //restoring saved state
     @Override
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);

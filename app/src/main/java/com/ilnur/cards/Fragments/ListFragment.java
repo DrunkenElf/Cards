@@ -73,30 +73,24 @@ public class ListFragment extends Fragment {
 
         grid.setAdapter(adapter);
 
-        grid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                MainActivity.exit = false;
-                ButListFragment blf = new ButListFragment();
+        grid.setOnItemClickListener((parent, view, position, id) -> {
+            MainActivity.exit = false;
+            ButListFragment blf = new ButListFragment();
 
-                int layout;
-                boolean checkRever = MyDB.checkRevers(title, mas[position]);
-                if (checkRever) layout = R.layout.list_item_rever_lay;
-                else layout = R.layout.list_item_lay;
+            boolean checkRever = MyDB.checkRevers(title, mas[position]);
 
-                int id_tittle = MyDB.getParentId(title, mas[position]);
+            int id_tittle = MyDB.getParentId(title, mas[position]);
 
-                blf.setButListFragment(title, title, mas[position], MyDB.getSubCatNames(
-                        title, mas[position]), layout, checkRever, id_tittle, rootview.getContext());
+            blf.setButListFragment(title, mas[position], MyDB.getSubCatNames(
+                    title, mas[position]), checkRever, id_tittle);
 
-                //Log.i("POs", mas[position]);
-                getFragmentManager().beginTransaction()
-                        .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.from_left, R.anim.to_right)
-                        .replace(R.id.parent, blf)
-                        .addToBackStack("btl")
-                        .commit();
+            //Log.i("POs", mas[position]);
+            getFragmentManager().beginTransaction()
+                    .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.from_left, R.anim.to_right)
+                    .replace(R.id.parent, blf)
+                    .addToBackStack("btl")
+                    .commit();
 
-            }
         });
         Log.i("count  ",String.valueOf(getFragmentManager().getBackStackEntryCount()));
         return rootview;
