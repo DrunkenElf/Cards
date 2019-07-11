@@ -2,6 +2,7 @@ package com.ilnur.cards.Fragments;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.CursorIndexOutOfBoundsException;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -48,6 +49,7 @@ public class LearnFragment extends Fragment {
     private ArrayList<Card> list;
     private String c;
     private StringBuilder wrong = new StringBuilder();
+    String strBody = "";
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -113,7 +115,9 @@ public class LearnFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View rootview = inflater.inflate(R.layout.learn_lay, container, false);
+
         //getActivity().setTitle(title);
+
         if (savedInstanceState != null){
             //restore it
             subj = savedInstanceState.getString("subj");
@@ -127,6 +131,20 @@ public class LearnFragment extends Fragment {
             wrongs = savedInstanceState.getInt("wrongs");
             wrong = new StringBuilder();
             wrong.append("<table>").append(savedInstanceState.getString("sb"));
+        }
+        try {
+            if (!MyDB.getStyle(null).equals("") && MyDB.getStyle(null) != null)
+                strBody = "<html><head><style>" + MyDB.getStyle(null);
+        } catch (CursorIndexOutOfBoundsException e){
+            e.printStackTrace();
+            strBody = "<html><head><style>";
+        }
+        try {
+            if (!MyDB.getStyle(subj).equals("") && MyDB.getStyle(subj) != null)
+                strBody = strBody + MyDB.getStyle(subj) + "</style></head><body>";
+        } catch (CursorIndexOutOfBoundsException e){
+            e.printStackTrace();
+            strBody = strBody + "</style></head><body>";
         }
         //Toolbar bar = Toolbar.class.cast(getActivity().findViewById(R.id.toolbar));
         CollapsingToolbarLayout col = CollapsingToolbarLayout.class.cast(getActivity().findViewById(R.id.collapsing_toolbar));
@@ -184,10 +202,10 @@ public class LearnFragment extends Fragment {
 
             curr_card = list.get(i);
             if (revers) {
-                web.loadDataWithBaseURL(null, curr_card.getRevers(), "text/html",
+                web.loadDataWithBaseURL(null, append(curr_card.getRevers()), "text/html",
                         "utf-8", "about:blank");
             } else
-                web.loadDataWithBaseURL(null, curr_card.getAvers(), "text/html",
+                web.loadDataWithBaseURL(null, append(curr_card.getAvers()), "text/html",
                         "utf-8", "about:blank");
 
         }
@@ -198,10 +216,10 @@ public class LearnFragment extends Fragment {
             know.setVisibility(View.VISIBLE);
             learned.setVisibility(View.VISIBLE);
             if (revers) {
-                web.loadDataWithBaseURL(null, curr_card.getAvers(), "text/html",
+                web.loadDataWithBaseURL(null, append(curr_card.getAvers()), "text/html",
                         "utf-8", "about:blank");
             } else {
-                web.loadDataWithBaseURL(null, checkCard(curr_card).getRevers(), "text/html",
+                web.loadDataWithBaseURL(null, append(checkCard(curr_card).getRevers()), "text/html",
                         "utf-8", "about:blank");
             }
             i = i +1;
@@ -216,10 +234,10 @@ public class LearnFragment extends Fragment {
                 list = MyDB.getChildCards(subj, title, id);
             curr_card = list.get(i);
             if (revers) {
-                web.loadDataWithBaseURL(null, curr_card.getRevers(), "text/html",
+                web.loadDataWithBaseURL(null, append(curr_card.getRevers()), "text/html",
                         "utf-8", "about:blank");
             } else
-                web.loadDataWithBaseURL(null, curr_card.getAvers(), "text/html",
+                web.loadDataWithBaseURL(null, append(curr_card.getAvers()), "text/html",
                         "utf-8", "about:blank");
             c = "/"+list.size();
             count.setText(String.valueOf(i + 1) + c);
@@ -260,10 +278,10 @@ public class LearnFragment extends Fragment {
             } else {
                 curr_card = list.get(i);
                 if (revers) {
-                    web.loadDataWithBaseURL(null, curr_card.getRevers(), "text/html",
+                    web.loadDataWithBaseURL(null, append(curr_card.getRevers()), "text/html",
                             "utf-8", "about:blank");
                 } else {
-                    web.loadDataWithBaseURL(null, curr_card.getAvers(), "text/html",
+                    web.loadDataWithBaseURL(null, append(curr_card.getAvers()), "text/html",
                             "utf-8", "about:blank");
                 }
                 count.setText((i + 1) +c);
@@ -295,10 +313,10 @@ public class LearnFragment extends Fragment {
             } else {
                 curr_card = list.get(i);
                 if (revers) {
-                    web.loadDataWithBaseURL(null, curr_card.getRevers(), "text/html",
+                    web.loadDataWithBaseURL(null, append(curr_card.getRevers()), "text/html",
                             "utf-8", "about:blank");
                 } else {
-                    web.loadDataWithBaseURL(null, curr_card.getAvers(), "text/html",
+                    web.loadDataWithBaseURL(null, append(curr_card.getAvers()), "text/html",
                             "utf-8", "about:blank");
                 }
                 count.setText((i + 1) +c);
@@ -331,10 +349,10 @@ public class LearnFragment extends Fragment {
             } else {
                 curr_card = list.get(i);
                 if (revers) {
-                    web.loadDataWithBaseURL(null, curr_card.getRevers(), "text/html",
+                    web.loadDataWithBaseURL(null, append(curr_card.getRevers()), "text/html",
                             "utf-8", "about:blank");
                 } else {
-                    web.loadDataWithBaseURL(null, curr_card.getAvers(), "text/html",
+                    web.loadDataWithBaseURL(null, append(curr_card.getAvers()), "text/html",
                             "utf-8", "about:blank");
                 }
                 count.setText((i + 1) +c);
@@ -345,18 +363,7 @@ public class LearnFragment extends Fragment {
         return rootview;
     }
     private String append(String s){
-        String strBody = "<html>"
-                + "<head>"
-                + "     <style type=\"text/css\">"
-                + "         .center {"
-                + "             padding: 70px 0;"
-                + "             text-align: center;"
-                + "         }"
-                + "     </style>"
-                + ""
-                + "</head>"
-                + "<body> <div class=\"center\"> <p>";
-        return strBody +s+"</p> </div> </body></html>";
+       return strBody+s+"</body></html>";
     }
     private String showWrong(String table){
         table = table+"</table>";

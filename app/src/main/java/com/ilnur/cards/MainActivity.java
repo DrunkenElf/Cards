@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
         Log.i("Ressume", "Created");
-        //changeNavHead(navigationView, logged);
+        changeNavHead(logged);
         Log.i("count  ", String.valueOf(getSupportFragmentManager().getBackStackEntryCount()));
     }
 
@@ -242,7 +242,7 @@ public class MainActivity extends AppCompatActivity
            /* navigationView.removeHeaderView(navigationView.getHeaderView(0));
             if (navigationView.getHeaderCount()>0)
                 navigationView.removeHeaderView(navigationView.getHeaderView(0));*/
-            //navigationView.removeHeaderView(navigationView.getHeaderView(0));
+            navigationView.removeHeaderView(navigationView.getHeaderView(0));
             //navigationView;
             View navheader = navigationView.inflateHeaderView(R.layout.nav_header_sucsess);
             navigationView.removeHeaderView(navigationView.getHeaderView(0));
@@ -268,7 +268,7 @@ public class MainActivity extends AppCompatActivity
             /*navigationView.removeHeaderView(navigationView.getHeaderView(0));
             if (navigationView.getHeaderCount()>0)
                 navigationView.removeHeaderView(navigationView.getHeaderView(0));*/
-            //navigationView.removeHeaderView(navigationView.getHeaderView(0));
+            navigationView.removeHeaderView(navigationView.getHeaderView(0));
             View navheader = navigationView.inflateHeaderView(R.layout.nav_header_login);
             navigationView.removeHeaderView(navigationView.getHeaderView(0));
             navigationView.addHeaderView(navheader);

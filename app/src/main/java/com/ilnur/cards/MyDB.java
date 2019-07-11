@@ -53,6 +53,9 @@ public class MyDB extends SQLiteOpenHelper {
             new pair("phys", "Физика"), new pair("math", "Математика"),
             new pair("en", "Английский_язык"), new pair("hist", "История")};
 
+    public static String[] style_names = {"en", "hist", "math", "phys", "rus"};
+    public static String[] style_orig = {"Английский язык", "История", "Математика", "Физика", "Русский язык"};
+
 
     public MyDB(Context context) {
         super(context, dbname, null, version);
@@ -478,11 +481,17 @@ public class MyDB extends SQLiteOpenHelper {
         }
         Card t;
         ArrayList<Card> finished = new ArrayList<>();
-        for (int i = 19; i >= 0; i--) {
-            t = list.get(i);
-            String temp = t.getAvers();
-            //String
-            finished.add(list.get(i));
+
+        for (int i = 1; i <= 20; i++) {
+            if (i == list.size()) {
+                break;
+            }
+            else {
+                t = list.get(i);
+                String temp = t.getAvers();
+                //String
+                finished.add(list.get(i));
+            }
         }
 
         return finished;
@@ -508,7 +517,7 @@ public class MyDB extends SQLiteOpenHelper {
             tmp.setRevers(cursor.getString(2));
             tmp.setResult(cursor.getInt(3));
             tmp.setResult_stamp(cursor.getString(4));
-            Log.i("date ", "" +curTime+" "+tmp.getDate());
+            Log.i("date ", "" + curTime + " " + tmp.getDate());
             switch (tmp.getResult()) {
                 case 0:
                     list.add(tmp);
@@ -614,6 +623,37 @@ public class MyDB extends SQLiteOpenHelper {
         return InsertionSort(list);
     }
 
+    public static void updateStyle(String name, String style) {
+        SQLiteDatabase sqdb = instance.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("name", name);
+        values.put("data", style);
+        int id = sqdb.update("style", values, "name = ?", new String[]{name});
+        if (id == 0)
+            sqdb.insertWithOnConflict("style", null, values, SQLiteDatabase.CONFLICT_IGNORE);
+        values.clear();
+        values = null;
+    }
+
+    public static String getStyle(String name) {
+        SQLiteDatabase sqdb = instance.getReadableDatabase();
+        if (name == null) {
+            name = "1";
+        } else {
+            for (int i = 0; i < style_orig.length; i++) {
+                if (style_orig[i].equals(name)) {
+                    name = style_names[i];
+                }
+            }
+        }
+        Cursor cursor = sqdb.rawQuery("SELECT data FROM style WHERE name = ?", new String[]{name});
+        cursor.moveToFirst();
+        String i = cursor.getString(0);
+        //Log.i("STRYLE",i);
+        cursor.close();
+        return i;
+    }
+
     private static String getLink(String subj) {
         String ret = null;
         for (pair p : pairs) {
@@ -665,6 +705,35 @@ public class MyDB extends SQLiteOpenHelper {
 
     //when you logged in & push sync button || after adding
     public static void syncSubj() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    String link = "https://ege.sdamgia.ru/mobile_cards/";
+                    String style = Jsoup.connect("https://ege.sdamgia.ru/mobile_cards/style.css?v="+String.valueOf(new Random().nextInt(9999999)))
+                            .ignoreContentType(true).get().select("body").text();
+
+                    try {
+                        if (!getStyle(null).equals(style))
+                            updateStyle("1", style);
+
+                    } catch (IndexOutOfBoundsException e) {
+                        updateStyle("1", style);
+                    }
+
+                    for (String s: style_names){
+                        style = Jsoup.connect(link+"style_"+s+".css?v="+String.valueOf(new Random().nextInt(9999999))).ignoreContentType(true)
+                                .get().select("body").text();
+                        if (!style.equals(""))
+                            updateStyle(s, style);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (NullPointerException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
         MainActivity.syncsub = true;
         for (pair p : pairs) {
             new Thread(new Runnable() {
@@ -712,8 +781,7 @@ public class MyDB extends SQLiteOpenHelper {
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
-                            }
-                            else {
+                            } else {
                                 try {
                                     resp = Jsoup.connect(cards + temp.getId()).ignoreContentType(true)
                                             .maxBodySize(0).timeout(2000000).method(Connection.Method.GET).execute();
@@ -755,6 +823,40 @@ public class MyDB extends SQLiteOpenHelper {
 
 
     public static void add() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    //String q = new Random(9999).toString();
+                    String link = "https://ege.sdamgia.ru/mobile_cards/";
+                    //Log.i("rand", new Random(9999999).toString());
+                    String style = Jsoup.connect("https://ege.sdamgia.ru/mobile_cards/style.css?v="+String.valueOf(new Random().nextInt(9999999)))
+                            .ignoreContentType(true).get().select("body").text();
+                    Log.i("STYLE","-- "+ style);
+                    try {
+                        //Log.i("STYLE", style);
+                        if (!getStyle(null).equals(style))
+                            updateStyle("1", style);
+
+                    } catch (IndexOutOfBoundsException e) {
+                        updateStyle("1", style);
+                    }
+
+                    for (String s: style_names){
+                        style = Jsoup.connect(link+"style_"+s+".css?v="+String.valueOf(new Random().nextInt(9999999))).ignoreContentType(true)
+                                .get().select("body").text();
+                        if (!style.equals(""))
+                            updateStyle(s, style);
+                        Log.i(s, "-- "+ style);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (NullPointerException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+
         MainActivity.addsub = true;
         for (pair p : pairs) {
             new Thread(new Runnable() {
@@ -809,8 +911,7 @@ public class MyDB extends SQLiteOpenHelper {
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
-                            }
-                            else {
+                            } else {
                                 try {
                                     resp = Jsoup.connect(cards + temp.getId()).ignoreContentType(true)
                                             .maxBodySize(0).timeout(2000000).method(Connection.Method.GET).execute();
@@ -851,7 +952,8 @@ public class MyDB extends SQLiteOpenHelper {
 
         }
     }
-    public static boolean isSubjAdded(String parent){
+
+    public static boolean isSubjAdded(String parent) {
         SQLiteDatabase sqdb = instance.getReadableDatabase();
         if (parent.contains(" "))
             parent = parent.replace(" ", "_");
@@ -859,7 +961,7 @@ public class MyDB extends SQLiteOpenHelper {
         cursor.moveToFirst();
         int id = cursor.getInt(0);
         cursor.close();
-        if (id==1)
+        if (id == 1)
             return true;
         else
             return false;
