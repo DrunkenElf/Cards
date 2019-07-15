@@ -93,7 +93,6 @@ public class WatchFragment extends Fragment {
             list = savedInstanceState.getParcelableArrayList("watch");
         }
         TextView info = rootview.findViewById(R.id.show_info);
-        Toolbar bar = Toolbar.class.cast(getActivity().findViewById(R.id.toolbar));
         CollapsingToolbarLayout col = CollapsingToolbarLayout.class.cast(getActivity().findViewById(R.id.collapsing_toolbar));
         col.setTitle(title);
         col.setExpandedTitleMarginBottom((int) getContext().getResources().getDimension(R.dimen.margin_title_col));
@@ -105,9 +104,7 @@ public class WatchFragment extends Fragment {
         rever.setVisibility(View.GONE);
         AppBarLayout apbar = AppBarLayout.class.cast(getActivity().findViewById(R.id.apbar));
         apbar.setExpanded(false);
-        Log.i("subj",subj);
-        Log.i("title", title);
-        Log.i("id", "" +id);
+
         if (savedInstanceState == null || !savedInstanceState.containsKey("watch")) {
             if (parent)
                 list = MyDB.getParentCardsWatch(subj, title, id);
@@ -137,7 +134,7 @@ public class WatchFragment extends Fragment {
                 }
             }
         });
-        Log.i("count  ",String.valueOf(getFragmentManager().getBackStackEntryCount()));
+        //Log.i("count  ",String.valueOf(getFragmentManager().getBackStackEntryCount()));
         return rootview;
     }
 

@@ -121,11 +121,7 @@ public class ListFragment extends Fragment {
                                 .replace(R.id.parent, blf)
                                 .addToBackStack("btl")
                                 .commit();
-                    }  /*else {
-                        onToggle(!node.isExpand(), holder);
-                        if (!node.isExpand())
-                            adapter.collapseBrotherNode(node);
-                    }*/
+                    }
                 } else {
                     if (!cats.isEmpty()) {
                         MainActivity.exit = false;
@@ -156,34 +152,7 @@ public class ListFragment extends Fragment {
         });
         rv.setAdapter(adapter);
 
-        /*GridView grid = rootview.findViewById(R.id.list);
-        //final String[] mas = MyDB.getCatNames(title);
-        //Arrays.sort(mas);
-        AdapterList adapter = new AdapterList(rootview.getContext(), mas);
-        //ArrayAdapter<String> adapter = new ArrayAdapter<>(rootview.getContext(), android.R.layout.simple_list_item_1, mas);
-
-        grid.setAdapter(adapter);
-
-        grid.setOnItemClickListener((parent, view, position, id) -> {
-            MainActivity.exit = false;
-            ButListFragment blf = new ButListFragment();
-
-            boolean checkRever = MyDB.checkRevers(title, mas[position]);
-
-            int id_tittle = MyDB.getParentId(title, mas[position]);
-
-            blf.setButListFragment(title, mas[position], MyDB.getSubCatNames(
-                    title, mas[position]), checkRever, id_tittle);
-
-            //Log.i("POs", mas[position]);
-            getFragmentManager().beginTransaction()
-                    .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.from_left, R.anim.to_right)
-                    .replace(R.id.parent, blf)
-                    .addToBackStack("btl")
-                    .commit();
-
-        });*/
-        Log.i("count  ", String.valueOf(getFragmentManager().getBackStackEntryCount()));
+        //Log.i("count  ", String.valueOf(getFragmentManager().getBackStackEntryCount()));
         return rootview;
     }
 
@@ -192,7 +161,7 @@ public class ListFragment extends Fragment {
             TreeNode<Cat_head> head = new TreeNode<>(new Cat_head(s));
             nodes.add(head);
             if (MyDB.getSubCatNames(title, s).isEmpty() || MyDB.getSubCatNames(title, s) == null) {
-                Log.i("break", s);
+                //Log.i("break", s);
                 if (MyDB.checkRevers(title, s)) {
                     TreeNode<Cat_butt_rev> tmp = new TreeNode<>(new Cat_butt_rev(title, s, MyDB.getParentId(title, s), context));
                     head.addChild(tmp);
