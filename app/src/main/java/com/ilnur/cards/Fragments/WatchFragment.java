@@ -5,7 +5,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.github.rubensousa.raiflatbutton.RaiflatButton;
 import com.github.rubensousa.raiflatbutton.RaiflatImageButton;
@@ -90,6 +92,7 @@ public class WatchFragment extends Fragment {
             parent = savedInstanceState.getBoolean("parent");
             list = savedInstanceState.getParcelableArrayList("watch");
         }
+        TextView info = rootview.findViewById(R.id.show_info);
         Toolbar bar = Toolbar.class.cast(getActivity().findViewById(R.id.toolbar));
         CollapsingToolbarLayout col = CollapsingToolbarLayout.class.cast(getActivity().findViewById(R.id.collapsing_toolbar));
         col.setTitle(title);
@@ -116,6 +119,24 @@ public class WatchFragment extends Fragment {
         //AdapterWatchList adapter = new AdapterWatchList(rootview.getContext(), list, subj);
         AdapterWatch adapter = new AdapterWatch(rootview.getContext(), subj, list);
         lw.setAdapter(adapter);
+        lw.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                if (firstVisibleItem == 0){
+                    View v = lw.getChildAt(0);
+                    int offset = (v == null) ? 0 : v.getTop();
+                    if (offset == 0) {
+                        info.setVisibility(View.VISIBLE);
+                    }
+                } else if (totalItemCount - visibleItemCount > firstVisibleItem){
+                    info.setVisibility(View.GONE);
+                }
+            }
+        });
         Log.i("count  ",String.valueOf(getFragmentManager().getBackStackEntryCount()));
         return rootview;
     }

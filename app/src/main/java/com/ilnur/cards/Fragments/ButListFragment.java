@@ -88,6 +88,7 @@ public class ButListFragment extends Fragment {
                     LearnFragment lf = new LearnFragment();
                     lf.setLearnFragment(subj, title, id, true, true);
                     getFragmentManager().beginTransaction()
+                            .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.from_left, R.anim.to_right)
                             .replace(R.id.parent, lf)
                             .addToBackStack(null)
                             .commit();
@@ -102,6 +103,7 @@ public class ButListFragment extends Fragment {
                 LearnFragment lf = new LearnFragment();
                 lf.setLearnFragment(subj, title, id, false, true);
                 getFragmentManager().beginTransaction()
+                        .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.from_left, R.anim.to_right)
                         .replace(R.id.parent, lf)
                         .addToBackStack("lf")
                         .commit();
@@ -111,6 +113,7 @@ public class ButListFragment extends Fragment {
             WatchFragment wf = new WatchFragment();
             wf.setWatchFragment(subj, title, id, true);
             getFragmentManager().beginTransaction()
+                    .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.from_left, R.anim.to_right)
                     .replace(R.id.parent, wf)
                     .addToBackStack("watch")
                     .commit();

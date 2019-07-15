@@ -132,15 +132,27 @@ public class MyDB extends SQLiteOpenHelper {
 
         if (predmet.contains(" "))
             predmet = predmet.replace(" ", "_");
-        Cursor cursor = sqdb.rawQuery("SELECT title FROM " + predmet + "_cat" + " WHERE parent_id = ?", new String[]{"0"});
+        Cursor cursor = sqdb.rawQuery("SELECT title, \"order\" FROM " + predmet + "_cat" + " WHERE parent_id = ?", new String[]{"0"});
         cursor.moveToFirst();
 
+        ArrayList<Category> cats = new ArrayList<>();
+        while (!cursor.isAfterLast()){
+            Category cat = new Category();
+            cat.setTitle(cursor.getString(0));
+            cat.setOrder(cursor.getInt(1));
+            cats.add(cat);
+            cursor.moveToNext();
+        }
         ArrayList<String> list = new ArrayList<>();
-        while (!cursor.isAfterLast()) {
+        for (Category c: InsertionSort(cats)){
+            list.add(c.getTitle());
+        }
+
+        /*while (!cursor.isAfterLast()) {
             list.add(cursor.getString(0));
             //Log.i("CURSOR", cursor.getString(0));
             cursor.moveToNext();
-        }
+        }*/
         String[] mas = new String[list.size()];
         for (int i = 0; i < list.size(); i++) {
             mas[i] = list.get(i);
@@ -150,6 +162,8 @@ public class MyDB extends SQLiteOpenHelper {
         cursor.close();
         return mas;
     }
+    //Алгебра (все карточки)
+    //Вероятности событий
 
     public static boolean checkRevers(String parent, String title) {
         SQLiteDatabase sqdb = instance.getReadableDatabase();
@@ -246,7 +260,10 @@ public class MyDB extends SQLiteOpenHelper {
                 "_card " + "WHERE category_id = ?", new String[]{String.valueOf(id)});
         ArrayList<Card> list = new ArrayList<>();
         Card tmp;
-        head.moveToFirst();
+        /*tmp = new Card();
+        tmp.setAvers("карточки, отмеченные зеленым, не показываются");
+        list.add(tmp);
+        head.moveToFirst();*/
         for (int i = 0; i < head.getCount(); i++) {
             tmp = new Card();
             tmp.setId(head.getInt(0));
@@ -673,6 +690,8 @@ public class MyDB extends SQLiteOpenHelper {
             }
             String s1 = String.format(Locale.getDefault(), "%03d%s", o1.getOrder(), o1.getTitle());
             String s2 = String.format(Locale.getDefault(), "%03d%s", o2.getOrder(), o2.getTitle());
+            Log.i("s1",s1);
+            Log.i("s2",s2);
             return s1.compareTo(s2);
         };
         Category key;
@@ -690,6 +709,16 @@ public class MyDB extends SQLiteOpenHelper {
             }
             list.set(i + 1, key);
         }
+
+        /*for (int k = 0; k<list.size()-1; k++){
+            for (int p = list.size()-2; p>=k; p--){
+                if (comparator.compare(list.get(p), list.get(p+1)) > 0){
+                    key = list.get(p);
+                    list.set(p, list.get(p+1));
+                    list.set(p+1, key);
+                }
+            }
+        }*/
         return list;
     }
 

@@ -70,6 +70,7 @@ public class AdapterWatch extends BaseAdapter {
 
         Card card = list.get(position);
 
+
         if (convertView == null) {
             holder = new ViewHolder();
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -95,6 +96,7 @@ public class AdapterWatch extends BaseAdapter {
             holder = (ViewHolder) convertView.getTag();
 
         }
+
 
         if (holder.web != null)
             spans.loadToView(card.getAvers(), holder.web);

@@ -27,6 +27,7 @@ public class Cat_butt_binder extends TreeViewBinder<Cat_butt_binder.ViewHolder> 
             LearnFragment lf = new LearnFragment();
             lf.setLearnFragment(cat.getSubj(), cat.getTitle(), cat.getId(), false, false);
             manager.beginTransaction()
+                    .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.from_left, R.anim.to_right)
                     .replace(R.id.parent, lf)
                     .addToBackStack(null)
                     .commit();
@@ -37,6 +38,7 @@ public class Cat_butt_binder extends TreeViewBinder<Cat_butt_binder.ViewHolder> 
             WatchFragment wf = new WatchFragment();
             wf.setWatchFragment(cat.getSubj(), cat.getTitle(), id, false);
             manager.beginTransaction()
+                    .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.from_left, R.anim.to_right)
                     .replace(R.id.parent, wf)
                     .addToBackStack(null)
                     .commit();

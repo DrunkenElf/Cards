@@ -2,6 +2,7 @@ package com.ilnur.cards;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -61,6 +62,7 @@ public class MainActivity extends AppCompatActivity
     DrawerLayout drawer;
     ActionBarDrawerToggle toggle;
     NavigationView navigationView;
+    //public static SharedPreferences msettings;
 
     @Override
     protected void onStart() {
@@ -112,6 +114,15 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         Log.i("MainActivity", "Created");
         setContentView(R.layout.activity_main);
+        /*msettings = getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
+        if (msettings.contains(PREFERENCES_LOG) && msettings.contains(PREFERENCES_PAS) &&
+                msettings.contains(PREFERENCES_SES)) {
+            user.setLogin(msettings.getString(PREFERENCES_LOG, ""));
+            user.setSession_id(msettings.getString(PREFERENCES_SES, ""));
+            user.setPassword(msettings.getString(PREFERENCES_PAS, ""));
+            logged = true;
+        }*/
+
 
         if (savedInstanceState != null) {
             Log.i("saved", "not null");
@@ -190,6 +201,10 @@ public class MainActivity extends AppCompatActivity
                     logged = true;
                 } else {
                     logged = false;
+                    if (user.getLogin()!=null && user.getPassword()!=null && user.getSession_id()!=null)
+                        logged = true;
+                    /*if (msettings.contains(PREFERENCES_LOG))
+                        logged = true;*/
                 }
             }
             changeNavHead(logged);
@@ -236,7 +251,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void changeNavHead(boolean logged) {
-        Log.i("CCCC", ""+navigationView.getHeaderCount());
+        Log.i("CCCC", "" + navigationView.getHeaderCount());
         if (logged) {
 
            /* navigationView.removeHeaderView(navigationView.getHeaderView(0));
@@ -306,6 +321,11 @@ public class MainActivity extends AppCompatActivity
             String session_id = resp.split(" ")[2];
             session_id = session_id.replaceAll("\"", "").replace("}}", "");
             user.setSession_id(session_id);
+            /*SharedPreferences.Editor edit = msettings.edit();
+            edit.putString(PREFERENCES_LOG, user.getLogin());
+            edit.putString(PREFERENCES_PAS, user.getPassword());
+            edit.putString(PREFERENCES_SES, user.getSession_id());
+            edit.apply();*/
             MyDB.updateUser(user.getLogin(), user.getPassword(), user.getSession_id());
             Log.i("Session_ID", session_id);
             return true;

@@ -1,6 +1,7 @@
 package com.ilnur.cards;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.text.Html;
@@ -160,6 +161,11 @@ public class LoginActivity extends AppCompatActivity {
             String session_id = resp.split(" ")[2];
             session_id = session_id.replaceAll("\"", "").replace("}}", "");
             user.setSession_id(session_id);
+            /*SharedPreferences.Editor edit = msettings.edit();
+            edit.putString(PREFERENCES_LOG, user.getLogin());
+            edit.putString(PREFERENCES_PAS, user.getPassword());
+            edit.putString(PREFERENCES_SES, user.getSession_id());
+            edit.apply();*/
             MyDB.updateUser(user.getLogin(), user.getPassword(), user.getSession_id());
             Log.i("Session_ID", session_id);
             return true;

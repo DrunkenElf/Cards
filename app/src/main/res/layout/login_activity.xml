@@ -18,13 +18,13 @@
         android:layout_width="145dp"
         android:layout_height="145dp"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="18dp"
          />
     <TextView
         android:id="@+id/resh_kart"
         android:layout_width="match_parent"
-        android:minHeight="24dp"
-        android:layout_height="26dp"
+        android:minHeight="28dp"
+        android:layout_height="28dp"
         android:layout_marginTop="10dp"
         android:gravity="center"
         android:textSize="22sp"

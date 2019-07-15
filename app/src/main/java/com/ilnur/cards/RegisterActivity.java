@@ -3,10 +3,13 @@ package com.ilnur.cards;
 import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.wifi.WifiConfiguration;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.Html;
 import android.text.InputType;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -69,7 +72,13 @@ public class RegisterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.register_lay);
         setTitle("Решу ЕГЭ. Карточки");
-        TextView tv = findViewById(R.id.spinner_hint);
+
+        TextView policy = findViewById(R.id.policy);
+        policy.setClickable(true);
+        policy.setMovementMethod(LinkMovementMethod.getInstance());
+        String text = "Нажимая кнопку «зарегистрироваться», вы принимаете <a href='https://sdamgia.ru/licence'> лицензионное " +
+                "соглашение</a> и даете <a href='https://sdamgia.ru/privacy'> согласие</a> на обработку персональных данных";
+        policy.setText(Html.fromHtml(text));
 
         //init view elements
         TextInputLayout mailLay = findViewById(R.id.reg_lay_mail);
@@ -221,20 +230,23 @@ public class RegisterActivity extends AppCompatActivity {
         //creating datepicker to pick date
         final Calendar calendar = Calendar.getInstance();
         date.setInputType(InputType.TYPE_NULL);
-        DatePickerDialog.OnDateSetListener dateSetter = (view, year, month, dayOfMonth) -> {
-            calendar.set(Calendar.YEAR, year);
-            calendar.set(Calendar.MONTH, month);
-            calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-            this.day = String.valueOf(dayOfMonth);
-            this.month = String.valueOf(month);
-            this.year = String.valueOf(year);
-            updateLable(date, calendar);
+        DatePickerDialog.OnDateSetListener dateSetter = new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                calendar.set(Calendar.YEAR, year);
+                calendar.set(Calendar.MONTH, month);
+                calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                RegisterActivity.this.day = String.valueOf(dayOfMonth);
+                RegisterActivity.this.month = String.valueOf(month);
+                RegisterActivity.this.year = String.valueOf(year);
+                RegisterActivity.this.updateLable(date, calendar);
+            }
         };
         date.setOnClickListener(v -> {
-            new DatePickerDialog(RegisterActivity.this, dateSetter, calendar
+            new DatePickerDialog(RegisterActivity.this, R.style.DialogTheme , dateSetter, calendar
                     .get(Calendar.YEAR), calendar.get(Calendar.MONTH),
                     calendar.get(Calendar.DAY_OF_MONTH)).show();
-            String myFormat = "dd/MM/yy";
+            String myFormat = "dd/MM/yyyy";
             SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.getDefault());
             date.setText(sdf.format(calendar.getTime()));
             try {
@@ -400,6 +412,11 @@ public class RegisterActivity extends AppCompatActivity {
                         String session_id = resp.split(" ")[2];
                         session_id = session_id.replaceAll("\"", "").replace("}}", "");
                         user.setSession_id(session_id);
+                        /*SharedPreferences.Editor edit = msettings.edit();
+                        edit.putString(PREFERENCES_LOG, user.getLogin());
+                        edit.putString(PREFERENCES_PAS, user.getPassword());
+                        edit.putString(PREFERENCES_SES, user.getSession_id());
+                        edit.apply();*/
                         MyDB.updateUser(user.getLogin(), user.getPassword(), user.getSession_id());
                         Log.i("Session_ID", session_id);
                     }
