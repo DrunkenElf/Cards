@@ -37,9 +37,12 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 import tellh.com.recyclertreeview_lib.TreeNode;
 import tellh.com.recyclertreeview_lib.TreeViewAdapter;
@@ -79,11 +82,14 @@ public class ListFragment extends Fragment {
         rever.setVisibility(View.GONE);
         AppBarLayout apbar = AppBarLayout.class.cast(getActivity().findViewById(R.id.apbar));
         apbar.setExpanded(false);
+        apbar.setClickable(false);
 
         if (savedInstanceState == null) {
             if (!MyDB.isSubjAdded(title))
                 Toast.makeText(rootview.getContext(), "Некоторые темы все еще добавляются", Toast.LENGTH_SHORT).show();
         }
+        //Arrays.sort(mas);
+        //mas = sort(mas);
 
         RecyclerView rv = rootview.findViewById(R.id.list);
         rv.setLayoutManager(new LinearLayoutManager(rootview.getContext()));
@@ -163,7 +169,7 @@ public class ListFragment extends Fragment {
             if (MyDB.getSubCatNames(title, s).isEmpty() || MyDB.getSubCatNames(title, s) == null) {
                 //Log.i("break", s);
                 if (MyDB.checkRevers(title, s)) {
-                    TreeNode<Cat_butt_rev> tmp = new TreeNode<>(new Cat_butt_rev(title, s, MyDB.getParentId(title, s), context));
+                    TreeNode<Cat_butt_rev> tmp = new TreeNode<>(new     Cat_butt_rev(title, s, MyDB.getParentId(title, s), context));
                     head.addChild(tmp);
                 } else {
                     TreeNode<Cat_butt> tmp = new TreeNode<>(new Cat_butt(title, s, MyDB.getParentId(title, s), context));
@@ -173,11 +179,24 @@ public class ListFragment extends Fragment {
         }
     }
 
+    private String[] sort(String[] mas){
+        String tmp;
+        for (int i = 0; i < mas.length; i++) {
+            for (int j = i + 1; j < mas.length; j++) {
+                if (mas[i].compareToIgnoreCase(mas[j]) > 0) {
+                    tmp = mas[i];
+                    mas[i] = mas[j];
+                    mas[j] = tmp;
+                }
+            }
+        }
+        return mas;
+    }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        AppBarLayout apbar = AppBarLayout.class.cast(getActivity().findViewById(R.id.apbar));
-        apbar.setExpanded(false);
+
     }
 
     @Override

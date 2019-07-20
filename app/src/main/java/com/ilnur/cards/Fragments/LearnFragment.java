@@ -1,7 +1,10 @@
 package com.ilnur.cards.Fragments;
 
+import android.animation.Animator;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.database.CursorIndexOutOfBoundsException;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -11,7 +14,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.github.rubensousa.raiflatbutton.RaiflatButton;
 import com.github.rubensousa.raiflatbutton.RaiflatImageButton;
@@ -62,7 +67,7 @@ public class LearnFragment extends Fragment {
             i = savedInstanceState.getInt("i");
             parent = savedInstanceState.getBoolean("parent");
             revers = savedInstanceState.getBoolean("revers");
-            list = savedInstanceState.getParcelableArrayList("learn");
+            //list = savedInstanceState.getParcelableArrayList("learn");
             wrong = new StringBuilder();
             wrong.append("<table>").append(savedInstanceState.getString("sb"));
         }
@@ -81,7 +86,7 @@ public class LearnFragment extends Fragment {
             wrongs = savedInstanceState.getInt("wrongs");
             parent = savedInstanceState.getBoolean("parent");
             revers = savedInstanceState.getBoolean("revers");
-            list = savedInstanceState.getParcelableArrayList("learn");
+            //list = savedInstanceState.getParcelableArrayList("learn");
             wrong = new StringBuilder();
             wrong.append("<table>").append(savedInstanceState.getString("sb"));
         }
@@ -99,7 +104,7 @@ public class LearnFragment extends Fragment {
         outState.putInt("wrongs", wrongs);
         outState.putBoolean("parent", parent);
         outState.putBoolean("revers", revers);
-        outState.putParcelableArrayList("learn", list);
+        //outState.putParcelableArrayList("learn", list);
         outState.putCharSequence("sb", wrong.toString());
     }
 
@@ -110,6 +115,45 @@ public class LearnFragment extends Fragment {
         i = 0;
         this.revers = revers;
         this.parent = parent;
+    }
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        //LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        //View view = inflater.inflate(R.layout.learn_lay, null);
+        ViewGroup rootview = (ViewGroup) getView();
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            //Toast.makeText(this.getContext(), "landscape", Toast.LENGTH_SHORT).show();
+            Button dontknow = rootview.findViewById(R.id.dontkn);
+            Button know = rootview.findViewById(R.id.know);
+            Button learned = rootview.findViewById(R.id.learned);
+            dontknow.setPadding(0,0,0,50);
+            know.setPadding(0,0,0,50);
+            learned.setPadding(0,0,0,50);
+            /*LinearLayout.LayoutParams d = (LinearLayout.LayoutParams) dontknow.getLayoutParams();
+            LinearLayout.LayoutParams k = (LinearLayout.LayoutParams) know.getLayoutParams();
+            LinearLayout.LayoutParams l = (LinearLayout.LayoutParams) learned.getLayoutParams();
+
+            d.bottomMargin = 50;
+            k.bottomMargin = 50;
+            l.bottomMargin = 50;*/
+        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            Button dontknow = rootview.findViewById(R.id.dontkn);
+            Button know = rootview.findViewById(R.id.know);
+            Button learned = rootview.findViewById(R.id.learned);
+            dontknow.setPadding(0,0,0,250);
+            know.setPadding(0,0,0,250);
+            learned.setPadding(0,0,0,250);
+            /*LinearLayout.LayoutParams d = (LinearLayout.LayoutParams) dontknow.getLayoutParams();
+            LinearLayout.LayoutParams k = (LinearLayout.LayoutParams) know.getLayoutParams();
+            LinearLayout.LayoutParams l = (LinearLayout.LayoutParams) learned.getLayoutParams();
+            d.bottomMargin = 100;
+            k.bottomMargin = 100;
+            l.bottomMargin = 100;*/
+            //Toast.makeText(this, "portrait", Toast.LENGTH_SHORT).show();
+        }
+
     }
 
     @Override
@@ -126,11 +170,16 @@ public class LearnFragment extends Fragment {
             i = savedInstanceState.getInt("i");
             parent = savedInstanceState.getBoolean("parent");
             revers = savedInstanceState.getBoolean("revers");
-            list = savedInstanceState.getParcelableArrayList("learn");
+            //list = savedInstanceState.getParcelableArrayList("learn");
+
             right = savedInstanceState.getInt("right");
             wrongs = savedInstanceState.getInt("wrongs");
             wrong = new StringBuilder();
             wrong.append("<table>").append(savedInstanceState.getString("sb"));
+            if (parent)
+                list = MyDB.getParentCards(subj, id);
+            else
+                list = MyDB.getChildCards(subj, title, id);
         }
         try {
             if (!MyDB.getStyle(null).equals("") && MyDB.getStyle(null) != null)
@@ -159,7 +208,8 @@ public class LearnFragment extends Fragment {
         watch.setVisibility(View.GONE);
         rever.setVisibility(View.GONE);
         AppBarLayout apbar = AppBarLayout.class.cast(getActivity().findViewById(R.id.apbar));
-        apbar.setExpanded(false);
+        apbar.setExpanded(false, false);
+        apbar.setClickable(false);
         //StringBuilder wrong = new StringBuilder();
         //wrong.append("<table>");
 
@@ -172,6 +222,7 @@ public class LearnFragment extends Fragment {
         /*for (Card c: list){
 
         }*/
+        LinearLayout ll = rootview.findViewById(R.id.buttons);
 
         View include = rootview.findViewById(R.id.learn_inc_fr);
         WebView web = include.findViewById(R.id.web);
@@ -211,7 +262,9 @@ public class LearnFragment extends Fragment {
         }
         check.setOnClickListener(v -> {
             Log.i("BUtton","check");
+            //animate(check);
             check.setVisibility(View.GONE);
+            ll.setVisibility(View.VISIBLE);
             dontknow.setVisibility(View.VISIBLE);
             know.setVisibility(View.VISIBLE);
             learned.setVisibility(View.VISIBLE);
@@ -240,9 +293,11 @@ public class LearnFragment extends Fragment {
                 web.loadDataWithBaseURL(null, append(curr_card.getAvers()), "text/html",
                         "utf-8", "about:blank");
             c = "/"+list.size();
+            count.setVisibility(View.VISIBLE);
             count.setText(String.valueOf(i + 1) + c);
             again.setVisibility(View.GONE);
             check.setVisibility(View.VISIBLE);
+            ll.setVisibility(View.GONE);
         });
 
         dontknow.setOnClickListener(v -> {
@@ -252,6 +307,7 @@ public class LearnFragment extends Fragment {
             dontknow.setVisibility(View.GONE);
             know.setVisibility(View.GONE);
             learned.setVisibility(View.GONE);
+            ll.setVisibility(View.GONE);
             if (curr_card.getRevers().length() == 1){
                 wrong.append("<tr><td>"+checkCard(curr_card).getRevers()+"</td></tr><tr>\n" +
                         "        <td colspan=\"2\" class=\"divider\"><hr /></td>\n" +
@@ -264,6 +320,8 @@ public class LearnFragment extends Fragment {
             //web.setText(list.get(i).getAvers());
             if (i == list.size()){
                 check.setVisibility(View.GONE);
+                ll.setVisibility(View.GONE);
+                count.setVisibility(View.GONE);
                 again.setVisibility(View.VISIBLE);
                 web.loadDataWithBaseURL(null, showWrong(wrong.toString()), "text/html",
                         "utf-8", "about:blank");
@@ -295,12 +353,14 @@ public class LearnFragment extends Fragment {
             dontknow.setVisibility(View.GONE);
             know.setVisibility(View.GONE);
             learned.setVisibility(View.GONE);
+            ll.setVisibility(View.GONE);
             new updateCard().execute(new params(subj, curr_card.getId(), 1, curr_card.getResult()));
             //MyDB.updateCard(subj, curr_card.getId(), 1, curr_card.getResult());
             if (i == list.size()){
                 web.loadDataWithBaseURL(null, showWrong(wrong.toString()), "text/html",
                         "utf-8", "about:blank");
                 check.setVisibility(View.GONE);
+                count.setVisibility(View.GONE);
                 again.setVisibility(View.VISIBLE);
                 if (!MainActivity.logged && MainActivity.show) {
                     new AlertDialog.Builder(rootview.getContext())
@@ -330,12 +390,14 @@ public class LearnFragment extends Fragment {
             dontknow.setVisibility(View.GONE);
             know.setVisibility(View.GONE);
             learned.setVisibility(View.GONE);
+            ll.setVisibility(View.GONE);
             new updateCard().execute(new params(subj, curr_card.getId(), 4, curr_card.getResult()));
             //MyDB.updateCard(subj, curr_card.getId(), 4, curr_card.getResult());
             if (i == list.size()){
                 web.loadDataWithBaseURL(null, showWrong(wrong.toString()), "text/html",
                         "utf-8", "about:blank");
                 check.setVisibility(View.GONE);
+                count.setVisibility(View.GONE);
                 again.setVisibility(View.VISIBLE);
                 if (!MainActivity.logged && MainActivity.show) {
                     new AlertDialog.Builder(rootview.getContext())
@@ -371,9 +433,12 @@ public class LearnFragment extends Fragment {
                 "  border-left: thin solid #000000;\n" +
                 "  padding: 2px;\n" +
                 "}</style>";
-        String html = "<html>"+style+"<body><div><p>Стопка закончилась</p><p></p><p>Верных ответов: "+
-                right+"</p><p>Неверных ответов: "+ wrongs+"</p><p></p><p></p>";
-        html = html +"<p>Допущенные ошибки</p>"+table + "</div></body></html>";
+        String html = "<html>"+style+"<body><div><p align='center'>Стопка закончилась</p><p></p><p>Верных ответов: "+
+                right+"</p>";
+        if (wrongs != 0){
+            html = html +"<p>Неверных ответов: "+ wrongs+"</p><br>";
+            html = html +"<strong>Допущенные ошибки</strong>"+table + "</div></body></html>";
+        }
         return html;
     }
     /*private String rev(String s){
@@ -381,6 +446,34 @@ public class LearnFragment extends Fragment {
 
         }
     }*/
+
+    public void animate(View v){
+        v.animate()
+                .alpha(1.0f)
+                .setDuration(200)
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        v.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                });
+    }
+
     private class params{
         String subj;
         int id;
@@ -397,6 +490,9 @@ public class LearnFragment extends Fragment {
     public class updateCard extends AsyncTask<params, Void, Void> {
         @Override
         protected Void doInBackground(params... params) {
+            if (params[0].old_result == 4)
+
+
             MyDB.updateCard(params[0].subj, params[0].id, params[0].result, params[0].old_result);
             return null;
         }

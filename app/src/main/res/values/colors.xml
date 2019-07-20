@@ -17,4 +17,10 @@
     <color name="bl">#3ec1d3</color>
     <color name="or">#ff9a00</color>
     <color name="pi">#ff165d</color>
+    <color name="wrong">#ffe7e7</color>
+    <color name="wrong_sym">#ffb4b4</color>
+    <color name="right">#ffffe7</color>
+    <color name="right_sym">#c1c1b3</color>
+    <color name="know">#e7ffe7</color>
+    <color name="know_sym">#b3c1b3</color>
 </resources>

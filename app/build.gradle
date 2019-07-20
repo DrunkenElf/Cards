@@ -4,7 +4,7 @@ android {
     compileSdkVersion 28
     defaultConfig {
         applicationId "com.ilnur.cards"
-        minSdkVersion 18
+        minSdkVersion 19
         targetSdkVersion 28
         versionCode 1
         versionName "1.0.0"
@@ -55,5 +55,7 @@ dependencies {
     implementation 'com.github.TellH:RecyclerTreeView:1.2.0'
     implementation 'net.opacapp:multiline-collapsingtoolbar:27.1.1'
     implementation 'com.afollestad.material-dialogs:core:3.0.2'
+    implementation 'me.biubiubiu.justifytext:library:1.1'
+    implementation 'com.github.bluejamesbond:textjustify-android:2.1.6'
     //implementation 'com.vk:androidsdk:1.6.5'
 }

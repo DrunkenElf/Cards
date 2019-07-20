@@ -4,19 +4,27 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/show_info"
-            android:layout_width="match_parent"
-            android:layout_height="23dp"
-            android:gravity="center"
-            android:background="@color/white"
-            android:text="карточки, отмеченные зеленым, не показываются"/>
 
-        <ListView
+        <com.ilnur.cards.CustomWeb
+            android:id="@+id/watch_list1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+        </com.ilnur.cards.CustomWeb>
+
+        <com.ilnur.cards.CustomWeb
+            android:id="@+id/watch_list2"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+        </com.ilnur.cards.CustomWeb>
+
+        <!--<ListView
             android:id="@+id/watch_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:numColumns="1"
             android:scrollingCache="true"
-            android:smoothScrollbar="true" />
+            android:smoothScrollbar="true" />-->
 </LinearLayout>

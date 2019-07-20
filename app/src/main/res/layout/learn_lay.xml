@@ -2,79 +2,94 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     android:orientation="vertical">
-
-    <com.github.rubensousa.raiflatbutton.RaiflatButton
-        android:id="@+id/check_but"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:layout_alignParentBottom="true"
-        style="@style/Base.Widget.AppCompat.Button.Colored"
-        android:text="проверить"
-        />
-
-    <com.github.rubensousa.raiflatbutton.RaiflatButton
-        android:id="@+id/again"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:layout_alignParentBottom="true"
-        style="@style/Base.Widget.AppCompat.Button.Colored"
-        android:text="Пройти заново"
-        />
-
-    <LinearLayout
-        android:id="@+id/buttons"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:gravity="bottom"
-        android:layout_alignParentBottom="true"
-        android:orientation="horizontal">
-
-        <com.github.rubensousa.raiflatbutton.RaiflatButton
-            android:id="@+id/dontkn"
-            style="@style/Base.Widget.AppCompat.Button.Colored"
-            android:text="Не знаю"
-            android:layout_width="match_parent"
-            android:visibility="invisible"
-            android:layout_height="48dp"
-            android:layout_weight="1" />
-
-        <com.github.rubensousa.raiflatbutton.RaiflatButton
-            android:id="@+id/know"
-            style="@style/Base.Widget.AppCompat.Button.Colored"
-            android:text="знаю"
-            android:visibility="invisible"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_weight="1" />
-
-        <com.github.rubensousa.raiflatbutton.RaiflatButton
-            android:id="@+id/learned"
-            style="@style/Base.Widget.AppCompat.Button.Colored"
-            android:text="выучено"
-            android:visibility="invisible"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_weight="1" />
-    </LinearLayout>
-
-    <TextView
-        android:id="@+id/count"
-        android:gravity="right"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="48dp"
-        android:layout_width="match_parent"
-        android:layout_height="20dp" />
 
     <include
         layout="@layout/learn_include_fr"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentTop="true"
-        android:layout_marginBottom="68dp"
+        android:layout_marginBottom="50dp"
         android:layout_gravity="top">
 
     </include>
+
+    <TextView
+        android:id="@+id/count"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:textSize="28sp"
+        android:layout_alignParentBottom="true"
+        android:gravity="right" />
+
+    <com.github.rubensousa.raiflatbutton.RaiflatButton
+        android:id="@+id/check_but"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentBottom="true"
+        android:alpha="0.0"
+        />
+
+    <!--style="@style/Base.Widget.AppCompat.Button.Colored"-->
+    <com.github.rubensousa.raiflatbutton.RaiflatButton
+        android:id="@+id/again"
+        style="@style/Base.Widget.AppCompat.Button.Colored"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_alignParentBottom="true"
+        android:text="Пройти заново"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:id="@+id/buttons"
+        android:alpha="0.35"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="50dp"
+        android:layout_gravity="bottom"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        android:weightSum="3">
+
+        <com.github.rubensousa.raiflatbutton.RaiflatButton
+            android:id="@+id/dontkn"
+            android:background="@color/wrong"
+            android:textColor="@color/wrong_sym"
+            android:gravity="bottom|center_horizontal"
+            android:paddingBottom="100dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="Не знаю" />
+
+        <com.github.rubensousa.raiflatbutton.RaiflatButton
+            android:id="@+id/know"
+            android:background="@color/right"
+            android:textColor="@color/right_sym"
+            android:gravity="bottom|center_horizontal"
+            android:paddingBottom="100dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="знаю"
+             />
+
+        <com.github.rubensousa.raiflatbutton.RaiflatButton
+            android:id="@+id/learned"
+            android:background="@color/know"
+            android:textColor="@color/know_sym"
+            android:gravity="bottom|center_horizontal"
+            android:paddingBottom="100dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="выучено"
+            />
+    </LinearLayout>
+
 
 </RelativeLayout>

@@ -110,7 +110,7 @@ public class ButListFragment extends Fragment {
             }
         });
         watch.setOnClickListener(v -> {
-            WatchFragment wf = new WatchFragment();
+            WatchFragment1 wf = new WatchFragment1();
             wf.setWatchFragment(subj, title, id, true);
             getFragmentManager().beginTransaction()
                     .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.from_left, R.anim.to_right)
@@ -184,7 +184,7 @@ public class ButListFragment extends Fragment {
 
     //save state
     @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
+    public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putCharSequence("subj", subj);
         outState.putCharSequence("title", title);
@@ -193,7 +193,7 @@ public class ButListFragment extends Fragment {
     }
     //also save state
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+    public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         if (savedInstanceState != null){
             subj = savedInstanceState.getString("subj");
@@ -205,7 +205,7 @@ public class ButListFragment extends Fragment {
 
     //restoring saved state
     @Override
-    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+    public void onViewStateRestored(Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
         if (savedInstanceState != null){
             subj = savedInstanceState.getString("subj");

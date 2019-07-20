@@ -7,6 +7,7 @@ import com.github.rubensousa.raiflatbutton.RaiflatImageButton;
 import com.ilnur.cards.Category_Buttons.Cat_butt_rev;
 import com.ilnur.cards.Fragments.LearnFragment;
 import com.ilnur.cards.Fragments.WatchFragment;
+import com.ilnur.cards.Fragments.WatchFragment1;
 import com.ilnur.cards.R;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -37,7 +38,7 @@ public class Cat_butt_rev_binder extends TreeViewBinder<Cat_butt_rev_binder.View
 
         holder.watch.setOnClickListener(v -> {
             int id = cat.getId();
-            WatchFragment wf = new WatchFragment();
+            WatchFragment1 wf = new WatchFragment1();
             wf.setWatchFragment(cat.getSubj(), cat.getTitle(), id, false);
             manager.beginTransaction()
                     .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.from_left, R.anim.to_right)

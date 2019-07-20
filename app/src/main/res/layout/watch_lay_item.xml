@@ -4,7 +4,7 @@
     android:id="@+id/obolochka"
     android:orientation="horizontal"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:layout_margin="5dp"
     app:cardCornerRadius="0dp"
     app:cardElevation="2dp"
@@ -12,18 +12,24 @@
 
     <TextView
         android:id="@+id/item_spisok"
-        android:paddingLeft="5dp"
-        android:gravity="center_vertical"
-        android:singleLine="false"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_gravity="left"
         android:layout_weight="3"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:gravity="fill_horizontal"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:scrollbars="horizontal"
+        android:scrollHorizontally="true"
+        android:singleLine="false">
 
     </TextView>
     <ImageView
         android:layout_width="2dp"
+        android:src="@color/grey"
         android:layout_height="match_parent"
+        android:layout_marginLeft="1dp"
+        android:layout_marginRight="1dp"
         />
 
     <TextView
@@ -31,12 +37,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="right"
-        android:layout_marginRight="5dp"
         android:layout_weight="2"
-        android:gravity="right"
+        android:gravity="fill_horizontal"
         android:paddingRight="5dp"
-        android:singleLine="false"
-        />
+        android:paddingLeft="5dp"
+        android:scrollbars="horizontal"
+        android:scrollHorizontally="true"
+        android:singleLine="false" />
+
 
 </LinearLayout>
 

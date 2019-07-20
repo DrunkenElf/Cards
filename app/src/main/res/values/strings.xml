@@ -1,6 +1,10 @@
 <resources>
     <integer name="com_vk_sdk_AppId">7046097</integer>
     <string name="app_name">Карточки</string>
+    <string name="onee">#ffffd0</string>
+    <string name="twoo">#f0ffd0</string>
+    <string name="three">#e0ffd0</string>
+    <string name="fourr">#d0ffd0</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_title">Android Studio</string>

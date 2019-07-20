@@ -136,7 +136,7 @@ public class MyDB extends SQLiteOpenHelper {
         cursor.moveToFirst();
 
         ArrayList<Category> cats = new ArrayList<>();
-        while (!cursor.isAfterLast()){
+        while (!cursor.isAfterLast()) {
             Category cat = new Category();
             cat.setTitle(cursor.getString(0));
             cat.setOrder(cursor.getInt(1));
@@ -144,7 +144,7 @@ public class MyDB extends SQLiteOpenHelper {
             cursor.moveToNext();
         }
         ArrayList<String> list = new ArrayList<>();
-        for (Category c: InsertionSort(cats)){
+        for (Category c : InsertionSort(cats)) {
             list.add(c.getTitle());
         }
 
@@ -212,7 +212,7 @@ public class MyDB extends SQLiteOpenHelper {
         //SQLiteDatabase sqdb = instance.getReadableDatabase();
         // 0 -dont; 1-know
         if (old_result == 4) {
-            result = 4;
+            result = 0;
         } else if (old_result != 0) {
             result = old_result + result;
         }
@@ -502,8 +502,7 @@ public class MyDB extends SQLiteOpenHelper {
         for (int i = 1; i <= 20; i++) {
             if (i == list.size()) {
                 break;
-            }
-            else {
+            } else {
                 t = list.get(i);
                 String temp = t.getAvers();
                 //String
@@ -685,13 +684,31 @@ public class MyDB extends SQLiteOpenHelper {
     private static ArrayList<Category> InsertionSort(ArrayList<Category> list) {
         Comparator<Category> comparator = (o1, o2) -> {
             if (o1.getOrder() == 0 && o2.getOrder() == 0) {
-                if (o1.getTitle().length() > o2.getTitle().length()) return 1;
-                if (o1.getTitle().length() < o2.getTitle().length()) return -1;
+                //if (o1.getTitle().length() > o2.getTitle().length()) return 1;
+                //if (o1.getTitle().length() < o2.getTitle().length()) return -1;
+                //Log.i("o1", o1.getTitle());
+                //Log.i("o2", o2.getTitle());
+                //Log.i("ASD", "-------");
+                if ( (-1 == o1.getTitle().length() - o2.getTitle().length() || o1.getTitle().length() - o2.getTitle().length() == 1) &&
+                        (o1.getTitle().contains(o2.getTitle()) || o2.getTitle().contains(o1.getTitle()))) {
+                    //Log.i("cont", "YES");
+                    //Log.i("o1", o1.getTitle());
+                    //Log.i("o2", o2.getTitle());
+                    if (o1.getTitle().length() > o2.getTitle().length()) return 1;
+                    if (o1.getTitle().length() < o2.getTitle().length()) return -1;
+                } else {
+                    if (o1.getTitle().split(" ")[0].equals(o2.getTitle().split(" ")[0])){
+                        if (o1.getTitle().length() > o2.getTitle().length()) return 1;
+                        if (o1.getTitle().length() < o2.getTitle().length()) return -1;
+                    }
+                    return o1.getTitle().compareToIgnoreCase(o2.getTitle());
+                }
+                //return o1.getTitle().compareToIgnoreCase(o2.getTitle());
             }
             String s1 = String.format(Locale.getDefault(), "%03d%s", o1.getOrder(), o1.getTitle());
             String s2 = String.format(Locale.getDefault(), "%03d%s", o2.getOrder(), o2.getTitle());
-            Log.i("s1",s1);
-            Log.i("s2",s2);
+            //Log.i("s1", s1);
+           //Log.i("s2", s2);
             return s1.compareTo(s2);
         };
         Category key;
@@ -739,7 +756,7 @@ public class MyDB extends SQLiteOpenHelper {
             public void run() {
                 try {
                     String link = "https://ege.sdamgia.ru/mobile_cards/";
-                    String style = Jsoup.connect("https://ege.sdamgia.ru/mobile_cards/style.css?v="+String.valueOf(new Random().nextInt(9999999)))
+                    String style = Jsoup.connect("https://ege.sdamgia.ru/mobile_cards/style.css?v=" + String.valueOf(new Random().nextInt(9999999)))
                             .ignoreContentType(true).get().select("body").text();
 
                     try {
@@ -750,8 +767,8 @@ public class MyDB extends SQLiteOpenHelper {
                         updateStyle("1", style);
                     }
 
-                    for (String s: style_names){
-                        style = Jsoup.connect(link+"style_"+s+".css?v="+String.valueOf(new Random().nextInt(9999999))).ignoreContentType(true)
+                    for (String s : style_names) {
+                        style = Jsoup.connect(link + "style_" + s + ".css?v=" + String.valueOf(new Random().nextInt(9999999))).ignoreContentType(true)
                                 .get().select("body").text();
                         if (!style.equals(""))
                             updateStyle(s, style);
@@ -859,9 +876,9 @@ public class MyDB extends SQLiteOpenHelper {
                     //String q = new Random(9999).toString();
                     String link = "https://ege.sdamgia.ru/mobile_cards/";
                     //Log.i("rand", new Random(9999999).toString());
-                    String style = Jsoup.connect("https://ege.sdamgia.ru/mobile_cards/style.css?v="+String.valueOf(new Random().nextInt(9999999)))
+                    String style = Jsoup.connect("https://ege.sdamgia.ru/mobile_cards/style.css?v=" + String.valueOf(new Random().nextInt(9999999)))
                             .ignoreContentType(true).get().select("body").text();
-                    Log.i("STYLE","-- "+ style);
+                    Log.i("STYLE", "-- " + style);
                     try {
                         //Log.i("STYLE", style);
                         if (!getStyle(null).equals(style))
@@ -871,12 +888,12 @@ public class MyDB extends SQLiteOpenHelper {
                         updateStyle("1", style);
                     }
 
-                    for (String s: style_names){
-                        style = Jsoup.connect(link+"style_"+s+".css?v="+String.valueOf(new Random().nextInt(9999999))).ignoreContentType(true)
+                    for (String s : style_names) {
+                        style = Jsoup.connect(link + "style_" + s + ".css?v=" + String.valueOf(new Random().nextInt(9999999))).ignoreContentType(true)
                                 .get().select("body").text();
                         if (!style.equals(""))
                             updateStyle(s, style);
-                        Log.i(s, "-- "+ style);
+                        Log.i(s, "-- " + style);
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
