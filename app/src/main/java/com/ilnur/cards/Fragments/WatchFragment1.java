@@ -12,21 +12,30 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.ScrollView;
+import android.widget.TableLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 
 import com.github.rubensousa.raiflatbutton.RaiflatButton;
 import com.github.rubensousa.raiflatbutton.RaiflatImageButton;
 import com.google.android.material.appbar.AppBarLayout;
 import com.ilnur.cards.CustomWeb;
+import com.ilnur.cards.CustomWeb1;
 import com.ilnur.cards.Json.Card;
 import com.ilnur.cards.MyDB;
 import com.ilnur.cards.R;
 
 import net.opacapp.multilinecollapsingtoolbar.CollapsingToolbarLayout;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 
 public class WatchFragment1 extends Fragment {
@@ -41,6 +50,7 @@ public class WatchFragment1 extends Fragment {
     String head;
     String secondpart = null;
     int index;
+    boolean flag;
 
 
     public void setWatchFragment(String subj, String title, int id, boolean parent) {
@@ -101,12 +111,13 @@ public class WatchFragment1 extends Fragment {
                 }
             });
         }*/
+        addContent(flag);
     }
 
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        final View rootview = inflater.inflate(R.layout.watch_lay, container, false);
+        final View rootview = inflater.inflate(R.layout.watch_lay1, container, false);
         Log.i("CREATE", "START");
         if (savedInstanceState != null) {
             subj = savedInstanceState.getString("subj");
@@ -121,6 +132,7 @@ public class WatchFragment1 extends Fragment {
         }
 
         modifyToolbar();
+
 
         if (savedInstanceState == null || !savedInstanceState.containsKey("watch")) {
             if (parent)
@@ -153,120 +165,47 @@ public class WatchFragment1 extends Fragment {
             web.second = web1;
             setupWeb(web1, rootview.getContext());
         }
+        this.flag = flag;
+        //addContent(flag);
+        //secondpart = addContent(flag);
+        /*File f = new File("/data/data/" + getContext().getPackageName() + "/file/");
+        if (!f.exists())
+            f.mkdir();
 
-        secondpart = addContent(flag);
-        if (secondpart != null) {
+        try {
+            OutputStream os = new FileOutputStream("/data/data/" + getContext().getPackageName() + "/file/" + subj + id + ".html");
+            os.write(secondpart.getBytes());
+            os.flush();
+            os.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+*/
+
+        /*if (secondpart != null) {
             web1.loadDataWithBaseURL(null, secondpart, "text/html", "utf-8", "auto:black");
 
-        }
+        }*/
     }
 
-    private String addContent(boolean flag) {
-        StringBuilder s = new StringBuilder();
-        s.append(getHead());
-        s.append("<table>");
+    private void addContent(boolean flag) {
         if (flag) {
-            Card c;
-            s.append("<caption>Карточки, отмеченные зеленым, не показываются</caption><tr><th><br></th></tr>");
-            for (int i = 0; i < list.size() / 2; i++) {
-                c = list.get(i);
-                String color = "";
-                switch (c.getResult()) {
-                    case 0:
-                        color = "#ffffff";
-                        break;
-                    case 1:
-                        color = getString(R.string.onee);
-                        break;
-                    case 2:
-                        color = getString(R.string.twoo);
-                        break;
-                    case 3:
-                        color = getString(R.string.three);
-                        break;
-                    case 4:
-                        color = getString(R.string.fourr);
-                        break;
-                }
-                s.append("<tr onclick=\"javascript:return uped(this.id)\" id=\"");
-                s.append(subj).append("/").append(c.getId()).append("/").append(c.getResult()).append("\" bgcolor=\"")
-                        .append(color).append("\" class='clickable-row' data-href='").append(subj)
-                        .append("/").append(c.getId()).append("/").append(c.getResult()).append("'>");
-                s.append("<td class=\"left\">").append(c.getAvers()).append("</td><td class=\"line\">")
-                        .append(c.getRevers()).append("</td></tr>");
-            }
-            s.append("</table></body></html>");
-            web.loadDataWithBaseURL(null, s.toString(), "text/html", "utf-8", "auto:black");
-
-            s = new StringBuilder();
-            s.append(getHead()).append("<table>");
-            for (int i = list.size() / 2; i < list.size(); i++) {
-                c = list.get(i);
-                String color = "";
-                switch (c.getResult()) {
-                    case 0:
-                        color = "#ffffff";
-                        break;
-                    case 1:
-                        color = getString(R.string.onee);
-                        break;
-                    case 2:
-                        color = getString(R.string.twoo);
-                        break;
-                    case 3:
-                        color = getString(R.string.three);
-                        break;
-                    case 4:
-                        color = getString(R.string.fourr);
-                        break;
-                }
-                s.append("<tr onclick=\"javascript:return uped(this.id)\" id=\"");
-                s.append(subj).append("/").append(c.getId()).append("/").append(c.getResult()).append("\" bgcolor=\"")
-                        .append(color).append("\" class='clickable-row' data-href='").append(subj)
-                        .append("/").append(c.getId()).append("/").append(c.getResult()).append("'>");
-                s.append("<td class=\"left\">").append(c.getAvers()).append("</td><td class=\"line\">")
-                        .append(c.getRevers()).append("</td></tr>");
-            }
-            s.append("</table></body></html>");
-            return s.toString();
+            new loadToWeb(web, true, false).execute();
+            new loadToWeb(web1, false, false).execute();
         } else {
-            Card c;
-            s.append("<caption>Карточки, отмеченные зеленым, не показываются</caption><tr><th><br></th></tr>");
-            for (int i = 0; i < list.size(); i++) {
-                c = list.get(i);
-                String color = "";
-                switch (c.getResult()) {
-                    case 0:
-                        color = "#ffffff";
-                        break;
-                    case 1:
-                        color = getString(R.string.onee);
-                        break;
-                    case 2:
-                        color = getString(R.string.twoo);
-                        break;
-                    case 3:
-                        color = getString(R.string.three);
-                        break;
-                    case 4:
-                        color = getString(R.string.fourr);
-                        break;
-                }
-                s.append("<tr onclick=\"javascript:return uped(this.id)\" id=\"");
-                s.append(subj).append("/").append(c.getId()).append("/").append(c.getResult()).append("\" bgcolor=\"")
-                        .append(color).append("\" class='clickable-row' data-href='").append(subj)
-                        .append("/").append(c.getId()).append("/").append(c.getResult()).append("'>");
-                s.append("<td class=\"left\">").append(c.getAvers()).append("</td><td class=\"line\">")
-                        .append(c.getRevers()).append("</td></tr>");
-            }
-            s.append("</table></body></html>");
-            web.loadDataWithBaseURL(null, s.toString(), "text/html", "utf-8", "auto:black");
-            return null;
+            new loadToWeb(web, false, true).execute();
         }
     }
 
     //closed with </body>
-    private String getHead() {
+    private String getHead(boolean big) {
+        String size = "";
+        if (big)
+            size = "20px;";
+        else
+            size = "16px;";
         return "<html><head>" +
                 "<meta name=\"viewport\" content=\"width=device-width\"/>" + "\n" +
                 " <script type=\"text/javascript\">\n" +
@@ -279,45 +218,33 @@ public class WatchFragment1 extends Fragment {
                 "                   document.getElementById(data).id = edited;  " +
                 "               };" +
                 "        </script><style>" +
-                "table, tr {border-collapse: collapse;}" +
+                "table, tr {border-collapse: collapse; width: 100%;}" +
                 "td.left {" +
-                "   padding-right: 5px;" +
-                "   padding-left: 6px;" +
+                "   padding-right: 7px;" +
+                "   padding-left: 7px;" +
+                "   padding-top: 7px;" +
+                "   padding-bottom: 7px;" +
                 "   width: 50%;" +
+                "   font-size: " + size +
                 "   text-align: left;" +
                 "   vertical-align: top;" +
                 "   horizontal-align: left;" +
-                "   -moz-hyphens: auto;" +
-                "   -webkit-hyphens: auto;" +
-                "   -ms-hyphens: auto;" +
-                "}" +
-                "table, tr, td.left, td.line{" +
-                "   -moz-hyphens: auto;" +
-                "   -webkit-hyphens: auto;" +
-                "   -ms-hyphens: auto;" +
                 "}" +
                 " td.line {" +
                 "       border-left: 1px solid #000000;" +
-                "       padding-left: 6px;" +
-                "       padding-right: 1em;" +
+                "       padding-left: 7px;" +
+                "       padding-right: 7px;" +
+                "       padding-top: 7px;" +
+                "       padding-bottom: 7px;" +
                 "       width: 50%;" +
+                "       font-size: " + size +
                 "       text-align: left;" +
                 "       vertical-align: top;" +
                 "       horizontal-align: right;" +
-                "       -moz-hyphens: auto;" +
-                "       -webkit-hyphens: auto;" +
-                "       -ms-hyphens: auto;" +
                 "  }" +
-                "   p {" +
-                "  width: 100%;" +
-                "  margin-top: 1em;" +
-                "  margin-bottom: 1em;" +
-                "  margin-left: 2;" +
-                "  margin-right: 2;" +
-                "  padding: 8px" +
-                "  align: center;" +
-                "  horizontal-align: center;" +
-                "}" +
+                "   p {padding-top: 2px; padding-bottom: 2px;}" +
+                //"   "
+                " img {width: 100%;}" +
                 "td {border-bottom: 2px solid black;}" +
                 //"th {width: 100%;}"
                 "</style></head><body>";
@@ -326,11 +253,19 @@ public class WatchFragment1 extends Fragment {
     private void setupWeb(CustomWeb web, Context con) {
         web.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
         web.getSettings().setDomStorageEnabled(false);
-        web.setWebChromeClient(new WebChromeClient());
+        //web.setWebChromeClient(new WebChromeClient());
+        web.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                Log.i("page", "finished");
+            }
+        });
         //web.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         //web.getSettings().setLayoutAlgorithm(WebSettings.LayoutAlgorithm.NARROW_COLUMNS);
         web.getSettings().setEnableSmoothTransition(true);
         web.getSettings().setJavaScriptEnabled(true);
+        web.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+        web.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
         //web.setWebViewClient(new WebViewClient());
         web.setVerticalScrollBarEnabled(true);
         if (subj.equals("История"))
@@ -366,6 +301,84 @@ public class WatchFragment1 extends Fragment {
         protected Void doInBackground(params... params) {
             MyDB.updateWatchCard(params[0].subj, params[0].id, params[0].result, params[0].old_result);
             return null;
+        }
+    }
+
+    private class loadToWeb extends AsyncTask<String, Void, String> {
+        CustomWeb web;
+        boolean isFirstPart;
+        boolean onlyOne;
+
+        public loadToWeb(CustomWeb web, boolean isFirstPart, boolean onlyOne) {
+            this.web = web;
+            this.isFirstPart = isFirstPart;
+            this.onlyOne = onlyOne;
+        }
+
+        @Override
+        protected String doInBackground(String... strings) {
+
+            StringBuilder s = new StringBuilder();
+            if (subj.equals("История"))
+                s.append(getHead(false)).append("<table>");
+            else
+                s.append(getHead(true)).append("<table>");
+            Card c;
+            int begin;
+            int end;
+            if (isFirstPart) {
+                begin = 0;
+                end = list.size() / 2;
+                Log.i("first", "async");
+                s.append("<caption>Карточки, отмеченные зеленым, не показываются</caption><tr><th><br></th></tr>");
+            } else {
+                begin = list.size() / 2;
+                end = list.size();
+                Log.i("second", "async");
+            }
+            if (onlyOne) {
+                begin = 0;
+                end = list.size();
+                Log.i("only", "async");
+                s.append("<caption>Карточки, отмеченные зеленым, не показываются</caption><tr><th><br></th></tr>");
+            }
+            for (int i = begin; i < end; i++) {
+                c = list.get(i);
+                String color = "";
+                switch (c.getResult()) {
+                    case 0:
+                        color = "#ffffff";
+                        break;
+                    case 1:
+                        color = getString(R.string.onee);
+                        break;
+                    case 2:
+                        color = getString(R.string.twoo);
+                        break;
+                    case 3:
+                        color = getString(R.string.three);
+                        break;
+                    case 4:
+                        color = getString(R.string.fourr);
+                        break;
+                }
+                s.append("<tr onclick=\"javascript:return uped(this.id)\" id=\"");
+                s.append(subj).append("/").append(c.getId()).append("/").append(c.getResult()).append("\" bgcolor=\"")
+                        .append(color).append("\" class='clickable-row' data-href='").append(subj)
+                        .append("/").append(c.getId()).append("/").append(c.getResult()).append("'>");
+                s.append("<td class=\"left\">").append(c.getAvers()).append("</td><td class=\"line\">")
+                        .append(c.getRevers()).append("</td></tr>");
+            }
+            s.append("</table></body></html>");
+
+            return s.toString();
+        }
+
+        @Override
+        protected void onPostExecute(String data) {
+            super.onPostExecute(data);
+
+            web.loadDataWithBaseURL(null, data, "text/html", "utf-8", "auto:black");
         }
     }
 

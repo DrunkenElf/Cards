@@ -35,7 +35,7 @@ public class CustomWeb extends WebView /*implements NestedScrollingChild*/{
         //Log.i("getHeight",""+getHeight());
         //Log.i("computeScroll",""+computeVerticalScrollRange());
         //Log.i("",""+);
-        if (first && several) {
+        /*if (first && several) {
             if (t == computeVerticalScrollRange() - getHeight()) {
                 // Trigger listener
                 //this.setVisibility(GONE);
@@ -50,7 +50,7 @@ public class CustomWeb extends WebView /*implements NestedScrollingChild*/{
                 this.setVisibility(GONE);
                 second.setVisibility(VISIBLE);
             }
-        }
+        }*/
     }
 
     /*@Override

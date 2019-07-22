@@ -113,7 +113,8 @@ public class ButListFragment extends Fragment {
             WatchFragment1 wf = new WatchFragment1();
             wf.setWatchFragment(subj, title, id, true);
             getFragmentManager().beginTransaction()
-                    .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.from_left, R.anim.to_right)
+                    //.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.from_left, R.anim.to_right)
+                    .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.from_right_web, R.anim.to_left_web)
                     .replace(R.id.parent, wf)
                     .addToBackStack("watch")
                     .commit();

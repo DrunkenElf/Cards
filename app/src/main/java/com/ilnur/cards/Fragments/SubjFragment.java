@@ -65,7 +65,7 @@ public class SubjFragment extends Fragment {
             if (mas.length == 0){
                 Toast.makeText(rootview.getContext(), "Этот предмет все еще добавляется", Toast.LENGTH_SHORT).show();
             } else {
-                if (mas.length == 1){
+                if (mas.length == 1 && MyDB.isSubjAdded(mas[0])){
                     //MainActivity.exit = false;
                     ButListFragment blf = new ButListFragment();
 

@@ -39,7 +39,7 @@ public class Cat_butt_binder extends TreeViewBinder<Cat_butt_binder.ViewHolder> 
             WatchFragment1 wf = new WatchFragment1();
             wf.setWatchFragment(cat.getSubj(), cat.getTitle(), id, false);
             manager.beginTransaction()
-                    .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.from_left, R.anim.to_right)
+                    .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left,R.anim.from_right_web, R.anim.to_left_web)
                     .replace(R.id.parent, wf)
                     .addToBackStack(null)
                     .commit();

@@ -5,26 +5,26 @@
     android:orientation="vertical">
 
 
-        <com.ilnur.cards.CustomWeb
-            android:id="@+id/watch_list1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+    <com.ilnur.cards.CustomWeb1
+        android:id="@+id/watch_list1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-        </com.ilnur.cards.CustomWeb>
+    </com.ilnur.cards.CustomWeb1>
 
-        <com.ilnur.cards.CustomWeb
-            android:id="@+id/watch_list2"
-            android:visibility="gone"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+    <com.ilnur.cards.CustomWeb1
+        android:id="@+id/watch_list2"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-        </com.ilnur.cards.CustomWeb>
+    </com.ilnur.cards.CustomWeb1>
 
-        <!--<ListView
-            android:id="@+id/watch_list"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:numColumns="1"
-            android:scrollingCache="true"
-            android:smoothScrollbar="true" />-->
+
+    <!--<ListView
+        android:id="@+id/watch_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:numColumns="1"
+        android:scrollingCache="true"
+        android:smoothScrollbar="true" />-->
 </LinearLayout>

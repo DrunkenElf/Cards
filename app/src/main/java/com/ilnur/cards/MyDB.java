@@ -1,5 +1,6 @@
 package com.ilnur.cards;
 
+import android.app.Application;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -7,6 +8,9 @@ import android.database.CursorWindow;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Process;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -45,7 +49,7 @@ public class MyDB extends SQLiteOpenHelper {
     //public static String[] style_orig = {"Русский язык","Итоговое сочинение","Математика",
     //"Информатика", "Физика", "История", "Химия", "Биология", "География", "Обществознание"};
     private static String myPath;
-    private static SQLiteDatabase sqliteDb;
+    private static SQLiteDatabase sqdb;
     private static int version = 1;
     private static MyDB instance;
     private static ContentValues values;
@@ -79,9 +83,9 @@ public class MyDB extends SQLiteOpenHelper {
             Log.i("Copy", "START");
             copyDb();
         } else {
-            sqliteDb = instance.getReadableDatabase();
-            Log.i("VERSION", String.valueOf(sqliteDb.getVersion()) + " " + String.valueOf(version));
-            if (sqliteDb.getVersion() != version) {
+            sqdb = instance.getWritableDatabase();
+            Log.i("VERSION", String.valueOf(sqdb.getVersion()) + " " + String.valueOf(version));
+            if (sqdb.getVersion() != version) {
                 copyDb();
             }
         }
@@ -95,7 +99,7 @@ public class MyDB extends SQLiteOpenHelper {
     // to get Root names
 
     public static User getUser() {
-        SQLiteDatabase sqdb = instance.getReadableDatabase();
+        //SQLiteDatabase sqdb = instance.getReadableDatabase();
         Cursor cursor = sqdb.rawQuery("SELECT login, password, session_id FROM user", null);
         if (cursor.moveToFirst()) {
             User user = new User();
@@ -122,13 +126,13 @@ public class MyDB extends SQLiteOpenHelper {
     }
 
     public static void removeUser(String old_login) {
-        SQLiteDatabase sqdb = instance.getWritableDatabase();
+        //SQLiteDatabase sqdb = instance.getWritableDatabase();
         sqdb.delete("user", "login = ?", new String[]{old_login});
 
     }
 
     public static String[] getCatNames(String predmet) {
-        SQLiteDatabase sqdb = instance.getReadableDatabase();
+        //SQLiteDatabase sqdb = instance.getReadableDatabase();
 
         if (predmet.contains(" "))
             predmet = predmet.replace(" ", "_");
@@ -166,7 +170,7 @@ public class MyDB extends SQLiteOpenHelper {
     //Вероятности событий
 
     public static boolean checkRevers(String parent, String title) {
-        SQLiteDatabase sqdb = instance.getReadableDatabase();
+        //SQLiteDatabase sqdb = instance.getReadableDatabase();
         if (parent.contains(" "))
             parent = parent.replace(" ", "_");
         Cursor cursor = sqdb.rawQuery("SELECT reversible FROM " + parent + "_cat" + " WHERE title = ?", new String[]{title});
@@ -191,7 +195,7 @@ public class MyDB extends SQLiteOpenHelper {
         values.put("result", result);
         long current_time = Calendar.getInstance().getTimeInMillis();
         values.put("result_stamp", current_time);
-        sqliteDb.update(parent + "_card", values, "id = ?", new String[]{String.valueOf(card_id)});
+        sqdb.update(parent + "_card", values, "id = ?", new String[]{String.valueOf(card_id)});
         values.clear();
         if (MainActivity.logged) {
             try {
@@ -222,7 +226,7 @@ public class MyDB extends SQLiteOpenHelper {
         values.put("result", result);
         long current_time = Calendar.getInstance().getTimeInMillis();
         values.put("result_stamp", current_time);
-        sqliteDb.update(parent + "_card", values, "id = ?", new String[]{String.valueOf(card_id)});
+        sqdb.update(parent + "_card", values, "id = ?", new String[]{String.valueOf(card_id)});
         values.clear();
         if (MainActivity.logged) {
             try {
@@ -240,7 +244,7 @@ public class MyDB extends SQLiteOpenHelper {
 
     //to get parent id
     public static int getParentId(String parent, String title) {
-        SQLiteDatabase sqdb = instance.getReadableDatabase();
+        //SQLiteDatabase sqdb = instance.getReadableDatabase();
         if (parent.contains(" "))
             parent = parent.replace(" ", "_");
         Cursor cursor = sqdb.rawQuery("SELECT id FROM " + parent + "_cat" + " WHERE title = ?",
@@ -252,7 +256,7 @@ public class MyDB extends SQLiteOpenHelper {
     }
 
     public static ArrayList<Card> getParentCardsWatch(String parent, String title, int id) {
-        SQLiteDatabase sqdb = instance.getReadableDatabase();
+        //SQLiteDatabase sqdb = instance.getReadableDatabase();
         if (parent.contains(" "))
             parent = parent.replace(" ", "_");
         //get child categories ids
@@ -305,7 +309,7 @@ public class MyDB extends SQLiteOpenHelper {
     }
 
     public static ArrayList<Card> getChildCardsWatch(String parent, String title, int id) {
-        SQLiteDatabase sqdb = instance.getReadableDatabase();
+        //SQLiteDatabase sqdb = instance.getReadableDatabase();
         if (parent.contains(" "))
             parent = parent.replace(" ", "_");
         Cursor cursor = sqdb.rawQuery("SELECT id, avers, revers, result, result_stamp FROM " + parent + "_card" + " WHERE category_id = ?",
@@ -329,7 +333,7 @@ public class MyDB extends SQLiteOpenHelper {
     }
 
     public static ArrayList<Card> getParentCards(String parent, int id) {
-        SQLiteDatabase sqdb = instance.getReadableDatabase();
+        //SQLiteDatabase sqdb = instance.getReadableDatabase();
         if (parent.contains(" "))
             parent = parent.replace(" ", "_");
 
@@ -514,7 +518,7 @@ public class MyDB extends SQLiteOpenHelper {
     }
 
     public static ArrayList<Card> getChildCards(String parent, String title, int id) {
-        SQLiteDatabase sqdb = instance.getReadableDatabase();
+        //SQLiteDatabase sqdb = instance.getReadableDatabase();
         if (parent.contains(" "))
             parent = parent.replace(" ", "_");
         Cursor cursor = sqdb.rawQuery("SELECT id, avers, revers, result, result_stamp FROM " + parent + "_card" + " WHERE category_id = ?",
@@ -610,7 +614,7 @@ public class MyDB extends SQLiteOpenHelper {
     }
 
     public static ArrayList<Category> getSubCatNames(String parent, String title) {
-        SQLiteDatabase sqdb = instance.getReadableDatabase();
+        //SQLiteDatabase sqdb = instance.getReadableDatabase();
         if (parent.contains(" "))
             parent = parent.replace(" ", "_");
         Cursor cursor = sqdb.rawQuery("SELECT id FROM " + parent + "_cat" + " WHERE title = ?", new String[]{title});
@@ -640,7 +644,7 @@ public class MyDB extends SQLiteOpenHelper {
     }
 
     public static void updateStyle(String name, String style) {
-        SQLiteDatabase sqdb = instance.getWritableDatabase();
+        //SQLiteDatabase sqdb = instance.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("name", name);
         values.put("data", style);
@@ -652,7 +656,7 @@ public class MyDB extends SQLiteOpenHelper {
     }
 
     public static String getStyle(String name) {
-        SQLiteDatabase sqdb = instance.getReadableDatabase();
+        //SQLiteDatabase sqdb = instance.getReadableDatabase();
         if (name == null) {
             name = "1";
         } else {
@@ -689,7 +693,7 @@ public class MyDB extends SQLiteOpenHelper {
                 //Log.i("o1", o1.getTitle());
                 //Log.i("o2", o2.getTitle());
                 //Log.i("ASD", "-------");
-                if ( (-1 == o1.getTitle().length() - o2.getTitle().length() || o1.getTitle().length() - o2.getTitle().length() == 1) &&
+                if ((-1 == o1.getTitle().length() - o2.getTitle().length() || o1.getTitle().length() - o2.getTitle().length() == 1) &&
                         (o1.getTitle().contains(o2.getTitle()) || o2.getTitle().contains(o1.getTitle()))) {
                     //Log.i("cont", "YES");
                     //Log.i("o1", o1.getTitle());
@@ -697,7 +701,7 @@ public class MyDB extends SQLiteOpenHelper {
                     if (o1.getTitle().length() > o2.getTitle().length()) return 1;
                     if (o1.getTitle().length() < o2.getTitle().length()) return -1;
                 } else {
-                    if (o1.getTitle().split(" ")[0].equals(o2.getTitle().split(" ")[0])){
+                    if (o1.getTitle().split(" ")[0].equals(o2.getTitle().split(" ")[0])) {
                         if (o1.getTitle().length() > o2.getTitle().length()) return 1;
                         if (o1.getTitle().length() < o2.getTitle().length()) return -1;
                     }
@@ -708,7 +712,7 @@ public class MyDB extends SQLiteOpenHelper {
             String s1 = String.format(Locale.getDefault(), "%03d%s", o1.getOrder(), o1.getTitle());
             String s2 = String.format(Locale.getDefault(), "%03d%s", o2.getOrder(), o2.getTitle());
             //Log.i("s1", s1);
-           //Log.i("s2", s2);
+            //Log.i("s2", s2);
             return s1.compareTo(s2);
         };
         Category key;
@@ -754,6 +758,7 @@ public class MyDB extends SQLiteOpenHelper {
         new Thread(new Runnable() {
             @Override
             public void run() {
+                android.os.Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
                 try {
                     String link = "https://ege.sdamgia.ru/mobile_cards/";
                     String style = Jsoup.connect("https://ege.sdamgia.ru/mobile_cards/style.css?v=" + String.valueOf(new Random().nextInt(9999999)))
@@ -785,6 +790,7 @@ public class MyDB extends SQLiteOpenHelper {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
+                    android.os.Process.setThreadPriority(Process.THREAD_PRIORITY_URGENT_AUDIO);
                     String cards;
                     String cats = null;
                     Stupid cat;
@@ -796,7 +802,7 @@ public class MyDB extends SQLiteOpenHelper {
                     InputStreamReader isr;
                     JsonReader reader;
                     ContentValues values = new ContentValues();
-                    SQLiteDatabase sqdb = instance.getReadableDatabase();
+                    //SQLiteDatabase sqdb = instance.getReadableDatabase();
                     Cursor cursor = null;
 
                     cursor = sqdb.rawQuery("SELECT added_with_log FROM subj WHERE name = ?", new String[]{p.subj_db});
@@ -856,7 +862,7 @@ public class MyDB extends SQLiteOpenHelper {
                         values.put("added", 1);
                         if (MainActivity.logged)
                             values.put("added_with_log", 1);
-                        sqliteDb.update("subj", values, "name = ?", new String[]{p.subj_db});
+                        sqdb.update("subj", values, "name = ?", new String[]{p.subj_db});
                         values.clear();
                     }
 
@@ -869,9 +875,11 @@ public class MyDB extends SQLiteOpenHelper {
 
 
     public static void add() {
+        //Handler handler = new Handler(Looper.getMainLooper());
         new Thread(new Runnable() {
             @Override
             public void run() {
+                android.os.Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
                 try {
                     //String q = new Random(9999).toString();
                     String link = "https://ege.sdamgia.ru/mobile_cards/";
@@ -902,115 +910,123 @@ public class MyDB extends SQLiteOpenHelper {
                 }
             }
         }).start();
-
         MainActivity.addsub = true;
         for (pair p : pairs) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    String cards;
-                    String cats = null;
-                    Stupid cat;
-                    Category[] mas;
-                    Category temp;
-                    StupCard tmp;
-                    Connection.Response resp = null;
-                    BufferedInputStream bis;
-                    InputStreamReader isr;
-                    JsonReader reader;
-                    ContentValues values = new ContentValues();
-                    SQLiteDatabase sqdb = instance.getReadableDatabase();
-                    Cursor cursor = null;
-                    boolean log;
+            if (!isSubjAdded(p.subj_db)){
+                new Thread(new Runnable() {
+                    public void run() {
+                        android.os.Process.setThreadPriority(Process.THREAD_PRIORITY_URGENT_AUDIO);
+                        Log.i(p.subj_db, "started");
+                        //Context ref = M;
+                        String cards;
+                        String cats = null;
+                        Stupid cat;
+                        Category[] mas;
+                        Category temp;
+                        StupCard tmp;
+                        Connection.Response resp = null;
+                        BufferedInputStream bis;
+                        InputStreamReader isr;
+                        JsonReader reader;
+                        ContentValues values = new ContentValues();
+                        //SQLiteDatabase sqdb = instance.getReadableDatabase();
+                        Cursor cursor = null;
+                        boolean log;
 
-                    Log.i("adding", p.subj_db);
-                    cursor = sqdb.rawQuery("SELECT added FROM subj WHERE name = ?", new String[]{p.subj_db});
-                    cursor.moveToFirst();
-                    if (cursor.getInt(0) == 0) {
-                        log = false;
-                        cards = "https://" + p.link + "-ege.sdamgia.ru/api?protocolVersion=1&type=card&category_id=";
-                        try {
-                            cats = Jsoup.connect("https://" + p.link + "-ege.sdamgia.ru/api?protocolVersion=1&type=card_cat")
-                                    .ignoreContentType(true).get().select("body").text();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        cat = new Gson().fromJson(cats, Stupid.class);
-                        mas = cat.getData();
-                        if (!MainActivity.logged)
+                        Log.i("adding", p.subj_db);
+                        cursor = sqdb.rawQuery("SELECT added FROM subj WHERE name = ?", new String[]{p.subj_db});
+                        cursor.moveToFirst();
+                        if (cursor.getInt(0) == 0) {
                             log = false;
-
-                        //Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-                        for (int i = 0; i < mas.length; i++) {
-                            temp = mas[i];
-                            if (MainActivity.logged) {
-                                Log.i("adding", "with logged");
-                                log = true;
-                            } else {
+                            cards = "https://" + p.link + "-ege.sdamgia.ru/api?protocolVersion=1&type=card&category_id=";
+                            try {
+                                cats = Jsoup.connect("https://" + p.link + "-ege.sdamgia.ru/api?protocolVersion=1&type=card_cat")
+                                        .ignoreContentType(true).get().select("body").text();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            cat = new Gson().fromJson(cats, Stupid.class);
+                            mas = cat.getData();
+                            if (!MainActivity.logged)
                                 log = false;
-                            }
-                            //Log.i("mas[i]", temp.getTitle());
-                            if (MainActivity.logged) {
-                                try {
-                                    resp = Jsoup.connect(cards + temp.getId() + "&session=" + MainActivity.user.getSession_id()).ignoreContentType(true)
-                                            .maxBodySize(0).timeout(2000000).method(Connection.Method.GET).execute();
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                            } else {
-                                try {
-                                    resp = Jsoup.connect(cards + temp.getId()).ignoreContentType(true)
-                                            .maxBodySize(0).timeout(2000000).method(Connection.Method.GET).execute();
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                            }
 
-                            bis = resp.bodyStream();
-                            isr = new InputStreamReader(bis);
-                            reader = new JsonReader(isr);
-                            reader.setLenient(true);
+                            //Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+                            for (int i = 0; i < mas.length; i++) {
+                                temp = mas[i];
+                                if (MainActivity.logged) {
+                                    Log.i("adding", "with logged");
+                                    log = true;
+                                } else {
+                                    Log.i(p.subj_db + " " + temp.getTitle() + " adding", "not logged " + Thread.currentThread().getId());
+                                    log = false;
+                                }
+                                //Log.i("mas[i]", temp.getTitle());
+                                if (MainActivity.logged) {
+                                    try {
+                                        resp = Jsoup.connect(cards + temp.getId() + "&session=" + MainActivity.user.getSession_id()).ignoreContentType(true)
+                                                .maxBodySize(0).timeout(2000000).method(Connection.Method.GET).execute();
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                } else {
+                                    try {
+                                        resp = Jsoup.connect(cards + temp.getId()).ignoreContentType(true)
+                                                .maxBodySize(0).timeout(2000000).method(Connection.Method.GET).execute();
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+
+                                bis = resp.bodyStream();
+                                isr = new InputStreamReader(bis);
+                                reader = new JsonReader(isr);
+                                reader.setLenient(true);
             /*resp = Jsoup.connect(cards+temp.getId()).ignoreContentType(true)
                     .maxBodySize(0).timeout(20000000).get().select("body").html();*/
-                            //Log.i("data", data);
-                            tmp = new Gson().fromJson(reader, StupCard.class);
-                            updCat(temp, p.subj_db);
-                            if (tmp.getData() != null) {
-                                for (Card s : tmp.getData()) {
-                                    updCard(s, p.subj_db);
+                                //Log.i("data", data);
+                                tmp = new Gson().fromJson(reader, StupCard.class);
+                                updCat(temp, p.subj_db);
+                                if (tmp.getData() != null) {
+                                    for (Card s : tmp.getData()) {
+                                        updCard(s, p.subj_db);
+                                    }
                                 }
                             }
+                            Log.i(p.subj_db, "Added");
+                            values.put("name", p.subj_db);
+                            values.put("added", 1);
+                            if (log && MainActivity.logged)
+                                values.put("added_with_log", 1);
+
+                            sqdb.update("subj", values, "name = ?", new String[]{p.subj_db});
+                            values.clear();
                         }
-                        Log.i(p.subj_db, "Added");
-                        values.put("name", p.subj_db);
-                        values.put("added", 1);
-                        if (log && MainActivity.logged)
-                            values.put("added_with_log", 1);
 
-                        sqliteDb.update("subj", values, "name = ?", new String[]{p.subj_db});
-                        values.clear();
+                        cursor.close();
+                        //ref = null;
                     }
-
-                    cursor.close();
-                }
-            }).start();
-
-
+                }).start();
+            }
         }
     }
 
     public static boolean isSubjAdded(String parent) {
-        SQLiteDatabase sqdb = instance.getReadableDatabase();
-        if (parent.contains(" "))
-            parent = parent.replace(" ", "_");
-        Cursor cursor = sqdb.rawQuery("SELECT added FROM subj" + " WHERE name = ?", new String[]{parent});
-        cursor.moveToFirst();
-        int id = cursor.getInt(0);
-        cursor.close();
-        if (id == 1)
-            return true;
-        else
+        try {
+            //SQLiteDatabase sqdb = instance.getReadableDatabase();
+            if (parent.contains(" "))
+                parent = parent.replace(" ", "_");
+            Cursor cursor = sqdb.rawQuery("SELECT added FROM subj" + " WHERE name = ?", new String[]{parent});
+            cursor.moveToFirst();
+            int id = cursor.getInt(0);
+            cursor.close();
+            if (id == 1)
+                return true;
+            else
+                return false;
+        } catch (IndexOutOfBoundsException e) {
+            e.printStackTrace();
             return false;
+        }
     }
 
     public static void updCard(Card card, String table) {
@@ -1023,9 +1039,9 @@ public class MyDB extends SQLiteOpenHelper {
 
         values.put("result", card.getResult());
         values.put("result_stamp", card.getResult_stamp());
-        int id = sqliteDb.update(table + "_card", values, "id = ?", new String[]{String.valueOf(card.getId())});
+        int id = sqdb.update(table + "_card", values, "id = ?", new String[]{String.valueOf(card.getId())});
         if (id == 0) {
-            sqliteDb.insertWithOnConflict(table + "_card", null, values, SQLiteDatabase.CONFLICT_IGNORE);
+            sqdb.insertWithOnConflict(table + "_card", null, values, SQLiteDatabase.CONFLICT_IGNORE);
         }
         //Log.i("Card", String.valueOf(card.getId())+" added");
         values.clear();
@@ -1039,9 +1055,9 @@ public class MyDB extends SQLiteOpenHelper {
         values.put("reversible", cat.getReversible());
         values.put("title", cat.getTitle());
 
-        int id = sqliteDb.update(table + "_cat", values, "id = ?", new String[]{String.valueOf(cat.getId())});
+        int id = sqdb.update(table + "_cat", values, "id = ?", new String[]{String.valueOf(cat.getId())});
         if (id == 0)
-            sqliteDb.insertWithOnConflict(table + "_cat", null, values, SQLiteDatabase.CONFLICT_IGNORE);
+            sqdb.insertWithOnConflict(table + "_cat", null, values, SQLiteDatabase.CONFLICT_IGNORE);
         //Log.i("Cat", String.valueOf(cat.getId())+" added");
         values.clear();
     }
@@ -1080,7 +1096,7 @@ public class MyDB extends SQLiteOpenHelper {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        sqliteDb = instance.getWritableDatabase();
+        sqdb = instance.getWritableDatabase();
         Log.i("Copy", "FINISH");
     }
 
@@ -1098,8 +1114,8 @@ public class MyDB extends SQLiteOpenHelper {
 
     @Override
     public synchronized void close() {
-        if (sqliteDb != null)
-            sqliteDb.close();
+        if (sqdb != null)
+            sqdb.close();
         super.close();
     }
 

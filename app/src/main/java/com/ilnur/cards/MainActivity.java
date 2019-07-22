@@ -157,7 +157,8 @@ public class MainActivity extends AppCompatActivity
             } else {
                 //add subjects
                 if (!logged) {
-                    Runnable addSubh = () -> MyDB.add();
+                    Log.i("not logged", "start adding");
+                    Runnable addSubh = MyDB::add;
                     Thread add = new Thread(addSubh);
                     add.setName("add");
                     add.start();
@@ -218,10 +219,18 @@ public class MainActivity extends AppCompatActivity
             } else {
                 //add subjects
                 if (!logged) {
+                    Log.i("add subj", "started");
                     Runnable addSubh = () -> MyDB.add();
                     Thread add = new Thread(addSubh);
                     add.setName("add");
                     add.start();
+                    //MyDB.add();
+                    /*MainActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+
+                        }
+                    });*/
                 }
             }
 
@@ -399,7 +408,7 @@ public class MainActivity extends AppCompatActivity
             }
         } else if (id == R.id.nav_save) {
             if (!addsub) {
-                Runnable sync = MyDB::add;
+                Runnable sync = () -> MyDB.add();
                 new Thread(sync).start();
             } else {
                 Toast.makeText(getApplicationContext(), "Предметы уже добавляются", Toast.LENGTH_SHORT).show();
