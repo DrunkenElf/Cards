@@ -85,8 +85,10 @@ public class ListFragment extends Fragment {
         apbar.setClickable(false);
 
         if (savedInstanceState == null) {
-            if (!MyDB.isSubjAdded(title))
+            if (!MyDB.isSubjAdded(title)) {
                 Toast.makeText(rootview.getContext(), "Некоторые темы все еще добавляются", Toast.LENGTH_SHORT).show();
+                //MyDB.addCurrent(title);
+            }
         }
         //Arrays.sort(mas);
         //mas = sort(mas);

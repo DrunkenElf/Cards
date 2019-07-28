@@ -16,14 +16,23 @@
 # debugging stack traces.
 #-keepattributes SourceFile,LineNumberTable
 
--dontwarn com.x5.** #does compile without error but not working
--keep class net.minidev.json.** {*;}
--keep class com.x5.template.** { *; }
--keep class net.minidev.** { *; }
--keep class com.x5.util.** { *; }
--keep class javax.** { *; }
--keep class org.** { *; }
+#-dontwarn com.x5.** #does compile without error but not working
+#-keep class net.minidev.json.** {*;}
+#-keep class com.x5.template.** { *; }
+#-keep class net.minidev.** { *; }
+#-keep class com.x5.util.** { *; }
+#-keep class javax.** { *; }
+#-keep class org.** { *; }
 -keepattributes *Annotation*
+-keep public class * implements com.bumptech.glide.module.GlideModule
+-keep public class * extends com.bumptech.glide.module.AppGlideModule
+-keep public enum com.bumptech.glide.load.ImageHeaderParser$** {
+  **[] $VALUES;
+  public *;
+}
+
+# for DexGuard only
+-keepresourcexmlelements manifest/application/meta-data@value=GlideModule
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile

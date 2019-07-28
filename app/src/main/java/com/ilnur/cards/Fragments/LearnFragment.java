@@ -117,6 +117,12 @@ public class LearnFragment extends Fragment {
         this.parent = parent;
     }
 
+    /*@Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
+    }*/
+
     @Override
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
@@ -214,10 +220,12 @@ public class LearnFragment extends Fragment {
         //wrong.append("<table>");
 
         if (savedInstanceState == null || !savedInstanceState.containsKey("learn")) {
-            if (parent)
+            if (parent) {
                 list = MyDB.getParentCards(subj, id);
-            else
+            }
+            else {
                 list = MyDB.getChildCards(subj, title, id);
+            }
         }
         /*for (Card c: list){
 
@@ -236,6 +244,16 @@ public class LearnFragment extends Fragment {
         Button know = rootview.findViewById(R.id.know);
         Button learned = rootview.findViewById(R.id.learned);
 
+        int orientation = getResources().getConfiguration().orientation;
+        if (orientation == Configuration.ORIENTATION_PORTRAIT){
+            dontknow.setPadding(0,0,0,250);
+            know.setPadding(0,0,0,250);
+            learned.setPadding(0,0,0,250);
+        } else {
+            dontknow.setPadding(0,0,0,50);
+            know.setPadding(0,0,0,50);
+            learned.setPadding(0,0,0,50);
+        }
         c = "/"+list.size();
 
 

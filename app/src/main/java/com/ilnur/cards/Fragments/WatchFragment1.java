@@ -8,34 +8,26 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.JavascriptInterface;
-import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.ImageView;
 import android.widget.ScrollView;
-import android.widget.TableLayout;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 
+import com.bumptech.glide.Glide;
 import com.github.rubensousa.raiflatbutton.RaiflatButton;
 import com.github.rubensousa.raiflatbutton.RaiflatImageButton;
 import com.google.android.material.appbar.AppBarLayout;
 import com.ilnur.cards.CustomWeb;
-import com.ilnur.cards.CustomWeb1;
 import com.ilnur.cards.Json.Card;
 import com.ilnur.cards.MyDB;
 import com.ilnur.cards.R;
 
 import net.opacapp.multilinecollapsingtoolbar.CollapsingToolbarLayout;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 
 public class WatchFragment1 extends Fragment {
@@ -47,6 +39,7 @@ public class WatchFragment1 extends Fragment {
     //String strBody = "";
     private CustomWeb web;
     private CustomWeb web1;
+    int load = 0;
     String head;
     String secondpart = null;
     int index;
@@ -132,6 +125,10 @@ public class WatchFragment1 extends Fragment {
         }
 
         modifyToolbar();
+        Glide.with(this)
+                .load(R.drawable.ball)
+                .timeout(1000)
+                .into((ImageView) rootview.findViewById(R.id.packman));
 
 
         if (savedInstanceState == null || !savedInstanceState.containsKey("watch")) {
@@ -148,10 +145,13 @@ public class WatchFragment1 extends Fragment {
             initTwoWeb(rootview, false);
 
 
+
         return rootview;
     }
 
     private void initTwoWeb(View rootview, boolean flag) {
+        ScrollView sv = rootview.findViewById(R.id.scroll);
+        sv.setSmoothScrollingEnabled(false);
         web = rootview.findViewById(R.id.watch_list1);
         web.first = true;
         web.several = flag;
@@ -258,13 +258,22 @@ public class WatchFragment1 extends Fragment {
             @Override
             public void onPageFinished(WebView view, String url) {
                 Log.i("page", "finished");
+                load++;
+                if (parent && load == 2) {
+                    ImageView gif = view.getRootView().findViewById(R.id.packman);
+                    gif.setVisibility(View.GONE);
+                } else if (!parent && load == 1){
+                    ImageView gif = view.getRootView().findViewById(R.id.packman);
+                    //gif.animate().alpha(0.0f);
+                    gif.setVisibility(View.GONE);
+                }
             }
         });
         //web.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         //web.getSettings().setLayoutAlgorithm(WebSettings.LayoutAlgorithm.NARROW_COLUMNS);
         web.getSettings().setEnableSmoothTransition(true);
         web.getSettings().setJavaScriptEnabled(true);
-        web.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+        //web.setLayerType(View.LAYER_TYPE_HARDWARE, null);
         web.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
         //web.setWebViewClient(new WebViewClient());
         web.setVerticalScrollBarEnabled(true);

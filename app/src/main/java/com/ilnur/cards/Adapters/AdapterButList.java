@@ -10,9 +10,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.ilnur.cards.Json.Category;
-import com.ilnur.cards.Fragments.LearnFragment;
 import com.ilnur.cards.R;
-import com.ilnur.cards.Fragments.WatchFragment;
 import com.robertlevonyan.views.expandable.Expandable;
 
 import java.util.ArrayList;

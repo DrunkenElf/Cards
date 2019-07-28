@@ -64,6 +64,7 @@ public class SubjFragment extends Fragment {
             String[] mas = MyDB.getCatNames(subjects[position]);
             if (mas.length == 0){
                 Toast.makeText(rootview.getContext(), "Этот предмет все еще добавляется", Toast.LENGTH_SHORT).show();
+                //MyDB.addCurrent(subjects[position]);
             } else {
                 if (mas.length == 1 && MyDB.isSubjAdded(mas[0])){
                     //MainActivity.exit = false;

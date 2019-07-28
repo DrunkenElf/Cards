@@ -12,6 +12,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Process;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
@@ -39,6 +40,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Random;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 public class MyDB extends SQLiteOpenHelper {
@@ -53,12 +55,12 @@ public class MyDB extends SQLiteOpenHelper {
     private static int version = 1;
     private static MyDB instance;
     private static ContentValues values;
-    public static pair[] pairs = {new pair("rus", "Русский_язык"),
+    public static final pair[] pairs = {new pair("rus", "Русский_язык"),
             new pair("phys", "Физика"), new pair("math", "Математика"),
             new pair("en", "Английский_язык"), new pair("hist", "История")};
 
-    public static String[] style_names = {"en", "hist", "math", "phys", "rus"};
-    public static String[] style_orig = {"Английский язык", "История", "Математика", "Физика", "Русский язык"};
+    public static final String[] style_names = {"en", "hist", "math", "phys", "rus"};
+    public static final String[] style_orig = {"Английский язык", "История", "Математика", "Физика", "Русский язык"};
 
 
     public MyDB(Context context) {
@@ -283,7 +285,7 @@ public class MyDB extends SQLiteOpenHelper {
         Cursor cursor = sqdb.rawQuery("SELECT id FROM " + parent + "_cat" + " WHERE parent_id = ?",
                 new String[]{String.valueOf(id)});
         cursor.moveToFirst();
-        Cursor cursor1;
+        Cursor cursor1 = null;
 
         for (int i = 0; i < cursor.getCount(); i++) {
             int ind = cursor.getInt(0);
@@ -304,6 +306,8 @@ public class MyDB extends SQLiteOpenHelper {
             cursor.moveToNext();
         }
         cursor.close();
+        if (cursor1 != null)
+            cursor1.close();
 
         return list;
     }
@@ -753,6 +757,19 @@ public class MyDB extends SQLiteOpenHelper {
         }
     }
 
+    public static  boolean isAlladded() {
+        for (pair p : pairs) {
+            if (!isSubjAdded(p.subj_db))
+                addCurrent(p.subj_db);
+        }
+        for (pair p : pairs) {
+            if (!isSubjAdded(p.subj_db))
+                return false;
+        }
+        return true;
+
+    }
+
     //when you logged in & push sync button || after adding
     public static void syncSubj() {
         new Thread(new Runnable() {
@@ -786,11 +803,52 @@ public class MyDB extends SQLiteOpenHelper {
             }
         }).start();
         MainActivity.syncsub = true;
+        MyExecutor executor = new MyExecutor(false);
+
         for (pair p : pairs) {
+           if (MainActivity.logged){
+               PushSubj task = new PushSubj(p);
+               executor.execute(task);
+           }
+        }
+    }
+
+    public static class PushSubj implements Runnable{
+        pair p;
+
+        public PushSubj(pair p){
+            this.p = p;
+        }
+        //21:36:35
+        //21:41:58
+
+        @Override
+        public void run() {
+            if (isSubjAdded(p.subj_db) && !isSubjSynced(p.subj_db)) {
+                Cursor cursor = sqdb.rawQuery("SELECT id, result FROM " + p.subj_db+"_card" + " WHERE result != ?", new String[]{"0"});
+                cursor.moveToFirst();
+                Connection.Response response;
+                String link;
+                while (!cursor.isAfterLast()) {
+                    try {
+                        link = "https://" + p.link +
+                                "-ege.sdamgia.ru/api?protocolVersion=1&type=card_result&id=" + cursor.getInt(0) + "&result=" +
+                                cursor.getInt(1) + "&session=" + MainActivity.user.getSession_id();
+                        response = Jsoup.connect(link).ignoreContentType(true)
+                                .method(Connection.Method.GET).execute();
+                        Log.i("link", link);
+                        cursor.moveToNext();
+                        Log.i("response status", response.statusMessage());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                cursor.close();
+            }
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    android.os.Process.setThreadPriority(Process.THREAD_PRIORITY_URGENT_AUDIO);
+                    android.os.Process.setThreadPriority(Process.THREAD_PRIORITY_MORE_FAVORABLE);
                     String cards;
                     String cats = null;
                     Stupid cat;
@@ -869,143 +927,168 @@ public class MyDB extends SQLiteOpenHelper {
                     cursor.close();
                 }
             }).start();
-
         }
     }
 
 
-    public static void add() {
-        //Handler handler = new Handler(Looper.getMainLooper());
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                android.os.Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
+    public static void addCurrent(String subj_name) {
+        //Log.i(subj_name, "readding");
+        if (subj_name.contains(" "))
+            subj_name = subj_name.replace(" ", "_");
+
+        boolean isAdding = false;
+        /*for (Thread thread : Thread.getAllStackTraces().keySet()) {
+            if (thread.getName().equals(subj_name) && thread.isAlive() && !thread.isInterrupted())
+                Log.i("sate", thread.getState().name());
+            isAdding = true;
+        }*/
+        Log.i(subj_name, " " + isAdding);
+
+            int index = 0;
+            for (int i = 0; i < pairs.length; i++) {
+                if (pairs[i].subj_db.equals(subj_name))
+                    index = i;
+            }
+            final String link = pairs[index].link;
+            final String db_name = pairs[index].subj_db;
+            final SQLiteDatabase sqdb = instance.getWritableDatabase();
+
+            //new Thread(new Runnable() {
+            //    public void run() {
+            //        android.os.Process.setThreadPriority(Process.THREAD_PRIORITY_MORE_FAVORABLE);
+            //Log.i(link, "started");
+            String cards;
+            String cats = null;
+            Stupid cat;
+            Category[] mas;
+            Category temp;
+            StupCard tmp;
+            Connection.Response resp = null;
+            BufferedInputStream bis;
+            InputStreamReader isr;
+            JsonReader reader;
+            ContentValues values = new ContentValues();
+            Cursor cursor;
+
+            Log.i("adding", db_name);
+            cursor = sqdb.rawQuery("SELECT added FROM subj WHERE name = ?", new String[]{db_name});
+            cursor.moveToFirst();
+            if (cursor.getInt(0) == 0) {
+                cards = "https://" + link + "-ege.sdamgia.ru/api?protocolVersion=1&type=card&category_id=";
                 try {
-                    //String q = new Random(9999).toString();
-                    String link = "https://ege.sdamgia.ru/mobile_cards/";
-                    //Log.i("rand", new Random(9999999).toString());
-                    String style = Jsoup.connect("https://ege.sdamgia.ru/mobile_cards/style.css?v=" + String.valueOf(new Random().nextInt(9999999)))
+                    cats = Jsoup.connect("https://" + link + "-ege.sdamgia.ru/api?protocolVersion=1&type=card_cat")
                             .ignoreContentType(true).get().select("body").text();
-                    Log.i("STYLE", "-- " + style);
-                    try {
-                        //Log.i("STYLE", style);
-                        if (!getStyle(null).equals(style))
-                            updateStyle("1", style);
-
-                    } catch (IndexOutOfBoundsException e) {
-                        updateStyle("1", style);
-                    }
-
-                    for (String s : style_names) {
-                        style = Jsoup.connect(link + "style_" + s + ".css?v=" + String.valueOf(new Random().nextInt(9999999))).ignoreContentType(true)
-                                .get().select("body").text();
-                        if (!style.equals(""))
-                            updateStyle(s, style);
-                        Log.i(s, "-- " + style);
-                    }
                 } catch (IOException e) {
                     e.printStackTrace();
-                } catch (NullPointerException e) {
-                    e.printStackTrace();
                 }
-            }
-        }).start();
-        MainActivity.addsub = true;
-        for (pair p : pairs) {
-            if (!isSubjAdded(p.subj_db)){
-                new Thread(new Runnable() {
-                    public void run() {
-                        android.os.Process.setThreadPriority(Process.THREAD_PRIORITY_URGENT_AUDIO);
-                        Log.i(p.subj_db, "started");
-                        //Context ref = M;
-                        String cards;
-                        String cats = null;
-                        Stupid cat;
-                        Category[] mas;
-                        Category temp;
-                        StupCard tmp;
-                        Connection.Response resp = null;
-                        BufferedInputStream bis;
-                        InputStreamReader isr;
-                        JsonReader reader;
-                        ContentValues values = new ContentValues();
-                        //SQLiteDatabase sqdb = instance.getReadableDatabase();
-                        Cursor cursor = null;
-                        boolean log;
+                cat = new Gson().fromJson(cats, Stupid.class);
+                mas = cat.getData();
 
-                        Log.i("adding", p.subj_db);
-                        cursor = sqdb.rawQuery("SELECT added FROM subj WHERE name = ?", new String[]{p.subj_db});
-                        cursor.moveToFirst();
-                        if (cursor.getInt(0) == 0) {
-                            log = false;
-                            cards = "https://" + p.link + "-ege.sdamgia.ru/api?protocolVersion=1&type=card&category_id=";
-                            try {
-                                cats = Jsoup.connect("https://" + p.link + "-ege.sdamgia.ru/api?protocolVersion=1&type=card_cat")
-                                        .ignoreContentType(true).get().select("body").text();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                            cat = new Gson().fromJson(cats, Stupid.class);
-                            mas = cat.getData();
-                            if (!MainActivity.logged)
-                                log = false;
+                for (int i = 0; i < mas.length; i++) {
+                    temp = mas[i];
 
-                            //Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-                            for (int i = 0; i < mas.length; i++) {
-                                temp = mas[i];
-                                if (MainActivity.logged) {
-                                    Log.i("adding", "with logged");
-                                    log = true;
-                                } else {
-                                    Log.i(p.subj_db + " " + temp.getTitle() + " adding", "not logged " + Thread.currentThread().getId());
-                                    log = false;
-                                }
-                                //Log.i("mas[i]", temp.getTitle());
-                                if (MainActivity.logged) {
-                                    try {
-                                        resp = Jsoup.connect(cards + temp.getId() + "&session=" + MainActivity.user.getSession_id()).ignoreContentType(true)
-                                                .maxBodySize(0).timeout(2000000).method(Connection.Method.GET).execute();
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
-                                } else {
-                                    try {
-                                        resp = Jsoup.connect(cards + temp.getId()).ignoreContentType(true)
-                                                .maxBodySize(0).timeout(2000000).method(Connection.Method.GET).execute();
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
+                    //Log.i("mas[i]", temp.getTitle());
 
-                                bis = resp.bodyStream();
-                                isr = new InputStreamReader(bis);
-                                reader = new JsonReader(isr);
-                                reader.setLenient(true);
-            /*resp = Jsoup.connect(cards+temp.getId()).ignoreContentType(true)
-                    .maxBodySize(0).timeout(20000000).get().select("body").html();*/
-                                //Log.i("data", data);
-                                tmp = new Gson().fromJson(reader, StupCard.class);
-                                updCat(temp, p.subj_db);
-                                if (tmp.getData() != null) {
-                                    for (Card s : tmp.getData()) {
-                                        updCard(s, p.subj_db);
-                                    }
-                                }
-                            }
-                            Log.i(p.subj_db, "Added");
-                            values.put("name", p.subj_db);
-                            values.put("added", 1);
-                            if (log && MainActivity.logged)
-                                values.put("added_with_log", 1);
-
-                            sqdb.update("subj", values, "name = ?", new String[]{p.subj_db});
-                            values.clear();
-                        }
-
-                        cursor.close();
-                        //ref = null;
+                    try {
+                        resp = Jsoup.connect(cards + temp.getId()).ignoreContentType(true)
+                                .maxBodySize(0).timeout(2000000).method(Connection.Method.GET).execute();
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
-                }).start();
+                    Log.i("adding", db_name + " " + temp.getTitle());
+
+                    bis = resp.bodyStream();
+                    isr = new InputStreamReader(bis);
+                    reader = new JsonReader(isr);
+                    reader.setLenient(true);
+                    //Log.i("data", data);
+                    tmp = new Gson().fromJson(reader, StupCard.class);
+                    updCat(temp, db_name);
+                    if (tmp.getData() != null) {
+                        for (Card s : tmp.getData()) {
+                            updCard(s, db_name);
+                        }
+                    }
+                }
+                Log.i(db_name, "Added");
+                values.put("name", db_name);
+                values.put("added", 1);
+
+                sqdb.update("subj", values, "name = ?", new String[]{db_name});
+                values.clear();
+            }
+            cursor.close();
+
+        //}, db_name).start();
+        //}
+
+    }
+    static class MyExecutor implements Executor{
+        boolean parallel;
+
+        public MyExecutor(boolean parallel){
+            this.parallel = parallel;
+        }
+
+        @Override
+        public void execute(Runnable command) {
+            if (parallel)
+                new Thread(command).start();
+            else
+                command.run();
+        }
+    }
+
+    public static void add() {
+
+        // check styles
+        new Thread(() -> {
+            Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
+            try {
+                //String q = new Random(9999).toString();
+                String link = "https://ege.sdamgia.ru/mobile_cards/";
+                //Log.i("rand", new Random(9999999).toString());
+                String style = Jsoup.connect("https://ege.sdamgia.ru/mobile_cards/style.css?v=" + String.valueOf(new Random().nextInt(9999999)))
+                        .ignoreContentType(true).get().select("body").text();
+                Log.i("STYLE", "-- " + style);
+                try {
+                    //Log.i("STYLE", style);
+                    if (!getStyle(null).equals(style))
+                        updateStyle("1", style);
+
+                } catch (IndexOutOfBoundsException e) {
+                    updateStyle("1", style);
+                }
+
+                for (String s : style_names) {
+                    style = Jsoup.connect(link + "style_" + s + ".css?v=" + String.valueOf(new Random().nextInt(9999999))).ignoreContentType(true)
+                            .get().select("body").text();
+                    if (!style.equals(""))
+                        updateStyle(s, style);
+                    Log.i(s, "-- " + style);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (NullPointerException e) {
+                e.printStackTrace();
+            }
+            //waitAndAdd();
+        }).start();
+
+        MainActivity.addsub = true;
+
+        MyExecutor executor = new MyExecutor(true);
+        for (pair p : pairs) {
+            if (!isSubjAdded(p.subj_db)) {
+                //addCurrent(p.subj_db);
+                Runnable run = new Runnable() {
+                    @Override
+                    public void run() {
+                        Process.setThreadPriority(Process.THREAD_PRIORITY_MORE_FAVORABLE);
+                        addCurrent(p.subj_db);
+                    }
+                };
+                executor.execute(run);
             }
         }
     }
@@ -1029,6 +1112,17 @@ public class MyDB extends SQLiteOpenHelper {
         }
     }
 
+    public static boolean isSubjSynced(String parent){
+        Cursor cursor = sqdb.rawQuery("SELECT added_with_log FROM subj WHERE name = ?", new String[]{parent});
+        cursor.moveToFirst();
+        int id = cursor.getInt(0);
+        cursor.close();
+        if (id == 1)
+            return true;
+        else return false;
+    }
+
+
     public static void updCard(Card card, String table) {
         ContentValues values = new ContentValues();
         values.put("id", card.getId());
@@ -1043,7 +1137,6 @@ public class MyDB extends SQLiteOpenHelper {
         if (id == 0) {
             sqdb.insertWithOnConflict(table + "_card", null, values, SQLiteDatabase.CONFLICT_IGNORE);
         }
-        //Log.i("Card", String.valueOf(card.getId())+" added");
         values.clear();
     }
 
@@ -1058,7 +1151,6 @@ public class MyDB extends SQLiteOpenHelper {
         int id = sqdb.update(table + "_cat", values, "id = ?", new String[]{String.valueOf(cat.getId())});
         if (id == 0)
             sqdb.insertWithOnConflict(table + "_cat", null, values, SQLiteDatabase.CONFLICT_IGNORE);
-        //Log.i("Cat", String.valueOf(cat.getId())+" added");
         values.clear();
     }
 

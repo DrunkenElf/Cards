@@ -5,7 +5,6 @@ import android.view.View;
 import com.github.rubensousa.raiflatbutton.RaiflatButton;
 import com.ilnur.cards.Category_Buttons.Cat_butt;
 import com.ilnur.cards.Fragments.LearnFragment;
-import com.ilnur.cards.Fragments.WatchFragment;
 import com.ilnur.cards.Fragments.WatchFragment1;
 import com.ilnur.cards.R;
 

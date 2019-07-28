@@ -16,8 +16,7 @@ import com.github.rubensousa.raiflatbutton.RaiflatImageButton;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.navigation.NavigationView;
 import com.ilnur.cards.Fragments.SubjFragment;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatButton;
@@ -70,6 +69,15 @@ public class MainActivity extends AppCompatActivity
         super.onStart();
     }
 
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState, PersistableBundle persistentState) {
+        super.onRestoreInstanceState(savedInstanceState, persistentState);
+    }
+
+    @Override
+    public void onTrimMemory(int level) {
+        super.onTrimMemory(level);
+    }
 
     @Override
     protected void onPause() {
@@ -114,6 +122,7 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         Log.i("MainActivity", "Created");
         setContentView(R.layout.activity_main);
+
         /*msettings = getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
         if (msettings.contains(PREFERENCES_LOG) && msettings.contains(PREFERENCES_PAS) &&
                 msettings.contains(PREFERENCES_SES)) {
@@ -135,7 +144,7 @@ public class MainActivity extends AppCompatActivity
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
             StrictMode.setThreadPolicy(policy);
             //ImageLoaderConfiguration conf = new ImageLoaderConfig
-            ImageLoader.getInstance().init(ImageLoaderConfiguration.createDefault(getApplicationContext()));
+            //ImageLoader.getInstance().init(ImageLoaderConfiguration.createDefault(getApplicationContext()));
 
             drawer = findViewById(R.id.drawer_layout);
             toggle = new ActionBarDrawerToggle(
@@ -175,7 +184,7 @@ public class MainActivity extends AppCompatActivity
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
             StrictMode.setThreadPolicy(policy);
             //ImageLoaderConfiguration conf = new ImageLoaderConfig
-            ImageLoader.getInstance().init(ImageLoaderConfiguration.createDefault(getApplicationContext()));
+            //ImageLoader.getInstance().init(ImageLoaderConfiguration.createDefault(getApplicationContext()));
 
             drawer = findViewById(R.id.drawer_layout);
             toggle = new ActionBarDrawerToggle(
@@ -407,7 +416,7 @@ public class MainActivity extends AppCompatActivity
                 Toast.makeText(getApplicationContext(), "Для синхронизации необходима авторизация", Toast.LENGTH_SHORT).show();
             }
         } else if (id == R.id.nav_save) {
-            if (!addsub) {
+            if (!MyDB.isAlladded()) {
                 Runnable sync = () -> MyDB.add();
                 new Thread(sync).start();
             } else {
