@@ -1,6 +1,7 @@
 package com.ilnur.cards.Fragments;
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,7 +18,10 @@ import com.ilnur.cards.Category_Buttons.Cat_butt_rev;
 import com.ilnur.cards.Category_Buttons.Binders.Cat_butt_rev_binder;
 import com.ilnur.cards.Category_Buttons.Cat_head;
 import com.ilnur.cards.Category_Buttons.Binders.Cat_head_binder;
+import com.ilnur.cards.Json.Card;
 import com.ilnur.cards.Json.Category;
+import com.ilnur.cards.MainActivity;
+import com.ilnur.cards.MyDB;
 import com.ilnur.cards.R;
 
 import net.opacapp.multilinecollapsingtoolbar.CollapsingToolbarLayout;
@@ -42,21 +46,26 @@ public class ButListFragment extends Fragment {
     private ArrayList<Category> list;
     private int id;
     private List<TreeNode> nodes = new ArrayList<>();
+    //private MyDB db;
 
 
-    public void setButListFragment(String subj, String title, ArrayList<Category> list,
+    public void setButListFragment( String subj, String title, ArrayList<Category> list,
                                    boolean checkRever, int id){
         this.subj = subj;
         this.title = title;
         this.list = list;
         this.checkRever = checkRever;
         this.id = id;
+        //this.db = db;
     }
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View rootview = inflater.inflate(R.layout.butlist_fragment, container, false);
+
+        MainActivity.current_tag = "but";
+        setRetainInstance(true);
 
         //restore saved instance
         if (savedInstanceState != null){
@@ -65,6 +74,7 @@ public class ButListFragment extends Fragment {
             id = savedInstanceState.getInt("id");
             list = savedInstanceState.getParcelableArrayList("key");
         }
+        //new loadHugePageBtn().execute();
 
         Toolbar bar = Toolbar.class.cast(getActivity().findViewById(R.id.toolbar));
         CollapsingToolbarLayout col = CollapsingToolbarLayout.class.cast(getActivity().findViewById(R.id.collapsing_toolbar));
@@ -214,4 +224,19 @@ public class ButListFragment extends Fragment {
             id = savedInstanceState.getInt("id");
         }
     }
+    // async to load huge pages to hashmap
+    /*private class loadHugePageBtn extends AsyncTask<Void, Void, Void>{
+        @Override
+        protected Void doInBackground(Void... voids) {
+            Log.i("loadBtn", subj+"//"+id);
+            // key - subj+//+id
+            if (!MyDB.hugePages.containsKey(subj+"//"+id)) {
+                Log.i("loadBtn", subj+"//"+id + " not contains");
+                ArrayList<Card> temp = MyDB.getParentCardsWatch(subj, id);
+                MyDB.hugePages.put(subj + "//" + id, temp);
+                Log.i("loadBtn", subj+"//"+id + " added");
+            }
+            return null;
+        }
+    }*/
 }

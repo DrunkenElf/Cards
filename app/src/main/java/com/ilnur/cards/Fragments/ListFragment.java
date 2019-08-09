@@ -1,6 +1,7 @@
 package com.ilnur.cards.Fragments;
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -22,6 +23,7 @@ import com.ilnur.cards.Category_Buttons.Cat_butt;
 import com.ilnur.cards.Category_Buttons.Cat_butt_rev;
 import com.ilnur.cards.Category_Buttons.Cat_head;
 import com.ilnur.cards.Fragments.ButListFragment;
+import com.ilnur.cards.Json.Card;
 import com.ilnur.cards.Json.Category;
 import com.ilnur.cards.MainActivity;
 import com.ilnur.cards.MyDB;
@@ -52,10 +54,12 @@ public class ListFragment extends Fragment {
     private String[] mas;
     private ArrayList<Category> list;
     private List<TreeNode> nodes = new ArrayList<>();
+    private MyDB db;
 
-    public void setTitle(String title, String[] mas) {
+    public void setTitle(MyDB db, String title, String[] mas) {
         this.title = title;
         this.mas = mas;
+        this.db = db;
     }
 
 
@@ -63,6 +67,8 @@ public class ListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View rootview = inflater.inflate(R.layout.list_fragment, container, false);
         //getActivity().setTitle(title);
+        MainActivity.current_tag = "list";
+        setRetainInstance(true);
         if (savedInstanceState != null) {
             mas = savedInstanceState.getStringArray("mas");
             title = savedInstanceState.getString("title");
@@ -85,7 +91,7 @@ public class ListFragment extends Fragment {
         apbar.setClickable(false);
 
         if (savedInstanceState == null) {
-            if (!MyDB.isSubjAdded(title)) {
+            if (!db.isSubjAdded(title)) {
                 Toast.makeText(rootview.getContext(), "Некоторые темы все еще добавляются", Toast.LENGTH_SHORT).show();
                 //MyDB.addCurrent(title);
             }
@@ -123,6 +129,8 @@ public class ListFragment extends Fragment {
                         blf.setButListFragment(title, head.getTitle(), MyDB.getSubCatNames(
                                 title, head.getTitle()), checkRever, id_tittle);
 
+                        //new loadHugePageList(title, id_tittle).execute();
+
                         //Log.i("POs", mas[position]);
                         getFragmentManager().beginTransaction()
                                 .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.from_left, R.anim.to_right)
@@ -141,6 +149,8 @@ public class ListFragment extends Fragment {
 
                         blf.setButListFragment(title, head.getTitle(), MyDB.getSubCatNames(
                                 title, head.getTitle()), checkRever, id_tittle);
+
+                        //new loadHugePageList(title, id_tittle).execute();
 
                         //Log.i("POs", mas[position]);
                         getFragmentManager().beginTransaction()
@@ -226,4 +236,28 @@ public class ListFragment extends Fragment {
             title = savedInstanceState.getString("title");
         }
     }
+    // async to load huge pages to hashmap
+    /*private class loadHugePageList extends AsyncTask<Void, Void, Void> {
+        String subj;
+        int id;
+
+        public loadHugePageList(String subj, int id){
+            this.subj = subj;
+            this.id = id;
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            Log.i("loadList", subj+"//"+id);
+            // key - subj+//+id
+            if (!MyDB.hugePages.containsKey(subj+"//"+id)) {
+                Log.i("loadList", subj+"//"+id + " not contains");
+                ArrayList<Card> temp = MyDB.getParentCardsWatch(subj, id);
+                MyDB.hugePages.put(subj + "//" + id, temp);
+                Log.i("loadList", subj+"//"+id + " added");
+            }
+
+            return null;
+        }
+    }*/
 }

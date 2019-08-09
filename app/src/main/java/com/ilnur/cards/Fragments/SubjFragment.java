@@ -1,5 +1,6 @@
 package com.ilnur.cards.Fragments;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,6 +15,7 @@ import com.github.rubensousa.raiflatbutton.RaiflatImageButton;
 import com.google.android.material.appbar.AppBarLayout;
 import com.ilnur.cards.Adapters.SubjAdapter;
 import com.ilnur.cards.Fragments.ListFragment;
+import com.ilnur.cards.Json.Card;
 import com.ilnur.cards.MainActivity;
 import com.ilnur.cards.MyDB;
 import com.ilnur.cards.R;
@@ -25,14 +27,30 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 
+import java.util.ArrayList;
+
 public class SubjFragment extends Fragment {
     private static String[] subjects = {"Русский язык", "Физика", "Математика", "Английский язык", "История"};
+    private MyDB db;
 
+    public SubjFragment(MyDB db){
+        this.db = db;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View rootview = inflater.inflate(R.layout.subj_layout, container, false);
         //getActivity().setTitle("Решу ЕГЭ. Карточки");
+        MainActivity.current_tag = "subj";
+        setRetainInstance(true);
+        //MainActivity.this.enableBackBtn();
+        MainActivity main = (MainActivity)getActivity();
+        //main.enableBackBtn(true);
 
         if (savedInstanceState!=null){
             subjects = savedInstanceState.getStringArray("subj");
@@ -60,13 +78,13 @@ public class SubjFragment extends Fragment {
 
         gridView.setOnItemClickListener((parent, view, position, id) -> {
             MainActivity.exit = false;
-
+            main.enableBackBtn(true);
             String[] mas = MyDB.getCatNames(subjects[position]);
             if (mas.length == 0){
                 Toast.makeText(rootview.getContext(), "Этот предмет все еще добавляется", Toast.LENGTH_SHORT).show();
                 //MyDB.addCurrent(subjects[position]);
             } else {
-                if (mas.length == 1 && MyDB.isSubjAdded(mas[0])){
+                if (mas.length == 1 && db.isSubjAdded(mas[0])){
                     //MainActivity.exit = false;
                     ButListFragment blf = new ButListFragment();
 
@@ -74,8 +92,11 @@ public class SubjFragment extends Fragment {
 
                     int id_tittle = MyDB.getParentId(subjects[position], mas[0]);
 
-                    blf.setButListFragment(subjects[position], mas[0], MyDB.getSubCatNames(
+                    blf.setButListFragment( subjects[position], mas[0], MyDB.getSubCatNames(
                             subjects[position], mas[0]), checkRever, id_tittle);
+
+                    // load huge page to hashmap
+                    //new loadHugePageSubj(subjects[position], id_tittle).execute();
 
                     //Log.i("POs", mas[position]);
                     getFragmentManager().beginTransaction()
@@ -85,7 +106,7 @@ public class SubjFragment extends Fragment {
                             .commit();
                 } else {
                     ListFragment lf = new ListFragment();
-                    lf.setTitle(subjects[position], mas);
+                    lf.setTitle(db, subjects[position], mas);
                     getFragmentManager().beginTransaction()
                             .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.from_left, R.anim.to_right)
                             .replace(R.id.parent, lf)
@@ -127,4 +148,27 @@ public class SubjFragment extends Fragment {
             subjects = savedInstanceState.getStringArray("subj");
         }
     }
+    // async to load huge pages to hashmap
+    /*private class loadHugePageSubj extends AsyncTask<Void, Void, Void> {
+        String subj;
+        int id;
+
+        public loadHugePageSubj(String subj, int id){
+            this.subj = subj;
+            this.id = id;
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            Log.i("loadSubj", subj+"//"+id);
+            // key - subj+//+id
+            if (!MyDB.hugePages.containsKey(subj+"//"+id)) {
+                Log.i("loadSubj", subj+"//"+id + " not contains");
+                //ArrayList<Card> temp = MyDB.getParentCardsWatch(subj, id);
+                MyDB.hugePages.put(subj + "//" + id, MyDB.getParentCardsWatch(subj, id));
+                Log.i("loadSubj", subj+"//"+id + " added");
+            }
+            return null;
+        }
+    }*/
 }

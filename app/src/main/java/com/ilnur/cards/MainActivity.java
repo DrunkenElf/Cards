@@ -1,53 +1,40 @@
 package com.ilnur.cards;
 
+import android.content.ComponentCallbacks2;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
-import android.os.AsyncTask;
 import android.os.Bundle;
-
 import android.os.PersistableBundle;
 import android.os.StrictMode;
 import android.util.Log;
-
-import com.github.rubensousa.raiflatbutton.RaiflatButton;
-import com.github.rubensousa.raiflatbutton.RaiflatImageButton;
-import com.google.android.material.appbar.AppBarLayout;
-import com.google.android.material.navigation.NavigationView;
-import com.ilnur.cards.Fragments.SubjFragment;
-
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.widget.AppCompatButton;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-
-import android.view.DragEvent;
-import android.view.KeyEvent;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
-import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import net.opacapp.multilinecollapsingtoolbar.CollapsingToolbarLayout;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatButton;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+
+import com.github.rubensousa.raiflatbutton.RaiflatButton;
+import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.navigation.NavigationView;
+import com.ilnur.cards.Fragments.SubjFragment;
 
 import org.jsoup.Jsoup;
 
 import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, ComponentCallbacks2 {
     public static boolean exit = false;
     public static User user;
     public static boolean logged = false;
@@ -55,12 +42,18 @@ public class MainActivity extends AppCompatActivity
     public static boolean show = true;
     public static boolean addsub = false;
     public static boolean syncsub = false;
+    public static Fragment current;
+    public static String current_tag;
     public Context context;
-    Toolbar toolbar;
+    public static MyDB db;
+    public static boolean isRegistered = false;
+    static Toolbar toolbar;
+    static ActionBar bar;
     AppBarLayout apbar;
-    DrawerLayout drawer;
-    ActionBarDrawerToggle toggle;
+    static DrawerLayout drawer;
+    static ActionBarDrawerToggle toggle;
     NavigationView navigationView;
+
     //public static SharedPreferences msettings;
 
     @Override
@@ -71,13 +64,54 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState, PersistableBundle persistentState) {
+        Log.i("onRstoreInst", "Created");
         super.onRestoreInstanceState(savedInstanceState, persistentState);
     }
 
     @Override
+    public void onStateNotSaved() {
+        Log.i("StateNotSaved", "Created");
+        super.onStateNotSaved();
+    }
+
+    @Override
+    public void onLowMemory() {
+        Log.i("onLowMem", "main");
+        super.onLowMemory();
+    }
+
+    @Override
     public void onTrimMemory(int level) {
+        Log.i("onTrimMem", "main");
+        switch (level) {
+            case ComponentCallbacks2.TRIM_MEMORY_BACKGROUND:
+                Log.i("memBack", "asd");
+                break;
+            case ComponentCallbacks2.TRIM_MEMORY_COMPLETE:
+                Log.i("memCom", "asd");
+                break;
+            case ComponentCallbacks2.TRIM_MEMORY_MODERATE:
+                Log.i("memMod", "asd");
+                break;
+            case ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN:
+                Log.i("memUiHid", "asd");
+                System.gc();
+                Runtime.getRuntime().gc();
+                break;
+            case ComponentCallbacks2.TRIM_MEMORY_RUNNING_CRITICAL:
+                Log.i("memRunCrit", "asd");
+                break;
+            case ComponentCallbacks2.TRIM_MEMORY_RUNNING_LOW:
+                Log.i("memRunLow", "asd");
+                break;
+            case ComponentCallbacks2.TRIM_MEMORY_RUNNING_MODERATE:
+                Log.i("memRunMod", "asd");
+                break;
+        }
         super.onTrimMemory(level);
     }
+
+    ///onSa
 
     @Override
     protected void onPause() {
@@ -110,6 +144,8 @@ public class MainActivity extends AppCompatActivity
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         Log.i("SaveInstanceMain", "Created");
         super.onSaveInstanceState(outState);
+        //if (current_tag!=null && current!=null)
+        //    getSupportFragmentManager().putFragment(outState, current_tag, current);
     }
 
     @Override
@@ -138,6 +174,7 @@ public class MainActivity extends AppCompatActivity
             toolbar = findViewById(R.id.toolbar);
             setSupportActionBar(toolbar);
 
+
             apbar = findViewById(R.id.apbar);
             apbar.setExpanded(false);
 
@@ -157,9 +194,10 @@ public class MainActivity extends AppCompatActivity
             navigationView.setNavigationItemSelectedListener(this);
             changeNavHead(logged);
 
+
             // init db
-            MyDB db = new MyDB(this);
-            MyDB.init(db, false);
+            db = new MyDB(this);
+            db.init(db, false);
             if (!isNetworkConnected()) {
                 Toast.makeText(getApplicationContext(), "Подключение к интернету отсутствует, скачивание данных невозможно",
                         Toast.LENGTH_LONG).show();
@@ -167,12 +205,16 @@ public class MainActivity extends AppCompatActivity
                 //add subjects
                 if (!logged) {
                     Log.i("not logged", "start adding");
-                    Runnable addSubh = MyDB::add;
+                    /*Runnable addSubh = () -> db.add();
                     Thread add = new Thread(addSubh);
                     add.setName("add");
-                    add.start();
+                    add.start();*/
+                    db.add();
                 }
             }
+            //current = getSupportFragmentManager().getFragment(savedInstanceState, current_tag);
+
+
         } else {
 
             toolbar = findViewById(R.id.toolbar);
@@ -196,8 +238,8 @@ public class MainActivity extends AppCompatActivity
             navigationView = findViewById(R.id.nav_view);
             navigationView.setNavigationItemSelectedListener(this);
 
-            MyDB db = new MyDB(this);
-            MyDB.init(db, false);
+            db = new MyDB(this);
+            db.init(db, false);
 
             user = MyDB.getUser();
             if (user.getLogin() == null) {
@@ -211,7 +253,7 @@ public class MainActivity extends AppCompatActivity
                     logged = true;
                 } else {
                     logged = false;
-                    if (user.getLogin()!=null && user.getPassword()!=null && user.getSession_id()!=null)
+                    if (user.getLogin() != null && user.getPassword() != null && user.getSession_id() != null)
                         logged = true;
                     /*if (msettings.contains(PREFERENCES_LOG))
                         logged = true;*/
@@ -229,7 +271,7 @@ public class MainActivity extends AppCompatActivity
                 //add subjects
                 if (!logged) {
                     Log.i("add subj", "started");
-                    Runnable addSubh = () -> MyDB.add();
+                    Runnable addSubh = () -> db.add();
                     Thread add = new Thread(addSubh);
                     add.setName("add");
                     add.start();
@@ -244,7 +286,7 @@ public class MainActivity extends AppCompatActivity
             }
 
 
-            SubjFragment subjFragment = new SubjFragment();
+            SubjFragment subjFragment = new SubjFragment(db);
             subjFragment.setRetainInstance(true);
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.parent, subjFragment)
@@ -252,7 +294,33 @@ public class MainActivity extends AppCompatActivity
                     .commit();
             //show login activity if you're not logged
         }
+        bar = getSupportActionBar();
 
+    }
+
+    public void enableBackBtn(boolean enable) {
+        if (enable) {
+            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+            toggle.setDrawerIndicatorEnabled(false);
+            bar.setDisplayHomeAsUpEnabled(true);
+            //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            if (!isRegistered) {
+                toggle.setToolbarNavigationClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        onBackPressed();
+                    }
+                });
+                isRegistered = true;
+            }
+        } else {
+            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+            bar.setDisplayHomeAsUpEnabled(false);
+            //getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+            toggle.setDrawerIndicatorEnabled(true);
+            toggle.setToolbarNavigationClickListener(null);
+            isRegistered = false;
+        }
     }
 
 
@@ -373,6 +441,8 @@ public class MainActivity extends AppCompatActivity
                 Toast.makeText(this, "Нажмите ещё раз, чтобы выйти", Toast.LENGTH_SHORT).show();
                 exit = true;
             } else {
+                if (isRegistered && getSupportFragmentManager().getBackStackEntryCount() == 2)
+                    enableBackBtn(false);
                 super.onBackPressed();
             }
         }
@@ -408,7 +478,7 @@ public class MainActivity extends AppCompatActivity
         item.setCheckable(false);
         if (id == R.id.nav_sync) {
             if (logged && !syncsub) {
-                Runnable sync = MyDB::syncSubj;
+                Runnable sync = db::syncSubj;
                 new Thread(sync).start();
             } else if (logged && syncsub) {
                 Toast.makeText(getApplicationContext(), "Карточку уже синхронизируются", Toast.LENGTH_SHORT).show();
@@ -416,8 +486,8 @@ public class MainActivity extends AppCompatActivity
                 Toast.makeText(getApplicationContext(), "Для синхронизации необходима авторизация", Toast.LENGTH_SHORT).show();
             }
         } else if (id == R.id.nav_save) {
-            if (!MyDB.isAlladded()) {
-                Runnable sync = () -> MyDB.add();
+            if (!db.isAlladded()) {
+                Runnable sync = () -> db.add();
                 new Thread(sync).start();
             } else {
                 Toast.makeText(getApplicationContext(), "Предметы уже добавляются", Toast.LENGTH_SHORT).show();

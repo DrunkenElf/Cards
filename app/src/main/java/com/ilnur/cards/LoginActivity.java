@@ -131,7 +131,7 @@ public class LoginActivity extends AppCompatActivity {
                 }
 
                 Toast.makeText(getApplicationContext(), "Авторизация прошла успешно", Toast.LENGTH_SHORT).show();
-                Runnable sync = MyDB::syncSubj;
+                Runnable sync = MainActivity.db::syncSubj;
                 new Thread(sync).start();
                 this.finish();
             }

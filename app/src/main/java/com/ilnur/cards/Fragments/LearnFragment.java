@@ -6,15 +6,19 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.CursorIndexOutOfBoundsException;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -54,6 +58,7 @@ public class LearnFragment extends Fragment {
     private ArrayList<Card> list;
     private String c;
     private StringBuilder wrong = new StringBuilder();
+    private MyDB db = MyDB.instance;
     String strBody = "";
 
     @Override
@@ -165,7 +170,8 @@ public class LearnFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View rootview = inflater.inflate(R.layout.learn_lay, container, false);
-
+        MainActivity.current_tag = "learn";
+        setRetainInstance(true);
         //getActivity().setTitle(title);
 
         if (savedInstanceState != null){
@@ -187,20 +193,34 @@ public class LearnFragment extends Fragment {
             else
                 list = MyDB.getChildCards(subj, title, id);
         }
-        try {
-            if (!MyDB.getStyle(null).equals("") && MyDB.getStyle(null) != null)
-                strBody = "<html><head><style>" + MyDB.getStyle(null);
-        } catch (CursorIndexOutOfBoundsException e){
-            e.printStackTrace();
-            strBody = "<html><head><style>";
-        }
-        try {
-            if (!MyDB.getStyle(subj).equals("") && MyDB.getStyle(subj) != null)
-                strBody = strBody + MyDB.getStyle(subj) + "</style></head><body>";
-        } catch (CursorIndexOutOfBoundsException e){
-            e.printStackTrace();
-            strBody = strBody + "</style></head><body>";
-        }
+        //if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT){
+        //    strBody = "<html><head></head><body>";
+        //} else {
+            //SQLiteDatabase sqdb =
+            try {
+                if (!db.getStyle(null, MyDB.instance.getReadableDatabase(), MyDB.style_orig, MyDB.style_names)
+                        .equals("") && db.getStyle(null, MyDB.instance.getReadableDatabase(), MyDB.style_orig, MyDB.style_names) != null)
+                    //strBody = "<html><head><meta name=\\\"viewport\\\" content=\\\"width=device-width; user-scalable=no; initial-scale=7.0; minimum-scale=5.0; maximum-scale=7.0; target-densityDpi=device-dpi;\\\"/><style>" + MyDB.getStyle(null);
+                strBody = "<html><head><meta name=\\\"viewport\\\" content=\\\"width=device-width\\\"/><style>" +
+                //strBody = "<html><head><style>" +
+                        db.getStyle(null, MyDB.instance.getReadableDatabase(), MyDB.style_orig, MyDB.style_names);
+            } catch (CursorIndexOutOfBoundsException e) {
+                e.printStackTrace();
+                //strBody = "<html><head><meta name=\\\"viewport\\\" content=\\\"width=device-width; user-scalable=no; initial-scale=7.0; minimum-scale=5.0; maximum-scale=7.0; target-densityDpi=device-dpi;\\\"/><style>";
+                strBody = "<html><head><meta name=\\\"viewport\\\" content=\\\"width=device-width\\\"/><style>";
+                //strBody = "<html><head><style>";
+            }
+            try {
+                if (!db.getStyle(subj, MyDB.instance.getReadableDatabase(), MyDB.style_orig, MyDB.style_names).equals("") &&
+                        db.getStyle(subj, MyDB.instance.getReadableDatabase(), MyDB.style_orig, MyDB.style_names) != null)
+                    strBody = strBody + db.getStyle(subj, MyDB.instance.getReadableDatabase(), MyDB.style_orig, MyDB.style_names) +
+                            "</style></head><body>";
+            } catch (CursorIndexOutOfBoundsException e) {
+                e.printStackTrace();
+                strBody = strBody + "</style></head><body>";
+            }
+        //}
+        Log.i("style", strBody);
         //Toolbar bar = Toolbar.class.cast(getActivity().findViewById(R.id.toolbar));
         CollapsingToolbarLayout col = CollapsingToolbarLayout.class.cast(getActivity().findViewById(R.id.collapsing_toolbar));
         col.setTitle(title);
@@ -234,6 +254,29 @@ public class LearnFragment extends Fragment {
 
         View include = rootview.findViewById(R.id.learn_inc_fr);
         WebView web = include.findViewById(R.id.web);
+        //because in sdk version lower than 20 css doesn't supported
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT){
+            //web.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+            //strBody = strBody.replace("absolute", "relative");
+            //strBody = strBody.replace("left: 50%;", "left: 0%");
+            //strBody = strBody.replace("top: 50%;", "top: 25%;");
+            strBody = strBody.replace("translate(-50%, -50%);", "translate(-50%, -50%);" +
+                    "-webkit-transform: translate(-50%, -50%);");
+            strBody = strBody.replaceAll("max-width: 100%;", "max-width: 100%; height: 50%;");
+
+            //ViewGroup.LayoutParams params = web.getLayoutParams();
+            //ViewGroup.LayoutParams params1 = web.getLayoutParams();
+            //params1.width =
+            /*web.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT));*/
+            //web.getSettings().setSupportZoom(true);
+            //web.getSettings().setDefaultZoom(WebSettings.ZoomDensity.FAR);
+            //web.setInitialScale(100);
+            //web.getSettings().setDefaultFontSize(90);
+            //web.getSettings().setLoadWithOverviewMode(false);
+            //web.getSettings().setUseWideViewPort(true);
+        } else
+            strBody = strBody.replaceAll("max-width: 100%;", "max-width: 100%; height: inherit;");
         TextView count = rootview.findViewById(R.id.count);
 
         Button check = rootview.findViewById(R.id.check_but);
@@ -260,9 +303,10 @@ public class LearnFragment extends Fragment {
 
         if (list.size()==0){
             check.setVisibility(View.GONE);
-            dontknow.setVisibility(View.GONE);
-            know.setVisibility(View.GONE);
-            learned.setVisibility(View.GONE);
+            ll.setVisibility(View.GONE);
+            //dontknow.setVisibility(View.GONE);
+            //know.setVisibility(View.GONE);
+            //learned.setVisibility(View.GONE);
             count.setText("0"+c);
             web.loadDataWithBaseURL(null, append("Похоже, что на сегодня вы все повторили или выучили"),"text/html", "utf-8", "about:blank");
         } else {
@@ -270,6 +314,7 @@ public class LearnFragment extends Fragment {
             //int i = 0;
 
             curr_card = list.get(i);
+            Log.i("card", append(curr_card.getRevers()));
             if (revers) {
                 web.loadDataWithBaseURL(null, append(curr_card.getRevers()), "text/html",
                         "utf-8", "about:blank");
@@ -283,9 +328,9 @@ public class LearnFragment extends Fragment {
             //animate(check);
             check.setVisibility(View.GONE);
             ll.setVisibility(View.VISIBLE);
-            dontknow.setVisibility(View.VISIBLE);
-            know.setVisibility(View.VISIBLE);
-            learned.setVisibility(View.VISIBLE);
+            //dontknow.setVisibility(View.VISIBLE);
+            //know.setVisibility(View.VISIBLE);
+            //learned.setVisibility(View.VISIBLE);
             if (revers) {
                 web.loadDataWithBaseURL(null, append(curr_card.getAvers()), "text/html",
                         "utf-8", "about:blank");
@@ -322,9 +367,9 @@ public class LearnFragment extends Fragment {
             Log.i("BUtton","dont");
             wrongs++;
             check.setVisibility(View.VISIBLE);
-            dontknow.setVisibility(View.GONE);
-            know.setVisibility(View.GONE);
-            learned.setVisibility(View.GONE);
+            //dontknow.setVisibility(View.GONE);
+            //know.setVisibility(View.GONE);
+            //learned.setVisibility(View.GONE);
             ll.setVisibility(View.GONE);
             if (curr_card.getRevers().length() == 1){
                 wrong.append("<tr><td>"+checkCard(curr_card).getRevers()+"</td></tr><tr>\n" +
@@ -368,9 +413,9 @@ public class LearnFragment extends Fragment {
             Log.i("BUtton","know");
             right++;
             check.setVisibility(View.VISIBLE);
-            dontknow.setVisibility(View.GONE);
-            know.setVisibility(View.GONE);
-            learned.setVisibility(View.GONE);
+            //dontknow.setVisibility(View.GONE);
+            //know.setVisibility(View.GONE);
+            //learned.setVisibility(View.GONE);
             ll.setVisibility(View.GONE);
             new updateCard().execute(new params(subj, curr_card.getId(), 1, curr_card.getResult()));
             //MyDB.updateCard(subj, curr_card.getId(), 1, curr_card.getResult());
@@ -405,9 +450,9 @@ public class LearnFragment extends Fragment {
             Log.i("BUtton","learned");
             right++;
             check.setVisibility(View.VISIBLE);
-            dontknow.setVisibility(View.GONE);
-            know.setVisibility(View.GONE);
-            learned.setVisibility(View.GONE);
+            //dontknow.setVisibility(View.GONE);
+            //know.setVisibility(View.GONE);
+            //learned.setVisibility(View.GONE);
             ll.setVisibility(View.GONE);
             new updateCard().execute(new params(subj, curr_card.getId(), 4, curr_card.getResult()));
             //MyDB.updateCard(subj, curr_card.getId(), 4, curr_card.getResult());
@@ -508,9 +553,6 @@ public class LearnFragment extends Fragment {
     public class updateCard extends AsyncTask<params, Void, Void> {
         @Override
         protected Void doInBackground(params... params) {
-            if (params[0].old_result == 4)
-
-
             MyDB.updateCard(params[0].subj, params[0].id, params[0].result, params[0].old_result);
             return null;
         }

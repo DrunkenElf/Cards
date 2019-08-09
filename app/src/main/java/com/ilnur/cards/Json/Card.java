@@ -9,7 +9,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class Card implements Parcelable {
+public class    Card implements Parcelable {
     @SerializedName("id")
     private int id;
     @SerializedName("avers")

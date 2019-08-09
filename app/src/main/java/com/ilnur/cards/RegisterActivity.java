@@ -99,7 +99,7 @@ public class RegisterActivity extends AppCompatActivity {
         TextInputLayout surnameLay = findViewById(R.id.reg_lay_surname);
         EditText surname = findViewById(R.id.reg_surname);
 
-        TextInputLayout typeLay = findViewById(R.id.reg_type);
+        //TextInputLayout typeLay = findViewById(R.id.reg_type);
         AppCompatSpinner spinner = findViewById(R.id.spinner);
 
         AppCompatButton enter = findViewById(R.id.reg_but);
@@ -423,7 +423,7 @@ public class RegisterActivity extends AppCompatActivity {
                     dialog.cancel();
                     MainActivity.logged = true;
                     Toast.makeText(getApplicationContext(), "Вы успешно авторизованы", Toast.LENGTH_LONG).show();
-                    Runnable sync = MyDB::syncSubj;
+                    Runnable sync = MainActivity.db::syncSubj;
                     new Thread(sync).start();
                     finish();
             }

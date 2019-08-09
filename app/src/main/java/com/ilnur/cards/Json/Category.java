@@ -16,6 +16,8 @@ public class Category implements Parcelable {
     private int reversible;
     @SerializedName("order")
     private int order;
+    @SerializedName("stamp")
+    private String stamp;
 
     public Category(){}
 
@@ -43,6 +45,11 @@ public class Category implements Parcelable {
         dest.writeInt(reversible);
         dest.writeInt(order);
     }
+
+    public void setStamp(String stamp) {
+        this.stamp = stamp;
+    }
+
     public void setId(int id) {
         this.id = id;
     }
@@ -61,6 +68,10 @@ public class Category implements Parcelable {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getStamp() {
+        return stamp;
     }
 
     public int getId() {

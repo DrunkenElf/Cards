@@ -1,21 +1,30 @@
 package com.ilnur.cards;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.ViewGroup;
 import android.webkit.WebView;
+import android.widget.ScrollView;
+import android.widget.TableRow;
+import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.core.view.MotionEventCompat;
 import androidx.core.view.NestedScrollingChild;
 import androidx.core.view.NestedScrollingChildHelper;
 import androidx.core.view.ViewCompat;
+import androidx.core.widget.NestedScrollView;
 
 public class CustomWeb extends WebView /*implements NestedScrollingChild*/{
     public boolean several;
     public boolean first;
     public CustomWeb second;
-    /*private int mLastMotionY;
+    public String data;
+    /*public NestedScrollView sv;
+    private int mLastMotionY;
     private final int[] mScrollOffset = new int[2];
     private final int[] mScrollConsumed = new int[2];
     private int mNestedYOffset;
@@ -24,9 +33,38 @@ public class CustomWeb extends WebView /*implements NestedScrollingChild*/{
 
     public CustomWeb(Context context, AttributeSet attrs) {
         super(context, attrs);
+        //this.setHorizontalScrollBarEnabled(true);
         /*mChildHelper = new NestedScrollingChildHelper(this);
         setNestedScrollingEnabled(true);*/
     }
+
+    @Override
+    public void loadDataWithBaseURL(@Nullable String baseUrl, String data, @Nullable String mimeType, @Nullable String encoding, @Nullable String historyUrl) {
+        super.loadDataWithBaseURL(baseUrl, data, mimeType, encoding, historyUrl);
+        //this.data = data;
+    }
+
+    /*@Override
+    protected void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        Log.i("scale",""+this.getScaleX());
+        Log.i("scale",""+this.getWidth());
+        //Log.i("scale",""+this.);
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+
+
+        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            //web.getSettings().setLoadWithOverviewMode(true);
+            //web.getSettings().setUseWideViewPort(true);
+            //ViewGroup.LayoutParams params = web.getLayoutParams();
+            //params.width = width;
+            //web.
+            //params.width = width;
+            ///web.setLayoutParams(params);
+            if (data!=null)
+            loadDataWithBaseURL(null, data, "text/html", "utf-8", "auto:black");
+        }
+    }*/
 
     @Override
     protected void onScrollChanged(int l, int t, int oldl, int oldt) {

@@ -30,6 +30,8 @@
             android:label="@string/app_name"
             android:hardwareAccelerated="true"
             android:largeHeap="true"
+            android:alwaysRetainTaskState="true"
+
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>

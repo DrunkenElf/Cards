@@ -20,24 +20,27 @@
             android:id="@+id/outside"
             android:layout_width="64dp"
             android:layout_height="64dp"
+            android:layout_centerHorizontal="true"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
+            android:innerRadius="-20dp"
+            android:shape="ring"
+            android:thicknessRatio="0.2"
+            app:cardCornerRadius="33dp"
+            app:cardElevation="2dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:cardCornerRadius="40dp"
-            android:layout_centerHorizontal="true"
-            android:innerRadius="0dp"
-            android:shape="ring"
-            android:thicknessRatio="1.9">
+            app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
                 android:id="@+id/grid_image"
                 android:layout_width="64dp"
                 android:layout_height="64dp"
                 android:adjustViewBounds="true"
+                android:cropToPadding="true"
                 android:scaleType="centerCrop"
+                android:src="@drawable/bio"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />

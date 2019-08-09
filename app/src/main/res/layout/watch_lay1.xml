@@ -2,10 +2,12 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:fillViewport="true"
     android:id="@+id/scroll"
+    android:fitsSystemWindows="true"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <RelativeLayout
+        android:id="@+id/rel"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -28,6 +30,7 @@
                 <com.ilnur.cards.CustomWeb
                     android:id="@+id/watch_list1"
                     android:layout_marginRight="2dp"
+                    android:fitsSystemWindows="true"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
@@ -39,6 +42,7 @@
                 <com.ilnur.cards.CustomWeb
                     android:id="@+id/watch_list2"
                     android:layout_marginRight="2dp"
+                    android:fitsSystemWindows="true"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
