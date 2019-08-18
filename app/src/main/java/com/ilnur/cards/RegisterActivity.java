@@ -23,6 +23,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
@@ -30,6 +31,10 @@ import androidx.appcompat.widget.AppCompatEditText;
 import androidx.appcompat.widget.AppCompatSpinner;
 
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.gson.Gson;
+import com.ilnur.cards.forStateSaving.ActivityState;
+import com.ilnur.cards.forStateSaving.logActState;
+import com.ilnur.cards.forStateSaving.regActState;
 
 import org.jsoup.Jsoup;
 
@@ -48,6 +53,7 @@ import java.util.regex.Pattern;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import static com.ilnur.cards.MainActivity.db;
 import static com.ilnur.cards.MainActivity.user;
 
 public class RegisterActivity extends AppCompatActivity {
@@ -55,23 +61,37 @@ public class RegisterActivity extends AppCompatActivity {
             "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@" +
                     "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
     private final String hash = "quaeweSio7aingoo6wa1xoochethieJ6eishieph1eishai6Gi";
-    private String link = "https://ege.sdamgia.ru/api?type=register";
-    private String username = null;
-    private String name1 = null;
-    private String surname1 = null;
-    private String password = null;
-    private String password1 = null;
-    private String day = null;
-    private String month = null;
-    private String year = null;
-    private String status = null;
-    private static boolean valid = true;
+    private final String link = "https://ege.sdamgia.ru/api?type=register";
+    public regActState regState;
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        MainActivity.appState.activities[2] = null;
+        db.deleteActState("reg");
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        ActivityState activityState = new ActivityState("reg", new Gson().toJson(regState));
+        MainActivity.appState.activities[2] = activityState;
+        db.updateActState(activityState);
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.register_lay);
         setTitle("Решу ЕГЭ. Карточки");
+
+        if (MainActivity.appState.activities[2] == null) {
+            regState = new regActState();
+            MainActivity.appState.activities[2] = new ActivityState("reg", new Gson().toJson(regState));
+            MainActivity.db.updateActState(MainActivity.appState.activities[2]);
+        } else {
+            regState = new Gson().fromJson(MainActivity.appState.activities[2].data, regActState.class);
+        }
 
         TextView policy = findViewById(R.id.policy);
         policy.setClickable(true);
@@ -110,14 +130,14 @@ public class RegisterActivity extends AppCompatActivity {
         mail.setOnKeyListener((v, keyCode, event) -> {
             if (event.getAction() == KeyEvent.ACTION_DOWN &&
                     (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                username = mail.getText().toString();
+                regState.username = mail.getText().toString();
                 return true;
             }
             return false;
         });
         mail.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_DONE) {
-                username = mail.getText().toString();
+                regState.username = mail.getText().toString();
                 //signIn.performClick();
                 return true;
             }
@@ -128,14 +148,14 @@ public class RegisterActivity extends AppCompatActivity {
         name.setOnKeyListener((v, keyCode, event) -> {
             if (event.getAction() == KeyEvent.ACTION_DOWN &&
                     (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                name1 = name.getText().toString();
+                regState.name1 = name.getText().toString();
                 return true;
             }
             return false;
         });
         name.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_DONE) {
-                name1 = name.getText().toString();
+                regState.name1 = name.getText().toString();
                 //signIn.performClick();
                 return true;
             }
@@ -146,14 +166,14 @@ public class RegisterActivity extends AppCompatActivity {
         surname.setOnKeyListener((v, keyCode, event) -> {
             if (event.getAction() == KeyEvent.ACTION_DOWN &&
                     (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                surname1 = surname.getText().toString();
+                regState.surname1 = surname.getText().toString();
                 return true;
             }
             return false;
         });
         surname.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_DONE) {
-                surname1 = surname.getText().toString();
+                regState.surname1 = surname.getText().toString();
                 //signIn.performClick();
                 return true;
             }
@@ -164,14 +184,14 @@ public class RegisterActivity extends AppCompatActivity {
         pas.setOnKeyListener((v, keyCode, event) -> {
             if (event.getAction() == KeyEvent.ACTION_DOWN &&
                     (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                password = pas.getText().toString();
+                regState.password = pas.getText().toString();
                 return true;
             }
             return false;
         });
         pas.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_DONE) {
-                password = pas.getText().toString();
+                regState.password = pas.getText().toString();
                 //signIn.performClick();
                 return true;
             }
@@ -182,14 +202,14 @@ public class RegisterActivity extends AppCompatActivity {
         pasAgain.setOnKeyListener((v, keyCode, event) -> {
             if (event.getAction() == KeyEvent.ACTION_DOWN &&
                     (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                password1 = pasAgain.getText().toString();
+                regState.password1 = pasAgain.getText().toString();
                 return true;
             }
             return false;
         });
         pasAgain.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_DONE) {
-                password1 = pasAgain.getText().toString();
+                regState.password1 = pasAgain.getText().toString();
                 //signIn.performClick();
                 return true;
             }
@@ -206,16 +226,16 @@ public class RegisterActivity extends AppCompatActivity {
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                status = getResources().getStringArray(R.array.types)[position];
-                switch (status) {
+                regState.status = getResources().getStringArray(R.array.types)[position];
+                switch (regState.status) {
                     case "Ученик":
-                        status = "student";
+                        regState.status = "student";
                         break;
                     case "Учитель":
-                        status = "teacher";
+                        regState.status = "teacher";
                         break;
                     case "Родитель":
-                        status = "parent";
+                        regState.status = "parent";
                         break;
                 }
             }
@@ -236,9 +256,9 @@ public class RegisterActivity extends AppCompatActivity {
                 calendar.set(Calendar.YEAR, year);
                 calendar.set(Calendar.MONTH, month);
                 calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                RegisterActivity.this.day = String.valueOf(dayOfMonth);
-                RegisterActivity.this.month = String.valueOf(month);
-                RegisterActivity.this.year = String.valueOf(year);
+                regState.day = String.valueOf(dayOfMonth);
+                regState.month = String.valueOf(month);
+                regState.year = String.valueOf(year);
                 RegisterActivity.this.updateLable(date, calendar);
             }
         };
@@ -277,57 +297,57 @@ public class RegisterActivity extends AppCompatActivity {
 
         //listener for signup button
         enter.setOnClickListener(v -> {
-            username = mail.getText().toString();
-            name1 = name.getText().toString();
-            surname1 = surname.getText().toString();
-            password = pas.getText().toString();
-            password1 = pasAgain.getText().toString();
+            regState.username = mail.getText().toString();
+            regState.name1 = name.getText().toString();
+            regState.surname1 = surname.getText().toString();
+            regState.password = pas.getText().toString();
+
 
             //check validity of mail
             if (mail.getText() == null || mail.getText().toString().equals("")) {
                 mailLay.setError("Вы не ввели почту");
-                valid = false;
+                regState.valid = false;
             } else if (!validateMail(mail.getText().toString(), EMAIL_PATTERN)) {
                 mailLay.setError("Введите корректную почту");
-                valid = false;
+                regState.valid = false;
             } else
                 mailLay.setError(null);
 
             //validity of name
             if (name.getText() == null || name.getText().toString().equals("")) {
                 nameLay.setError("Вы не ввели свое имя");
-                valid = false;
+                regState.valid = false;
             } else
                 nameLay.setError(null);
 
             //validity of surname
             if (surname.getText() == null || surname.getText().toString().equals("")) {
                 surnameLay.setError("Вы не ввели свою фамилию");
-                valid = false;
+                regState.valid = false;
             } else
                 surnameLay.setError(null);
 
             //validity of password
             if (pas.getText() == null || pas.getText().toString().equals("")) {
                 pasLay.setError("Вы не ввели пароль");
-                valid = false;
+                regState.valid = false;
             } else if (pasAgain.getText() == null || pasAgain.getText().toString().equals("")) {
                 pasAgainLay.setError("Введите пароль еще раз");
-                valid = false;
+                regState.valid = false;
             } else if (!pas.getText().toString().equals(pasAgain.getText().toString())) {
                 pasLay.setError("Пароли не совпадают");
                 pasAgainLay.setError("Пароли не совпадают");
-                valid = false;
+                regState.valid = false;
             } else {
                 pasLay.setError(null);
                 pasAgainLay.setError(null);
             }
 
-            if (valid) {
+            if (regState.valid) {
                new signUpIn(RegisterActivity.this).execute();
             }
 
-            valid = true;
+            regState.valid = true;
         });
 
     }
@@ -393,8 +413,8 @@ public class RegisterActivity extends AppCompatActivity {
                 case "succes":
                     Toast.makeText(getApplicationContext(), "Регистрация прошла успешно", Toast.LENGTH_LONG).show();
                     dialog.setMessage("Авторизация...");
-                    user.setLogin(username);
-                    user.setPassword(password);
+                    user.setLogin(regState.username);
+                    user.setPassword(regState.password);
                     String link = "https://ege.sdamgia.ru/api?protocolVersion=1&type=login&user="
                             + user.getLogin() + "&password=" + user.getPassword();
                     String resp = null;
@@ -421,17 +441,20 @@ public class RegisterActivity extends AppCompatActivity {
                         Log.i("Session_ID", session_id);
                     }
                     dialog.cancel();
-                    MainActivity.logged = true;
+                    MainActivity.main.logged = true;
                     Toast.makeText(getApplicationContext(), "Вы успешно авторизованы", Toast.LENGTH_LONG).show();
                     Runnable sync = MainActivity.db::syncSubj;
                     new Thread(sync).start();
+                    MainActivity.appState.activities[2] = null;
+                    db.deleteActState("reg");
                     finish();
+                    //overridePendingTransition(R.anim.exit_to_left, R.anim.enter_from_right);
             }
         }
     }
 
     public String getDate() {
-        return day + "/" + month + "/" + year;
+        return regState.day + "/" + regState.month + "/" + regState.year;
     }
 
     //setting formatted date
@@ -445,10 +468,10 @@ public class RegisterActivity extends AppCompatActivity {
     //signing up
     private String signUp() throws IOException {
         //String hash = "quaeweSio7aingoo6wa1xoochethieJ6eishieph1eishai6Gi";
-        String parameters = "username=" + username + "&password=" +
-                password + "&name=" + name1 +
-                "&sname=" + surname1 + "&hash=" +
-                MD5(hash + username) + "&protocolVersion=1";
+        String parameters = "username=" + regState.username + "&password=" +
+                regState.password + "&name=" + regState.name1 +
+                "&sname=" + regState.surname1 + "&hash=" +
+                MD5(hash + regState.username) + "&protocolVersion=1";
         /*if (getDate() !=null){
             parameters = parameters.concat("&birthdate=" + getDate());
         }
@@ -489,6 +512,7 @@ public class RegisterActivity extends AppCompatActivity {
         Log.i("resp", str);
         return str;
     }
+
 
     private boolean validateMail(String current, String pattern) {
         return Pattern

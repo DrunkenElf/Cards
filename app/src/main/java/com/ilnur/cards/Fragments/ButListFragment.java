@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.github.rubensousa.raiflatbutton.RaiflatButton;
 import com.github.rubensousa.raiflatbutton.RaiflatImageButton;
 import com.google.android.material.appbar.AppBarLayout;
+import com.google.gson.Gson;
 import com.ilnur.cards.Category_Buttons.Cat_butt;
 import com.ilnur.cards.Category_Buttons.Binders.Cat_butt_binder;
 import com.ilnur.cards.Category_Buttons.Cat_butt_rev;
@@ -23,11 +24,17 @@ import com.ilnur.cards.Json.Category;
 import com.ilnur.cards.MainActivity;
 import com.ilnur.cards.MyDB;
 import com.ilnur.cards.R;
+import com.ilnur.cards.forStateSaving.ActivityState;
+import com.ilnur.cards.forStateSaving.FragmentState;
+import com.ilnur.cards.forStateSaving.btn;
+import com.ilnur.cards.forStateSaving.learn;
+import com.ilnur.cards.forStateSaving.watch;
 
 import net.opacapp.multilinecollapsingtoolbar.CollapsingToolbarLayout;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 import androidx.annotation.NonNull;
@@ -40,94 +47,114 @@ import tellh.com.recyclertreeview_lib.TreeNode;
 import tellh.com.recyclertreeview_lib.TreeViewAdapter;
 
 public class ButListFragment extends Fragment {
-    private String subj;
-    private String title;
-    private boolean checkRever;
-    private ArrayList<Category> list;
-    private int id;
+    public btn btn;
     private List<TreeNode> nodes = new ArrayList<>();
-    //private MyDB db;
+    private MyDB db;
 
 
-    public void setButListFragment( String subj, String title, ArrayList<Category> list,
-                                   boolean checkRever, int id){
-        this.subj = subj;
-        this.title = title;
-        this.list = list;
-        this.checkRever = checkRever;
-        this.id = id;
-        //this.db = db;
+    public void setBtn(MyDB db,btn btn){
+        this.btn = btn;
+        this.db = db;
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        //MainActivity.main.fragments.remove(MainActivity.main.fragments.size()-1);
+        //MainActivity.main.addFragment(new FragmentState("btn", new Gson().toJson(btn)));
+        //db.updateActState(new ActivityState("main", new Gson().toJson(MainActivity.main)));
+        for (Iterator<FragmentState> iterator = MainActivity.main.fragments.iterator(); iterator.hasNext(); ) {
+            FragmentState s = iterator.next();
+            if (s.name.equals("btn")) {
+                iterator.remove();
+            }
+        }
+        MainActivity.main.addFragment(new FragmentState("btn", new Gson().toJson(btn)));
+        db.updateActState(new ActivityState("main", new Gson().toJson(MainActivity.main)));
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View rootview = inflater.inflate(R.layout.butlist_fragment, container, false);
-
-        MainActivity.current_tag = "but";
         setRetainInstance(true);
 
         //restore saved instance
-        if (savedInstanceState != null){
+        /*if (savedInstanceState != null){
             subj = savedInstanceState.getString("subj");
             title = savedInstanceState.getString("title");
             id = savedInstanceState.getInt("id");
             list = savedInstanceState.getParcelableArrayList("key");
-        }
+        }*/
         //new loadHugePageBtn().execute();
 
         Toolbar bar = Toolbar.class.cast(getActivity().findViewById(R.id.toolbar));
         CollapsingToolbarLayout col = CollapsingToolbarLayout.class.cast(getActivity().findViewById(R.id.collapsing_toolbar));
-        col.setTitle(title);
+        col.setTitle(btn.title);
 
-        RaiflatButton learn = col.findViewById(R.id.learn);
-        RaiflatButton watch = col.findViewById(R.id.watch);
+        RaiflatButton learnBtn = col.findViewById(R.id.learn);
+        RaiflatButton watchBtn = col.findViewById(R.id.watch);
         RaiflatImageButton rever = col.findViewById(R.id.rever);
-        learn.setVisibility(View.VISIBLE);
-        watch.setVisibility(View.VISIBLE);
+        learnBtn.setVisibility(View.VISIBLE);
+        watchBtn.setVisibility(View.VISIBLE);
         rever.setVisibility(View.VISIBLE);
         col.setExpandedTitleMarginBottom((int) getContext().getResources().getDimension(R.dimen.margin_title_exp));
         AppBarLayout apbar = AppBarLayout.class.cast(getActivity().findViewById(R.id.apbar));
         apbar.setExpanded(true);
 
 
-        if (checkRever){
+        if (btn.checkRevers){
             rever.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     LearnFragment lf = new LearnFragment();
-                    lf.setLearnFragment(subj, title, id, true, true);
+                    lf.setArguments(savedInstanceState);
+                    learn learnState = new learn(btn.subj, btn.id, btn.title, true,  true);
+                    lf.setLearnFragment(db, learnState);
+                    //MainActivity.main.addFragment(new FragmentState("learn", new Gson().toJson(learnState)));
+                    //db.updateActState(new ActivityState("main", new Gson().toJson(MainActivity.main)));
                     getFragmentManager().beginTransaction()
                             .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.from_left, R.anim.to_right)
                             .replace(R.id.parent, lf)
-                            .addToBackStack(null)
+                            .addToBackStack("learn")
                             .commit();
+                    /*MainActivity.main.addFragment(new FragmentState("learn", new Gson().toJson(learnState)));
+                    db.updateActState(new ActivityState("main", new Gson().toJson(MainActivity.main)));*/
                 }
             });
         } else {
             rever.setVisibility(View.GONE);
         }
-        learn.setOnClickListener(new View.OnClickListener() {
+        learnBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 LearnFragment lf = new LearnFragment();
-                lf.setLearnFragment(subj, title, id, false, true);
+                lf.setArguments(savedInstanceState);
+                learn learnState = new learn(btn.subj, btn.id, btn.title, false,  true);
+                lf.setLearnFragment(db, learnState);
+                //MainActivity.main.addFragment(new FragmentState("learn", new Gson().toJson(learnState)));
+                //db.updateActState(new ActivityState("main", new Gson().toJson(MainActivity.main)));
                 getFragmentManager().beginTransaction()
                         .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.from_left, R.anim.to_right)
                         .replace(R.id.parent, lf)
-                        .addToBackStack("lf")
+                        .addToBackStack("learn")
                         .commit();
+                /*MainActivity.main.addFragment(new FragmentState("learn", new Gson().toJson(learnState)));
+                db.updateActState(new ActivityState("main", new Gson().toJson(MainActivity.main)));*/
             }
         });
-        watch.setOnClickListener(v -> {
+        watchBtn.setOnClickListener(v -> {
             WatchFragment1 wf = new WatchFragment1();
-            wf.setWatchFragment(subj, title, id, true);
+            watch watch = new watch(btn.subj, btn.title, btn.id, true);
+            wf.setWatchFragment(db, watch);
+            wf.setArguments(savedInstanceState);
             getFragmentManager().beginTransaction()
                     //.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.from_left, R.anim.to_right)
                     .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.from_right_web, R.anim.to_left_web)
                     .replace(R.id.parent, wf)
                     .addToBackStack("watch")
                     .commit();
+            MainActivity.main.addFragment(new FragmentState("watch", new Gson().toJson(watch)));
+            db.updateActState(new ActivityState("main", new Gson().toJson(MainActivity.main)));
         });
 
         RecyclerView rv = rootview.findViewById(R.id.list_but);
@@ -143,7 +170,7 @@ public class ButListFragment extends Fragment {
         }
         //creating adapter and its listener
         TreeViewAdapter adapter = new TreeViewAdapter(nodes, Arrays.asList(new Cat_head_binder(),
-                new Cat_butt_binder(), new Cat_butt_rev_binder()));
+                new Cat_butt_binder(savedInstanceState), new Cat_butt_rev_binder(savedInstanceState)));
         adapter.setOnTreeNodeListener(new TreeViewAdapter.OnTreeNodeListener() {
             @Override
             public boolean onClick(TreeNode node, RecyclerView.ViewHolder holder) {
@@ -171,15 +198,15 @@ public class ButListFragment extends Fragment {
 
     //init treeview
     public void init(Context context){
-        for (Category cat: list){
+        for (Category cat: btn.list){
             TreeNode<Cat_head> head = new TreeNode<>(new Cat_head(cat.getTitle()));
             nodes.add(head);
             if (cat.getReversible() == 1){
-                TreeNode<Cat_butt_rev> but = new TreeNode<>(new Cat_butt_rev(subj, cat.getTitle(),
+                TreeNode<Cat_butt_rev> but = new TreeNode<>(new Cat_butt_rev(btn.subj, cat.getTitle(),
                         cat.getId(), context));
                 head.addChild(but);
             } else {
-                TreeNode<Cat_butt> but = new TreeNode<>(new Cat_butt(subj, cat.getTitle(),
+                TreeNode<Cat_butt> but = new TreeNode<>(new Cat_butt(btn.subj, cat.getTitle(),
                         cat.getId(), context));
                 head.addChild(but);
             }
@@ -188,29 +215,32 @@ public class ButListFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        AppBarLayout apbar = AppBarLayout.class.cast(getActivity().findViewById(R.id.apbar));
-        apbar.setExpanded(false);
+
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
 
     //save state
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putCharSequence("subj", subj);
+        /*outState.putCharSequence("subj", subj);
         outState.putCharSequence("title", title);
         outState.putInt("id", id);
-        outState.putParcelableArrayList("key", list);
+        outState.putParcelableArrayList("key", list);*/
     }
     //also save state
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        if (savedInstanceState != null){
+        /*if (savedInstanceState != null){
             subj = savedInstanceState.getString("subj");
             title = savedInstanceState.getString("title");
             id = savedInstanceState.getInt("id");
-        }
+        }*/
     }
 
 
@@ -218,11 +248,11 @@ public class ButListFragment extends Fragment {
     @Override
     public void onViewStateRestored(Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
-        if (savedInstanceState != null){
+        /*if (savedInstanceState != null){
             subj = savedInstanceState.getString("subj");
             title = savedInstanceState.getString("title");
             id = savedInstanceState.getInt("id");
-        }
+        }*/
     }
     // async to load huge pages to hashmap
     /*private class loadHugePageBtn extends AsyncTask<Void, Void, Void>{

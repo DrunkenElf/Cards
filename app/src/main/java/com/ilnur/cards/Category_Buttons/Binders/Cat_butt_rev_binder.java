@@ -1,20 +1,34 @@
 package com.ilnur.cards.Category_Buttons.Binders;
 
+import android.os.Bundle;
 import android.view.View;
 
 import com.github.rubensousa.raiflatbutton.RaiflatButton;
 import com.github.rubensousa.raiflatbutton.RaiflatImageButton;
+import com.google.gson.Gson;
 import com.ilnur.cards.Category_Buttons.Cat_butt_rev;
 import com.ilnur.cards.Fragments.LearnFragment;
 import com.ilnur.cards.Fragments.WatchFragment1;
+import com.ilnur.cards.MainActivity;
 import com.ilnur.cards.R;
+import com.ilnur.cards.forStateSaving.ActivityState;
+import com.ilnur.cards.forStateSaving.FragmentState;
+import com.ilnur.cards.forStateSaving.learn;
+import com.ilnur.cards.forStateSaving.watch;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import tellh.com.recyclertreeview_lib.TreeNode;
 import tellh.com.recyclertreeview_lib.TreeViewBinder;
 
+import static com.ilnur.cards.MainActivity.db;
+
 public class Cat_butt_rev_binder extends TreeViewBinder<Cat_butt_rev_binder.ViewHolder> {
+    Bundle bundle;
+
+    public Cat_butt_rev_binder(Bundle bundle){
+        this.bundle = bundle;
+    }
 
     @Override
     public Cat_butt_rev_binder.ViewHolder provideViewHolder(View itemView) {
@@ -27,32 +41,44 @@ public class Cat_butt_rev_binder extends TreeViewBinder<Cat_butt_rev_binder.View
         FragmentManager manager = ((AppCompatActivity) cat.getContext()).getSupportFragmentManager();
         holder.learn.setOnClickListener(v -> {
             LearnFragment lf = new LearnFragment();
-            lf.setLearnFragment(cat.getSubj(), cat.getTitle(), cat.getId(), false, false);
+            learn learn = new learn(cat.getSubj(), cat.getId(), cat.getTitle(), true, false);
+            lf.setLearnFragment(db, learn);
+            lf.setArguments(bundle);
             manager.beginTransaction()
                     .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.from_left, R.anim.to_right)
                     .replace(R.id.parent, lf)
-                    .addToBackStack(null)
+                    .addToBackStack("learn")
                     .commit();
+            /*MainActivity.main.addFragment(new FragmentState("learn", new Gson().toJson(learn)));
+            db.updateActState(new ActivityState("main", new Gson().toJson(MainActivity.main)));*/
         });
 
         holder.watch.setOnClickListener(v -> {
             int id = cat.getId();
             WatchFragment1 wf = new WatchFragment1();
-            wf.setWatchFragment(cat.getSubj(), cat.getTitle(), id, false);
+            watch watch = new watch(cat.getSubj(), cat.getTitle(), id, false);
+            wf.setWatchFragment(db,watch);
+            wf.setArguments(bundle);
             manager.beginTransaction()
                     .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.from_right_web, R.anim.to_left_web)
                     .replace(R.id.parent, wf)
-                    .addToBackStack(null)
+                    .addToBackStack("watch")
                     .commit();
+            MainActivity.main.addFragment(new FragmentState("watch", new Gson().toJson(watch)));
+            db.updateActState(new ActivityState("main", new Gson().toJson(MainActivity.main)));
         });
 
         holder.revers.setOnClickListener(v -> {
             LearnFragment lf = new LearnFragment();
-            lf.setLearnFragment(cat.getSubj(), cat.getTitle(), cat.getId(), true, false);
+            learn learn = new learn(cat.getSubj(), cat.getId(), cat.getTitle(), true, false);
+            lf.setLearnFragment(db, learn);
+            lf.setArguments(bundle);
             manager.beginTransaction()
                     .replace(R.id.parent, lf)
-                    .addToBackStack(null)
+                    .addToBackStack("watch")
                     .commit();
+            MainActivity.main.addFragment(new FragmentState("learn", new Gson().toJson(learn)));
+            db.updateActState(new ActivityState("main", new Gson().toJson(MainActivity.main)));
         });
     }
 

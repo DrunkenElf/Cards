@@ -4,7 +4,7 @@ android {
     compileSdkVersion 28
     defaultConfig {
         applicationId "com.ilnur.cards"
-        minSdkVersion 18
+        minSdkVersion 19
         targetSdkVersion 28
         versionCode 1
         versionName "1.0.0"
@@ -19,7 +19,7 @@ android {
             postprocessing {
                 removeUnusedCode true
                 removeUnusedResources true
-                obfuscate false
+                obfuscate true
                 optimizeCode true
             }
             //proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'

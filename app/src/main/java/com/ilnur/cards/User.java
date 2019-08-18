@@ -1,8 +1,13 @@
 package com.ilnur.cards;
 
+import com.google.gson.annotations.SerializedName;
+
 public class User {
+    @SerializedName("login")
     private String login;
+    @SerializedName("password")
     private String password;
+    @SerializedName("session_id")
     private String session_id;
 
     public User(){}

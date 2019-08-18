@@ -13,12 +13,18 @@ import android.widget.Toast;
 import com.github.rubensousa.raiflatbutton.RaiflatButton;
 import com.github.rubensousa.raiflatbutton.RaiflatImageButton;
 import com.google.android.material.appbar.AppBarLayout;
+import com.google.gson.Gson;
 import com.ilnur.cards.Adapters.SubjAdapter;
 import com.ilnur.cards.Fragments.ListFragment;
 import com.ilnur.cards.Json.Card;
 import com.ilnur.cards.MainActivity;
 import com.ilnur.cards.MyDB;
 import com.ilnur.cards.R;
+import com.ilnur.cards.forStateSaving.ActivityState;
+import com.ilnur.cards.forStateSaving.FragmentState;
+import com.ilnur.cards.forStateSaving.btn;
+import com.ilnur.cards.forStateSaving.list;
+import com.ilnur.cards.forStateSaving.subj;
 
 import net.opacapp.multilinecollapsingtoolbar.CollapsingToolbarLayout;
 
@@ -28,33 +34,54 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+
+import static com.ilnur.cards.MainActivity.appState;
 
 public class SubjFragment extends Fragment {
-    private static String[] subjects = {"Русский язык", "Физика", "Математика", "Английский язык", "История"};
     private MyDB db;
+    private subj subj;
 
-    public SubjFragment(MyDB db){
+    public SubjFragment(){ }
+
+    public void setState(MyDB db, subj subj){
         this.db = db;
+        this.subj = subj;
     }
+
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        if (MainActivity.main.fragments != null && MainActivity.main.fragments.size()>0) {
+            for (Iterator<FragmentState> iterator = MainActivity.main.fragments.iterator(); iterator.hasNext(); ) {
+                FragmentState s = iterator.next();
+                if (s.name.equals("subj")) {
+                    iterator.remove();
+                }
+            }
+            /*for (FragmentState s : MainActivity.main.fragments) {
+                if (s.name.equals("subj"))
+                    MainActivity.main.deleteFragment();
+            }*/
+            MainActivity.main.addFragment(new FragmentState("subj", new Gson().toJson(subj)));
+            db.updateActState(new ActivityState("main", new Gson().toJson(MainActivity.main)));
+        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View rootview = inflater.inflate(R.layout.subj_layout, container, false);
         //getActivity().setTitle("Решу ЕГЭ. Карточки");
-        MainActivity.current_tag = "subj";
+
         setRetainInstance(true);
         //MainActivity.this.enableBackBtn();
         MainActivity main = (MainActivity)getActivity();
         //main.enableBackBtn(true);
+        /*ActivityState mainState = new ActivityState("main", new Gson().toJson(MainActivity.main));
+        appState.activities[0] = mainState;
+        db.updateActState(mainState);*/
 
-        if (savedInstanceState!=null){
-            subjects = savedInstanceState.getStringArray("subj");
-        }
         CollapsingToolbarLayout col = CollapsingToolbarLayout.class.cast(getActivity().findViewById(R.id.collapsing_toolbar));
         col.setTitle("Решу ЕГЭ. Карточки");
         //col.set
@@ -71,30 +98,30 @@ public class SubjFragment extends Fragment {
         apbar.setExpanded(false);
 
         final GridView gridView = rootview.findViewById(R.id.subj_list);
-        SubjAdapter adapter = new SubjAdapter(getContext(), subjects);
+        SubjAdapter adapter = new SubjAdapter(getContext(), subj.subjects);
         //ListView lv = rootview.findViewById(R.id.list_subj);
         //lv.setAdapter(adapter);
         gridView.setAdapter(adapter);
 
         gridView.setOnItemClickListener((parent, view, position, id) -> {
-            MainActivity.exit = false;
-            main.enableBackBtn(true);
-            String[] mas = MyDB.getCatNames(subjects[position]);
+            MainActivity.main.exit = false;
+
+            String[] mas = MyDB.getCatNames(subj.subjects[position]);
             if (mas.length == 0){
                 Toast.makeText(rootview.getContext(), "Этот предмет все еще добавляется", Toast.LENGTH_SHORT).show();
                 //MyDB.addCurrent(subjects[position]);
             } else {
+                main.enableBackBtn(true);
                 if (mas.length == 1 && db.isSubjAdded(mas[0])){
                     //MainActivity.exit = false;
                     ButListFragment blf = new ButListFragment();
+                    boolean checkRever = MyDB.checkRevers(subj.subjects[position], mas[0]);
+                    int id_tittle = MyDB.getParentId(subj.subjects[position], mas[0]);
+                    btn btn = new btn(subj.subjects[position], id_tittle, mas[0], MyDB.getSubCatNames(
+                            subj.subjects[position], mas[0]), checkRever);
 
-                    boolean checkRever = MyDB.checkRevers(subjects[position], mas[0]);
-
-                    int id_tittle = MyDB.getParentId(subjects[position], mas[0]);
-
-                    blf.setButListFragment( subjects[position], mas[0], MyDB.getSubCatNames(
-                            subjects[position], mas[0]), checkRever, id_tittle);
-
+                    blf.setBtn(db,btn);
+                    blf.setArguments(savedInstanceState);
                     // load huge page to hashmap
                     //new loadHugePageSubj(subjects[position], id_tittle).execute();
 
@@ -102,16 +129,26 @@ public class SubjFragment extends Fragment {
                     getFragmentManager().beginTransaction()
                             .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.from_left, R.anim.to_right)
                             .replace(R.id.parent, blf)
-                            .addToBackStack("btl")
+                            .addToBackStack("btn")
                             .commit();
+                    /*ActivityState mainState = new ActivityState("main", new Gson().toJson(MainActivity.main));
+                    appState.activities[0] = mainState;
+                    db.updateActState(mainState);*/
+                    MainActivity.main.addFragment(new FragmentState("btn", new Gson().toJson(btn)));
+                    db.updateActState(new ActivityState("main", new Gson().toJson(MainActivity.main)));
+                    //MainActivity.appState.activities[0] = Ma
                 } else {
                     ListFragment lf = new ListFragment();
-                    lf.setTitle(db, subjects[position], mas);
+                    list listState = new list(subj.subjects[position], mas);
+                    lf.setTitle(db, listState);
+                    lf.setArguments(savedInstanceState);
                     getFragmentManager().beginTransaction()
                             .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.from_left, R.anim.to_right)
                             .replace(R.id.parent, lf)
-                            .addToBackStack("lf")
+                            .addToBackStack("list")
                             .commit();
+                    MainActivity.main.addFragment(new FragmentState("list", new Gson().toJson(listState)));
+                    db.updateActState(new ActivityState("main", new Gson().toJson(MainActivity.main)));
                 }
             }
 
@@ -129,24 +166,25 @@ public class SubjFragment extends Fragment {
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putCharSequenceArray("subj", subjects);
+        //outState.putCharSequenceArray("subj", subj.subjects);
+
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        if (savedInstanceState!=null){
-            subjects = savedInstanceState.getStringArray("subj");
-        }
+        /*if (savedInstanceState!=null){
+            subj.subjects = savedInstanceState.getStringArray("subj");
+        }*/
     }
 
     @Override
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
-        if (savedInstanceState!=null){
-            subjects = savedInstanceState.getStringArray("subj");
-        }
+        /*if (savedInstanceState!=null){
+            subj.subjects = savedInstanceState.getStringArray("subj");
+        }*/
     }
     // async to load huge pages to hashmap
     /*private class loadHugePageSubj extends AsyncTask<Void, Void, Void> {

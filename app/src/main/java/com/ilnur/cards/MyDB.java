@@ -8,6 +8,7 @@ import android.database.CursorWindow;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Process;
@@ -22,6 +23,7 @@ import com.ilnur.cards.Json.Card;
 import com.ilnur.cards.Json.Category;
 import com.ilnur.cards.Json.StupCard;
 import com.ilnur.cards.Json.Stupid;
+import com.ilnur.cards.forStateSaving.ActivityState;
 
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
@@ -103,6 +105,92 @@ public class MyDB extends SQLiteOpenHelper {
     }
 
     // to get Root names
+
+    public ActivityState[] fetchActs() {
+        Cursor cursor = sqdb.rawQuery("SELECT activity, data FROM appState", null);
+        cursor.moveToFirst();
+        ActivityState[] list = new ActivityState[3];
+        if (cursor.getCount() <= 0) {
+            cursor.close();
+            return list;
+        } else {
+            String name;
+            String data;
+            int i = 0;
+            while (!cursor.isAfterLast()) {
+                name = cursor.getString(0);
+                data = cursor.getString(1);
+                switch (name) {
+                    case "main":
+                        i = 0;
+                        break;
+                    case "log":
+                        i = 1;
+                        break;
+                    case "reg":
+                        i = 2;
+                        break;
+                }
+                list[i] = new ActivityState(name, data);
+                cursor.moveToNext();
+            }
+            cursor.close();
+            return list;
+        }
+    }
+
+    public class AsyncExec extends AsyncTask<Void, Void, Void>{
+        String param;
+        ActivityState state = null;
+        String activity = null;
+        public AsyncExec(String param, ActivityState state){
+            this.param = param;
+            this.state = state;
+        }
+        public AsyncExec(String param, String activity){
+            this.param = param;
+            this.activity = activity;
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            switch (param) {
+                case "update":
+                    //updateActState(state);
+                    ContentValues values = new ContentValues();
+                    values.put("activity", state.activity);
+                    values.put("data", state.data);
+                    int status = sqdb.update("appState", values, "activity = ?", new String[]{state.activity});
+                    if (status == 0)
+                        sqdb.insertWithOnConflict("appState", null, values, SQLiteDatabase.CONFLICT_IGNORE);
+                    values.clear();
+                    break;
+                case "delete":
+                    deleteActState(activity);
+                    sqdb.delete("appState", "activity = ?", new String[]{activity});
+                    break;
+            }
+            return null;
+        }
+    }
+
+    public void updateActState(ActivityState state) {
+        Log.i("updAct", state.activity);
+        ContentValues values = new ContentValues();
+        values.put("activity", state.activity);
+        values.put("data", state.data);
+        int status = sqdb.update("appState", values, "activity = ?", new String[]{state.activity});
+        if (status == 0)
+            sqdb.insertWithOnConflict("appState", null, values, SQLiteDatabase.CONFLICT_IGNORE);
+        values.clear();
+        //new AsyncExec("update", state).execute();
+    }
+
+    public void deleteActState(String activity) {
+        //new AsyncExec("delete", activity);
+        Log.i("delete", activity);
+        sqdb.delete("appState", "activity = ?", new String[]{activity});
+    }
 
     public static User getUser() {
         //SQLiteDatabase sqdb = instance.getReadableDatabase();
@@ -201,7 +289,7 @@ public class MyDB extends SQLiteOpenHelper {
         values.put("result_stamp", current_time);
         sqdb.update(parent + "_card", values, "id = ?", new String[]{String.valueOf(card_id)});
         values.clear();
-        if (MainActivity.logged) {
+        if (MainActivity.main.logged) {
             try {
                 //https://hist-ege.sdamgia.ru/api?protocolVersion=1&type=card_result&id=463&result=3&session=xxxxxxxx
                 Connection.Response response = Jsoup.connect("https://" + getLink(parent) +
@@ -232,7 +320,7 @@ public class MyDB extends SQLiteOpenHelper {
         values.put("result_stamp", current_time);
         sqdb.update(parent + "_card", values, "id = ?", new String[]{String.valueOf(card_id)});
         values.clear();
-        if (MainActivity.logged) {
+        if (MainActivity.main.logged) {
             try {
                 //https://hist-ege.sdamgia.ru/api?protocolVersion=1&type=card_result&id=463&result=3&session=xxxxxxxx
                 Connection.Response response = Jsoup.connect("https://" + getLink(parent) +
@@ -307,7 +395,7 @@ public class MyDB extends SQLiteOpenHelper {
                 tmp.setRevers(cursor1.getString(2));
                 tmp.setResult(cursor1.getInt(3));
                 tmp.setResult_stamp(cursor1.getString(4));
-                list.put(endpoint+j,tmp);
+                list.put(endpoint + j, tmp);
                 cursor1.moveToNext();
             }
             endpoint += cursor1.getCount();
@@ -337,7 +425,7 @@ public class MyDB extends SQLiteOpenHelper {
             tmp.setRevers(cursor.getString(2));
             tmp.setResult(cursor.getInt(3));
             tmp.setResult_stamp(cursor.getString(4));
-            list.put(i,tmp);
+            list.put(i, tmp);
             cursor.moveToNext();
         }
         cursor.close();
@@ -834,7 +922,7 @@ public class MyDB extends SQLiteOpenHelper {
         MyExecutor executor = new MyExecutor(false);
 
         for (pair p : pairs) {
-            if (MainActivity.logged) {
+            if (MainActivity.main.logged) {
                 PushSubj task = new PushSubj(p, MainActivity.user.getSession_id(), sqdb);
                 executor.execute(task);
             }
@@ -912,11 +1000,11 @@ public class MyDB extends SQLiteOpenHelper {
                         //Gson gson = new GsonBuilder().disableHtmlEscaping().create();
                         for (int i = 0; i < mas.length; i++) {
                             temp = mas[i];
-                            if (MainActivity.logged) {
+                            if (MainActivity.main.logged) {
                                 Log.i("adding", "with logged");
                             }
                             //Log.i("mas[i]", temp.getTitle());
-                            if (MainActivity.logged) {
+                            if (MainActivity.main.logged) {
                                 try {
                                     resp = Jsoup.connect(cards + temp.getId() + "&session=" + MainActivity.user.getSession_id()).ignoreContentType(true)
                                             .maxBodySize(0).timeout(2000000).method(Connection.Method.GET).execute();
@@ -950,7 +1038,7 @@ public class MyDB extends SQLiteOpenHelper {
                         Log.i(p.subj_db, "Added");
                         values.put("name", p.subj_db);
                         values.put("added", 1);
-                        if (MainActivity.logged)
+                        if (MainActivity.main.logged)
                             values.put("added_with_log", 1);
                         sqdb1.update("subj", values, "name = ?", new String[]{p.subj_db});
                         values.clear();
@@ -1013,12 +1101,12 @@ public class MyDB extends SQLiteOpenHelper {
         for (int i = 0; i < mas.length; i++) {
             temp = mas[i];
             boolean isChanged = false;
-            if (isAdded==1){
-                cursor = sqdb.rawQuery("SELECT stamp FROM "+subj_name+"_cat"+" WHERE id = ?",
+            if (isAdded == 1) {
+                cursor = sqdb.rawQuery("SELECT stamp FROM " + subj_name + "_cat" + " WHERE id = ?",
                         new String[]{String.valueOf(temp.getId())});
-                if (cursor.getCount()>1){
+                if (cursor.getCount() > 1) {
                     cursor.moveToFirst();
-                    if (!String.valueOf(temp.getStamp()).equals(cursor.getString(0))){
+                    if (!String.valueOf(temp.getStamp()).equals(cursor.getString(0))) {
                         isChanged = true;
                     }
                 }

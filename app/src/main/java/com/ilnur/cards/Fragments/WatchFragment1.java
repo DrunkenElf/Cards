@@ -32,11 +32,15 @@ import com.bumptech.glide.Glide;
 import com.github.rubensousa.raiflatbutton.RaiflatButton;
 import com.github.rubensousa.raiflatbutton.RaiflatImageButton;
 import com.google.android.material.appbar.AppBarLayout;
+import com.google.gson.Gson;
 import com.ilnur.cards.CustomWeb;
 import com.ilnur.cards.Json.Card;
 import com.ilnur.cards.MainActivity;
 import com.ilnur.cards.MyDB;
 import com.ilnur.cards.R;
+import com.ilnur.cards.forStateSaving.ActivityState;
+import com.ilnur.cards.forStateSaving.FragmentState;
+import com.ilnur.cards.forStateSaving.watch;
 
 import net.opacapp.multilinecollapsingtoolbar.CollapsingToolbarLayout;
 
@@ -46,33 +50,26 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class WatchFragment1 extends Fragment {
-    private String subj;
-    private String title;
-    private int id;
-    private boolean parent;
+
     //private ArrayList<Card> list;
     private SparseArray<Card> list;
     //String strBody = "";
     private CustomWeb web;
     private CustomWeb web1;
-    private String w;
-    private String w1;
     private int width;
     int load = 0;
-    String head;
-    String secondpart = null;
-    int index;
     boolean flag;
     private StringBuilder s;
+    watch watch;
+    MyDB db;
 
 
-    public void setWatchFragment(String subj, String title, int id, boolean parent) {
-        this.subj = subj;
-        this.title = title;
-        this.id = id;
-        this.parent = parent;
+    public void setWatchFragment(MyDB db, watch watch) {
+        this.watch = watch;
+        this.db = db;
     }
 
     @Override
@@ -81,6 +78,11 @@ public class WatchFragment1 extends Fragment {
         super.onCreate(savedInstanceState);
     }
 
+    @Override
+    public void onPause() {
+
+        super.onPause();
+    }
 
     @Override
     public void onDestroyView() {
@@ -90,7 +92,17 @@ public class WatchFragment1 extends Fragment {
 
     @Override
     public void onLowMemory() {
-        Log.i("onLowMem", "yesy");
+        Log.d("onLowMem", "yesy");
+        Log.v("onLowMem", "yesy");
+        Log.wtf("onLowMem", "yesy");
+        Log.w("onLowMem", "yesy");
+        if (flag){
+            web.clearCache(false);
+            web1.clearCache(false);
+        } else {
+            web.clearCache(false);
+            web.destroyDrawingCache();
+        }
         super.onLowMemory();
     }
 
@@ -98,10 +110,11 @@ public class WatchFragment1 extends Fragment {
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         Log.i("Watch", "saved");
-        outState.putCharSequence("subj", subj);
+        //MainActivity.main.fragments.remove(MainActivity.main.fragments.size()-1);
+        /*outState.putCharSequence("subj", subj);
         outState.putCharSequence("title", title);
         outState.putInt("id", id);
-        outState.putBoolean("parent", parent);
+        outState.putBoolean("parent", parent);*/
         /*if (flag){
             web.saveState(outState);
             web1.saveState(outState);
@@ -116,36 +129,36 @@ public class WatchFragment1 extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         Log.i("Watch", "actcreated");
-        if (savedInstanceState != null) {
+       /* if (savedInstanceState != null) {
             subj = savedInstanceState.getString("subj");
             title = savedInstanceState.getString("title");
             id = savedInstanceState.getInt("id");
             parent = savedInstanceState.getBoolean("parent");
-            /*if (flag){
+            *//*if (flag){
                 web.restoreState(savedInstanceState);
                 web1.restoreState(savedInstanceState);
             } else
-                web.restoreState(savedInstanceState);*/
+                web.restoreState(savedInstanceState);*//*
             //list = savedInstanceState.getParcelableArrayList("watch");
-        }
+        }*/
     }
 
     @Override
     public void onViewStateRestored(Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
         Log.i("Watch", "restored");
-        if (savedInstanceState != null) {
+       /* if (savedInstanceState != null) {
             subj = savedInstanceState.getString("subj");
             title = savedInstanceState.getString("title");
             id = savedInstanceState.getInt("id");
             parent = savedInstanceState.getBoolean("parent");
             //list = savedInstanceState.getParcelableArrayList("watch");
-            /*if (flag){
+            *//*if (flag){
                 web.restoreState(savedInstanceState);
                 web1.restoreState(savedInstanceState);
             } else
-                web.restoreState(savedInstanceState);*/
-        }
+                web.restoreState(savedInstanceState);*//*
+        }*/
     }
 
     @Override
@@ -203,6 +216,17 @@ public class WatchFragment1 extends Fragment {
         }*/
         Log.i("Watch", "viewcreated");
         addContent(flag);
+        for (Iterator<FragmentState> iterator = MainActivity.main.fragments.iterator(); iterator.hasNext(); ) {
+            FragmentState s = iterator.next();
+            if (s.name.equals("watch")) {
+                iterator.remove();
+            }
+        }
+        MainActivity.main.addFragment(new FragmentState("watch", new Gson().toJson(watch)));
+        db.updateActState(new ActivityState("main", new Gson().toJson(MainActivity.main)));
+        //MainActivity.main.fragments.remove(MainActivity.main.fragments.size()-1);
+        //MainActivity.main.addFragment(new FragmentState("watch", new Gson().toJson(watch)));
+        //db.updateActState(new ActivityState("main", new Gson().toJson(MainActivity.main)));
     }
 
 
@@ -214,29 +238,29 @@ public class WatchFragment1 extends Fragment {
         //getActivity().setContentView(R.layout.watch_lay1);
 
         setRetainInstance(true);
-        if (savedInstanceState != null) {
+       /* if (savedInstanceState != null) {
             subj = savedInstanceState.getString("subj");
             title = savedInstanceState.getString("title");
             id = savedInstanceState.getInt("id");
             parent = savedInstanceState.getBoolean("parent");
             //list = savedInstanceState.getParcelableArrayList("watch");
 
-            /*if (flag){
+            *//*if (flag){
                 web.restoreState(savedInstanceState);
                 web1.restoreState(savedInstanceState);
             } else
-                web.restoreState(savedInstanceState);*/
+                web.restoreState(savedInstanceState);*//*
             if (parent) {
-               /* if (MyDB.hugePages.containsKey(subj+"//"+id)) {
+               *//* if (MyDB.hugePages.containsKey(subj+"//"+id)) {
                     list = MyDB.hugePages.get(subj + "//" + id);
                     Log.i("page", " contains");
                     Log.i("page", list.get(0).getAvers());
                 }
-                else*/
+                else*//*
                 list = MyDB.getParentCardsWatch(subj, id);
             } else
                 list = MyDB.getChildCardsWatch(subj, title, id);
-        }
+        }*/
 
         /*if (!MyDB.hugePages.containsKey(subj+"//"+id) && parent)
             new loadHugePageWatch().execute();*/
@@ -249,18 +273,18 @@ public class WatchFragment1 extends Fragment {
 
 
         if (savedInstanceState == null || !savedInstanceState.containsKey("watch")) {
-            if (parent) {
+            if (watch.parent) {
                 /*if (MyDB.hugePages.containsKey(subj + "//" + id)) {
                     list = MyDB.hugePages.get(subj + "//" + id);
                     Log.i("page", " contains");
                     Log.i("page", list.get(0).getAvers());
                 } else*/
-                    list = MyDB.getParentCardsWatch(subj, id);
+                    list = MyDB.getParentCardsWatch(watch.subj, watch.id);
             } else
-                list = MyDB.getChildCardsWatch(subj, title, id);
+                list = MyDB.getChildCardsWatch(watch.subj, watch.title, watch.id);
         }
 
-        if (parent && list.size() > 50 && subj.equals("История") && (list.get(0).getAvers().getBytes().length > 90000 ||
+        if (watch.parent && list.size() > 50 && watch.subj.equals("История") && (list.get(0).getAvers().getBytes().length > 90000 ||
                 list.get(0).getRevers().getBytes().length > 90000))
             initTwoWeb(rootview, true);
         else
@@ -326,11 +350,13 @@ public class WatchFragment1 extends Fragment {
 
     //closed with </body>
     private String getHead(boolean big) {
-        String size = "";
-        if (big)
-            size = "20px;";
+        String size;
+        if (watch.subj.equals("Математика"))
+            size = "20pt;";
+        else if (big)
+            size = "15pt;";
         else
-            size = "16px;";
+            size = "10pt;";
         StringBuilder sb = new StringBuilder(2000);
         sb.append("<html><head>")
                 .append("<meta name=\"viewport\" content=\"width=device-width\"/>\n")
@@ -375,6 +401,7 @@ public class WatchFragment1 extends Fragment {
                 +"td.left:nth-child(1){min-width: 119; width: fit-content;}"
                 +"td.left div.pbody {width: unset;}"
                 +"td.line div.pbody {width: fir-content;}"
+                +"* {font-size: "+size+"}"
                 +"td {border-bottom: 2px solid black;}"+"</style></head><body>");
         return sb.toString();
     }
@@ -393,7 +420,7 @@ public class WatchFragment1 extends Fragment {
             public void onPageFinished(WebView view, String url) {
                 Log.i("page", "finished");
                 load++;
-                if (parent && load == 2) {
+                if (watch.parent && load == 2) {
                     ImageView gif = rootView.findViewById(R.id.packman);
                     gif.setVisibility(View.GONE);
                     s = null;
@@ -401,7 +428,7 @@ public class WatchFragment1 extends Fragment {
                     Log.i("widthLoaded", "" + width);
                     System.gc();
                     Runtime.getRuntime().gc();
-                } else if (!parent && load == 1) {
+                } else if (!watch.parent && load == 1) {
                     ImageView gif = rootView.findViewById(R.id.packman);
                     //gif.animate().alpha(0.0f);
                     s = null;
@@ -414,14 +441,14 @@ public class WatchFragment1 extends Fragment {
         });
 
         //web.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-        //web.getSettings().setLayoutAlgorithm(WebSettings.LayoutAlgorithm.NARROW_COLUMNS);
+        web.getSettings().setLayoutAlgorithm(WebSettings.LayoutAlgorithm.TEXT_AUTOSIZING);
         web.getSettings().setEnableSmoothTransition(true);
         web.getSettings().setJavaScriptEnabled(true);
-        web.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+        //web.setLayerType(View.LAYER_TYPE_HARDWARE, null);
         web.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
         //web.setWebViewClient(new WebViewClient());
         //web.setVerticalScrollBarEnabled(true);
-        if (subj.equals("История"))
+        if (watch.subj.equals("История"))
             web.getSettings().setDefaultFontSize(16);
         else
             web.getSettings().setDefaultFontSize(20);
@@ -435,7 +462,7 @@ public class WatchFragment1 extends Fragment {
 
     private void modifyToolbar() {
         CollapsingToolbarLayout col = CollapsingToolbarLayout.class.cast(getActivity().findViewById(R.id.collapsing_toolbar));
-        col.setTitle(title);
+        col.setTitle(watch.title);
         col.setExpandedTitleMarginBottom((int) getContext().getResources().getDimension(R.dimen.margin_title_col));
         RaiflatButton learn = col.findViewById(R.id.learn);
         RaiflatButton watch = col.findViewById(R.id.watch);
@@ -472,16 +499,16 @@ public class WatchFragment1 extends Fragment {
 
         @Override
         protected String doInBackground(String... strings) {
-            if (parent) {
+            if (watch.parent) {
                 try {
-                    if (subj.equals("История"))
+                    if (watch.subj.equals("История"))
                         Thread.sleep(1200);
                     else
                         Thread.sleep(100);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-            } else if (subj.equals("Истроия")) {
+            } else if (watch.subj.equals("Истроия")) {
                 try {
                     Thread.sleep(70);
                 } catch (InterruptedException e) {
@@ -490,7 +517,7 @@ public class WatchFragment1 extends Fragment {
             }
             s = new StringBuilder();
             System.out.println(getHead(false));
-            if (subj.equals("История"))
+            if (watch.subj.equals("История"))
                 s.append(getHead(false)).append("<table>");
             else
                 s.append(getHead(true)).append("<table>");
@@ -533,7 +560,7 @@ public class WatchFragment1 extends Fragment {
                         color = getString(R.string.fourr);
                         break;
                 }
-                s.append("<tr onclick=\"javascript:return uped(this.id)\" id=\"" + subj + "/" + c.getId() + "/");
+                s.append("<tr onclick=\"javascript:return uped(this.id)\" id=\"" + watch.subj + "/" + c.getId() + "/");
                 //s.append(subj);
                 //s.append("/");
                 //s.append(c.getId());
@@ -541,7 +568,7 @@ public class WatchFragment1 extends Fragment {
                 //s.append(c.getResult());
                 s.append(c.getResult() + "\" bgcolor=\"" + color);
                 //s.append(color);
-                s.append("\" class='clickable-row' data-href='" + subj + "/" + c.getId() + "/" + c.getResult() + "'>");
+                s.append("\" class='clickable-row' data-href='" + watch.subj + "/" + c.getId() + "/" + c.getResult() + "'>");
                 //s.append(subj);
                 //s.append("/");
                 //s.append(c.getId());
@@ -555,7 +582,7 @@ public class WatchFragment1 extends Fragment {
                 //s.append("</td></tr>");
             }
             s.append("</table></body></html>");
-           /* File f = new File("/data/data/" + getContext().getPackageName() + "/file/");
+            /*File f = new File("/data/data/" + getContext().getPackageName() + "/file/");
             if (!f.exists())
                 f.mkdir();
 
@@ -670,4 +697,5 @@ public class WatchFragment1 extends Fragment {
         //Runtime.getRuntime().gc();
         super.onDestroy();
     }
+
 }

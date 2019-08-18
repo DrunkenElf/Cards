@@ -15,6 +15,7 @@ import android.widget.Toast;
 import com.github.rubensousa.raiflatbutton.RaiflatButton;
 import com.github.rubensousa.raiflatbutton.RaiflatImageButton;
 import com.google.android.material.appbar.AppBarLayout;
+import com.google.gson.Gson;
 import com.ilnur.cards.Adapters.AdapterList;
 import com.ilnur.cards.Category_Buttons.Binders.Cat_butt_binder;
 import com.ilnur.cards.Category_Buttons.Binders.Cat_butt_rev_binder;
@@ -28,6 +29,10 @@ import com.ilnur.cards.Json.Category;
 import com.ilnur.cards.MainActivity;
 import com.ilnur.cards.MyDB;
 import com.ilnur.cards.R;
+import com.ilnur.cards.forStateSaving.ActivityState;
+import com.ilnur.cards.forStateSaving.FragmentState;
+import com.ilnur.cards.forStateSaving.btn;
+import com.ilnur.cards.forStateSaving.list;
 
 
 import net.opacapp.multilinecollapsingtoolbar.CollapsingToolbarLayout;
@@ -43,6 +48,7 @@ import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
@@ -50,18 +56,32 @@ import tellh.com.recyclertreeview_lib.TreeNode;
 import tellh.com.recyclertreeview_lib.TreeViewAdapter;
 
 public class ListFragment extends Fragment {
-    private String title; // subject
-    private String[] mas;
-    private ArrayList<Category> list;
+    private ArrayList<Category> list1;
     private List<TreeNode> nodes = new ArrayList<>();
     private MyDB db;
+    private list list;
 
-    public void setTitle(MyDB db, String title, String[] mas) {
-        this.title = title;
-        this.mas = mas;
+    public void setTitle(MyDB db, list list) {
         this.db = db;
+        this.list = list;
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        //MainActivity.main.addFragment(new FragmentState("list", new Gson().toJson(list)));
+        /*MainActivity.main.fragments.remove(MainActivity.main.fragments.size()-1);
+        MainActivity.main.addFragment(new FragmentState("list", new Gson().toJson(list)));
+        db.updateActState(new ActivityState("main", new Gson().toJson(MainActivity.main)));*/
+        for (Iterator<FragmentState> iterator = MainActivity.main.fragments.iterator(); iterator.hasNext(); ) {
+            FragmentState s = iterator.next();
+            if (s.name.equals("list")) {
+                iterator.remove();
+            }
+        }
+        MainActivity.main.addFragment(new FragmentState("list", new Gson().toJson(list)));
+        db.updateActState(new ActivityState("main", new Gson().toJson(MainActivity.main)));
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -69,14 +89,14 @@ public class ListFragment extends Fragment {
         //getActivity().setTitle(title);
         MainActivity.current_tag = "list";
         setRetainInstance(true);
-        if (savedInstanceState != null) {
-            mas = savedInstanceState.getStringArray("mas");
-            title = savedInstanceState.getString("title");
-        }
+        /*if (savedInstanceState != null) {
+            list.mas = savedInstanceState.getStringArray("mas");
+            list.title = savedInstanceState.getString("title");
+        }*/
 
         //Toolbar bar = Toolbar.class.cast(getActivity().findViewById(R.id.toolbar));
         CollapsingToolbarLayout col = CollapsingToolbarLayout.class.cast(getActivity().findViewById(R.id.collapsing_toolbar));
-        col.setTitle(title);
+        col.setTitle(list.title);
         col.setExpandedTitleMarginBottom((int) getContext().getResources().getDimension(R.dimen.margin_title_col));
         col.setExpandedTitleTextAppearance(R.style.ExpandedAppBar);
         col.setCollapsedTitleTextAppearance(R.style.CollapsedAppBar);
@@ -90,12 +110,12 @@ public class ListFragment extends Fragment {
         apbar.setExpanded(false);
         apbar.setClickable(false);
 
-        if (savedInstanceState == null) {
-            if (!db.isSubjAdded(title)) {
+
+            if (!db.isSubjAdded(list.title)) {
                 Toast.makeText(rootview.getContext(), "Некоторые темы все еще добавляются", Toast.LENGTH_SHORT).show();
                 //MyDB.addCurrent(title);
             }
-        }
+
         //Arrays.sort(mas);
         //mas = sort(mas);
 
@@ -109,55 +129,60 @@ public class ListFragment extends Fragment {
 
         //creating adapter and its listener
         TreeViewAdapter adapter = new TreeViewAdapter(nodes, Arrays.asList(new Cat_head_binder(),
-                new Cat_butt_binder(), new Cat_butt_rev_binder()));
+                new Cat_butt_binder(savedInstanceState), new Cat_butt_rev_binder(savedInstanceState)));
         adapter.setOnTreeNodeListener(new TreeViewAdapter.OnTreeNodeListener() {
             @Override
             public boolean onClick(TreeNode node, RecyclerView.ViewHolder holder) {
                 //Log.i("on click", "click");
                 Cat_head head = (Cat_head) node.getContent();
-                ArrayList<Category> cats = MyDB.getSubCatNames(title, head.getTitle());
+                ArrayList<Category> cats = MyDB.getSubCatNames(list.title, head.getTitle());
                 if (!node.isLeaf()) {
 
                     if (!cats.isEmpty()) {
-                        MainActivity.exit = false;
+                        MainActivity.main.exit = false;
                         ButListFragment blf = new ButListFragment();
 
-                        boolean checkRever = MyDB.checkRevers(title, head.getTitle());
+                        boolean checkRever = MyDB.checkRevers(list.title, head.getTitle());
 
-                        int id_tittle = MyDB.getParentId(title, head.getTitle());
-
-                        blf.setButListFragment(title, head.getTitle(), MyDB.getSubCatNames(
-                                title, head.getTitle()), checkRever, id_tittle);
-
+                        int id_tittle = MyDB.getParentId(list.title, head.getTitle());
+                        btn btn = new btn(list.title, id_tittle, head.getTitle(), MyDB.getSubCatNames(
+                                list.title, head.getTitle()), checkRever);
+                        blf.setBtn(db, btn);
+                        blf.setArguments(savedInstanceState);
                         //new loadHugePageList(title, id_tittle).execute();
 
                         //Log.i("POs", mas[position]);
                         getFragmentManager().beginTransaction()
                                 .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.from_left, R.anim.to_right)
                                 .replace(R.id.parent, blf)
-                                .addToBackStack("btl")
+                                .addToBackStack("btn")
                                 .commit();
+                        /*MainActivity.main.addFragment(new FragmentState("btn", new Gson().toJson(btn)));
+                        db.updateActState(new ActivityState("main", new Gson().toJson(MainActivity.main)));*/
                     }
                 } else {
                     if (!cats.isEmpty()) {
-                        MainActivity.exit = false;
+                        MainActivity.main.exit = false;
                         ButListFragment blf = new ButListFragment();
 
-                        boolean checkRever = MyDB.checkRevers(title, head.getTitle());
+                        boolean checkRever = MyDB.checkRevers(list.title, head.getTitle());
 
-                        int id_tittle = MyDB.getParentId(title, head.getTitle());
+                        int id_tittle = MyDB.getParentId(list.title, head.getTitle());
 
-                        blf.setButListFragment(title, head.getTitle(), MyDB.getSubCatNames(
-                                title, head.getTitle()), checkRever, id_tittle);
-
+                        btn btn = new btn(list.title, id_tittle, head.getTitle(), MyDB.getSubCatNames(
+                                list.title, head.getTitle()), checkRever);
+                        blf.setBtn(db, btn);
+                        blf.setArguments(savedInstanceState);
                         //new loadHugePageList(title, id_tittle).execute();
 
                         //Log.i("POs", mas[position]);
                         getFragmentManager().beginTransaction()
                                 .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.from_left, R.anim.to_right)
                                 .replace(R.id.parent, blf)
-                                .addToBackStack("btl")
+                                .addToBackStack("btn")
                                 .commit();
+                        /*MainActivity.main.addFragment(new FragmentState("btn", new Gson().toJson(btn)));
+                        db.updateActState(new ActivityState("main", new Gson().toJson(MainActivity.main)));*/
                     }
                 }
                 return false;
@@ -175,16 +200,17 @@ public class ListFragment extends Fragment {
     }
 
     private void init(Context context) {
-        for (String s : mas) {
+        for (String s : list.mas) {
             TreeNode<Cat_head> head = new TreeNode<>(new Cat_head(s));
             nodes.add(head);
-            if (MyDB.getSubCatNames(title, s).isEmpty() || MyDB.getSubCatNames(title, s) == null) {
+            if (MyDB.getSubCatNames(list.title, s).isEmpty() || MyDB.getSubCatNames(list.title, s) == null) {
                 //Log.i("break", s);
-                if (MyDB.checkRevers(title, s)) {
-                    TreeNode<Cat_butt_rev> tmp = new TreeNode<>(new     Cat_butt_rev(title, s, MyDB.getParentId(title, s), context));
+                if (MyDB.checkRevers(list.title, s)) {
+                    TreeNode<Cat_butt_rev> tmp = new TreeNode<>(new Cat_butt_rev(list.title, s,
+                            MyDB.getParentId(list.title, s), context));
                     head.addChild(tmp);
                 } else {
-                    TreeNode<Cat_butt> tmp = new TreeNode<>(new Cat_butt(title, s, MyDB.getParentId(title, s), context));
+                    TreeNode<Cat_butt> tmp = new TreeNode<>(new Cat_butt(list.title, s, MyDB.getParentId(list.title, s), context));
                     head.addChild(tmp);
                 }
             }
@@ -208,33 +234,40 @@ public class ListFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-
+      /*  MainActivity.main.deleteFragment();
+        db.updateActState(new ActivityState("main", new Gson().toJson(MainActivity.main)));*/
     }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
+
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        outState.putCharSequenceArray("mas", mas);
-        outState.putCharSequence("title", title);
+       /* outState.putCharSequenceArray("mas", mas);
+        outState.putCharSequence("title", title);*/
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        if (savedInstanceState != null) {
+        /*if (savedInstanceState != null) {
             mas = savedInstanceState.getStringArray("mas");
             title = savedInstanceState.getString("title");
-        }
+        }*/
     }
 
     @Override
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
-        if (savedInstanceState != null) {
+        /*if (savedInstanceState != null) {
             mas = savedInstanceState.getStringArray("mas");
             title = savedInstanceState.getString("title");
-        }
+        }*/
     }
     // async to load huge pages to hashmap
     /*private class loadHugePageList extends AsyncTask<Void, Void, Void> {

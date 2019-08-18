@@ -25,18 +25,23 @@ import android.widget.Toast;
 import com.github.rubensousa.raiflatbutton.RaiflatButton;
 import com.github.rubensousa.raiflatbutton.RaiflatImageButton;
 import com.google.android.material.appbar.AppBarLayout;
+import com.google.gson.Gson;
 import com.ilnur.cards.Adapters.AdapterWatch;
 import com.ilnur.cards.Json.Card;
 import com.ilnur.cards.LoginActivity;
 import com.ilnur.cards.MainActivity;
 import com.ilnur.cards.MyDB;
 import com.ilnur.cards.R;
+import com.ilnur.cards.forStateSaving.ActivityState;
+import com.ilnur.cards.forStateSaving.FragmentState;
+import com.ilnur.cards.forStateSaving.learn;
 
 import net.opacapp.multilinecollapsingtoolbar.CollapsingToolbarLayout;
 
 import org.jsoup.Jsoup;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 
 import androidx.annotation.NonNull;
@@ -46,80 +51,79 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 
 public class LearnFragment extends Fragment {
-    private String subj;
-    private String title;
-    private int id;
-    private static int i = 0;
-    private boolean revers;
-    private boolean parent;
+
     private Card curr_card;
-    private int right = 0;
-    private int wrongs = 0;
     private ArrayList<Card> list;
     private String c;
-    private StringBuilder wrong = new StringBuilder();
-    private MyDB db = MyDB.instance;
+    private StringBuilder wrongs = new StringBuilder();
+    private MyDB db;
     String strBody = "";
+    public learn learn;
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        if (savedInstanceState != null){
+        /*if (savedInstanceState != null){
             //restore it
             subj = savedInstanceState.getString("subj");
             title = savedInstanceState.getString("title");
             id = savedInstanceState.getInt("id");
-            i = savedInstanceState.getInt("i");
+            learn.i = savedInstanceState.getInt("i");
             parent = savedInstanceState.getBoolean("parent");
             revers = savedInstanceState.getBoolean("revers");
             //list = savedInstanceState.getParcelableArrayList("learn");
             wrong = new StringBuilder();
             wrong.append("<table>").append(savedInstanceState.getString("sb"));
-        }
+        }*/
     }
 
     @Override
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
-        if (savedInstanceState != null){
+        /*if (savedInstanceState != null){
             //restore it
             subj = savedInstanceState.getString("subj");
             title = savedInstanceState.getString("title");
             id = savedInstanceState.getInt("id");
-            i = savedInstanceState.getInt("i");
+            learn.i = savedInstanceState.getInt("i");
             right = savedInstanceState.getInt("right");
-            wrongs = savedInstanceState.getInt("wrongs");
+            wrong = savedInstanceState.getInt("wrongs");
             parent = savedInstanceState.getBoolean("parent");
             revers = savedInstanceState.getBoolean("revers");
             //list = savedInstanceState.getParcelableArrayList("learn");
             wrong = new StringBuilder();
             wrong.append("<table>").append(savedInstanceState.getString("sb"));
-        }
+        }*/
     }
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         //save fragment state
-        outState.putCharSequence("subj", subj);
+       /* outState.putCharSequence("subj", subj);
         outState.putCharSequence("title", title);
         outState.putInt("id", id);
-        outState.putInt("i", i);
+        outState.putInt("i", learn.i);
         outState.putInt("right", right);
-        outState.putInt("wrongs", wrongs);
+        outState.putInt("wrongs", wrong);
         outState.putBoolean("parent", parent);
         outState.putBoolean("revers", revers);
         //outState.putParcelableArrayList("learn", list);
-        outState.putCharSequence("sb", wrong.toString());
+        outState.putCharSequence("sb", wrong.toString());*/
+        learn.wrongs = wrongs.toString();
+        for (Iterator<FragmentState> iterator = MainActivity.main.fragments.iterator(); iterator.hasNext(); ) {
+            FragmentState s = iterator.next();
+            if (s.name.equals("learn")) {
+                iterator.remove();
+            }
+        }
+        MainActivity.main.addFragment(new FragmentState("learn", new Gson().toJson(learn)));
+        db.updateActState(new ActivityState("main", new Gson().toJson(MainActivity.main)));
     }
 
-    public void setLearnFragment(String subj, String title, int id, boolean revers, boolean parent){
-        this.subj = subj;
-        this.title = title;
-        this.id = id;
-        i = 0;
-        this.revers = revers;
-        this.parent = parent;
+    public void setLearnFragment(MyDB db, learn learn) {
+        this.learn = learn;
+        this.db = db;
     }
 
     /*@Override
@@ -139,9 +143,9 @@ public class LearnFragment extends Fragment {
             Button dontknow = rootview.findViewById(R.id.dontkn);
             Button know = rootview.findViewById(R.id.know);
             Button learned = rootview.findViewById(R.id.learned);
-            dontknow.setPadding(0,0,0,50);
-            know.setPadding(0,0,0,50);
-            learned.setPadding(0,0,0,50);
+            dontknow.setPadding(0, 0, 0, 50);
+            know.setPadding(0, 0, 0, 50);
+            learned.setPadding(0, 0, 0, 50);
             /*LinearLayout.LayoutParams d = (LinearLayout.LayoutParams) dontknow.getLayoutParams();
             LinearLayout.LayoutParams k = (LinearLayout.LayoutParams) know.getLayoutParams();
             LinearLayout.LayoutParams l = (LinearLayout.LayoutParams) learned.getLayoutParams();
@@ -153,9 +157,9 @@ public class LearnFragment extends Fragment {
             Button dontknow = rootview.findViewById(R.id.dontkn);
             Button know = rootview.findViewById(R.id.know);
             Button learned = rootview.findViewById(R.id.learned);
-            dontknow.setPadding(0,0,0,250);
-            know.setPadding(0,0,0,250);
-            learned.setPadding(0,0,0,250);
+            dontknow.setPadding(0, 0, 0, 250);
+            know.setPadding(0, 0, 0, 250);
+            learned.setPadding(0, 0, 0, 250);
             /*LinearLayout.LayoutParams d = (LinearLayout.LayoutParams) dontknow.getLayoutParams();
             LinearLayout.LayoutParams k = (LinearLayout.LayoutParams) know.getLayoutParams();
             LinearLayout.LayoutParams l = (LinearLayout.LayoutParams) learned.getLayoutParams();
@@ -168,70 +172,83 @@ public class LearnFragment extends Fragment {
     }
 
     @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        for (Iterator<FragmentState> iterator = MainActivity.main.fragments.iterator(); iterator.hasNext(); ) {
+            FragmentState s = iterator.next();
+            if (s.name.equals("learn")) {
+                iterator.remove();
+            }
+        }
+        MainActivity.main.addFragment(new FragmentState("learn", new Gson().toJson(learn)));
+        db.updateActState(new ActivityState("main", new Gson().toJson(MainActivity.main)));
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View rootview = inflater.inflate(R.layout.learn_lay, container, false);
         MainActivity.current_tag = "learn";
         setRetainInstance(true);
         //getActivity().setTitle(title);
 
-        if (savedInstanceState != null){
+        /*if (savedInstanceState != null){
             //restore it
             subj = savedInstanceState.getString("subj");
             title = savedInstanceState.getString("title");
             id = savedInstanceState.getInt("id");
-            i = savedInstanceState.getInt("i");
+            learn.i = savedInstanceState.getInt("i");
             parent = savedInstanceState.getBoolean("parent");
             revers = savedInstanceState.getBoolean("revers");
             //list = savedInstanceState.getParcelableArrayList("learn");
 
             right = savedInstanceState.getInt("right");
-            wrongs = savedInstanceState.getInt("wrongs");
+            wrong = savedInstanceState.getInt("wrongs");
             wrong = new StringBuilder();
             wrong.append("<table>").append(savedInstanceState.getString("sb"));
             if (parent)
                 list = MyDB.getParentCards(subj, id);
             else
                 list = MyDB.getChildCards(subj, title, id);
-        }
+        }*/
         //if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT){
         //    strBody = "<html><head></head><body>";
         //} else {
-            //SQLiteDatabase sqdb =
-            try {
-                if (!db.getStyle(null, MyDB.instance.getReadableDatabase(), MyDB.style_orig, MyDB.style_names)
-                        .equals("") && db.getStyle(null, MyDB.instance.getReadableDatabase(), MyDB.style_orig, MyDB.style_names) != null)
-                    //strBody = "<html><head><meta name=\\\"viewport\\\" content=\\\"width=device-width; user-scalable=no; initial-scale=7.0; minimum-scale=5.0; maximum-scale=7.0; target-densityDpi=device-dpi;\\\"/><style>" + MyDB.getStyle(null);
+        //SQLiteDatabase sqdb =
+        try {
+            if (!db.getStyle(null, MyDB.instance.getReadableDatabase(), MyDB.style_orig, MyDB.style_names)
+                    .equals("") && db.getStyle(null, MyDB.instance.getReadableDatabase(), MyDB.style_orig, MyDB.style_names) != null)
+                //strBody = "<html><head><meta name=\\\"viewport\\\" content=\\\"width=device-width; user-scalable=no; initial-scale=7.0; minimum-scale=5.0; maximum-scale=7.0; target-densityDpi=device-dpi;\\\"/><style>" + MyDB.getStyle(null);
                 strBody = "<html><head><meta name=\\\"viewport\\\" content=\\\"width=device-width\\\"/><style>" +
-                //strBody = "<html><head><style>" +
+                        //strBody = "<html><head><style>" +
                         db.getStyle(null, MyDB.instance.getReadableDatabase(), MyDB.style_orig, MyDB.style_names);
-            } catch (CursorIndexOutOfBoundsException e) {
-                e.printStackTrace();
-                //strBody = "<html><head><meta name=\\\"viewport\\\" content=\\\"width=device-width; user-scalable=no; initial-scale=7.0; minimum-scale=5.0; maximum-scale=7.0; target-densityDpi=device-dpi;\\\"/><style>";
-                strBody = "<html><head><meta name=\\\"viewport\\\" content=\\\"width=device-width\\\"/><style>";
-                //strBody = "<html><head><style>";
-            }
-            try {
-                if (!db.getStyle(subj, MyDB.instance.getReadableDatabase(), MyDB.style_orig, MyDB.style_names).equals("") &&
-                        db.getStyle(subj, MyDB.instance.getReadableDatabase(), MyDB.style_orig, MyDB.style_names) != null)
-                    strBody = strBody + db.getStyle(subj, MyDB.instance.getReadableDatabase(), MyDB.style_orig, MyDB.style_names) +
-                            "</style></head><body>";
-            } catch (CursorIndexOutOfBoundsException e) {
-                e.printStackTrace();
-                strBody = strBody + "</style></head><body>";
-            }
+        } catch (CursorIndexOutOfBoundsException e) {
+            e.printStackTrace();
+            //strBody = "<html><head><meta name=\\\"viewport\\\" content=\\\"width=device-width; user-scalable=no; initial-scale=7.0; minimum-scale=5.0; maximum-scale=7.0; target-densityDpi=device-dpi;\\\"/><style>";
+            strBody = "<html><head><meta name=\\\"viewport\\\" content=\\\"width=device-width\\\"/><style>";
+            //strBody = "<html><head><style>";
+        }
+        try {
+            if (!db.getStyle(learn.subj, MyDB.instance.getReadableDatabase(), MyDB.style_orig, MyDB.style_names).equals("") &&
+                    db.getStyle(learn.subj, MyDB.instance.getReadableDatabase(), MyDB.style_orig, MyDB.style_names) != null)
+                strBody = strBody + db.getStyle(learn.subj, MyDB.instance.getReadableDatabase(), MyDB.style_orig, MyDB.style_names) +
+                        "</style></head><body>";
+        } catch (CursorIndexOutOfBoundsException e) {
+            e.printStackTrace();
+            strBody = strBody + "</style></head><body>";
+        }
         //}
         Log.i("style", strBody);
         //Toolbar bar = Toolbar.class.cast(getActivity().findViewById(R.id.toolbar));
         CollapsingToolbarLayout col = CollapsingToolbarLayout.class.cast(getActivity().findViewById(R.id.collapsing_toolbar));
-        col.setTitle(title);
+        col.setTitle(learn.title);
         col.setExpandedTitleMarginBottom((int) getContext().getResources().getDimension(R.dimen.margin_title_col));
-        RaiflatButton learn = col.findViewById(R.id.learn);
-        RaiflatButton watch = col.findViewById(R.id.watch);
+        RaiflatButton learnBtn = col.findViewById(R.id.learn);
+        RaiflatButton watchBtn = col.findViewById(R.id.watch);
         RaiflatImageButton rever = col.findViewById(R.id.rever);
 
 
-        learn.setVisibility(View.GONE);
-        watch.setVisibility(View.GONE);
+        learnBtn.setVisibility(View.GONE);
+        watchBtn.setVisibility(View.GONE);
         rever.setVisibility(View.GONE);
         AppBarLayout apbar = AppBarLayout.class.cast(getActivity().findViewById(R.id.apbar));
         apbar.setExpanded(false, false);
@@ -239,14 +256,13 @@ public class LearnFragment extends Fragment {
         //StringBuilder wrong = new StringBuilder();
         //wrong.append("<table>");
 
-        if (savedInstanceState == null || !savedInstanceState.containsKey("learn")) {
-            if (parent) {
-                list = MyDB.getParentCards(subj, id);
-            }
-            else {
-                list = MyDB.getChildCards(subj, title, id);
-            }
+        //if (savedInstanceState == null || !savedInstanceState.containsKey("learn")) {
+        if (learn.parent) {
+            list = MyDB.getParentCards(learn.subj, learn.id);
+        } else {
+            list = MyDB.getChildCards(learn.subj, learn.title, learn.id);
         }
+        //}
         /*for (Card c: list){
 
         }*/
@@ -255,7 +271,7 @@ public class LearnFragment extends Fragment {
         View include = rootview.findViewById(R.id.learn_inc_fr);
         WebView web = include.findViewById(R.id.web);
         //because in sdk version lower than 20 css doesn't supported
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT){
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
             //web.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
             //strBody = strBody.replace("absolute", "relative");
             //strBody = strBody.replace("left: 50%;", "left: 0%");
@@ -288,34 +304,33 @@ public class LearnFragment extends Fragment {
         Button learned = rootview.findViewById(R.id.learned);
 
         int orientation = getResources().getConfiguration().orientation;
-        if (orientation == Configuration.ORIENTATION_PORTRAIT){
-            dontknow.setPadding(0,0,0,250);
-            know.setPadding(0,0,0,250);
-            learned.setPadding(0,0,0,250);
+        if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+            dontknow.setPadding(0, 0, 0, 250);
+            know.setPadding(0, 0, 0, 250);
+            learned.setPadding(0, 0, 0, 250);
         } else {
-            dontknow.setPadding(0,0,0,50);
-            know.setPadding(0,0,0,50);
-            learned.setPadding(0,0,0,50);
+            dontknow.setPadding(0, 0, 0, 50);
+            know.setPadding(0, 0, 0, 50);
+            learned.setPadding(0, 0, 0, 50);
         }
-        c = "/"+list.size();
+        c = "/" + list.size();
 
 
-
-        if (list.size()==0){
+        if (list.size() == 0) {
             check.setVisibility(View.GONE);
             ll.setVisibility(View.GONE);
             //dontknow.setVisibility(View.GONE);
             //know.setVisibility(View.GONE);
             //learned.setVisibility(View.GONE);
-            count.setText("0"+c);
-            web.loadDataWithBaseURL(null, append("Похоже, что на сегодня вы все повторили или выучили"),"text/html", "utf-8", "about:blank");
+            count.setText("0" + c);
+            web.loadDataWithBaseURL(null, append("Похоже, что на сегодня вы все повторили или выучили"), "text/html", "utf-8", "about:blank");
         } else {
-            count.setText(i + 1 + c);
+            count.setText(learn.i + 1 + c);
             //int i = 0;
 
-            curr_card = list.get(i);
+            curr_card = list.get(learn.i);
             Log.i("card", append(curr_card.getRevers()));
-            if (revers) {
+            if (learn.revers) {
                 web.loadDataWithBaseURL(null, append(curr_card.getRevers()), "text/html",
                         "utf-8", "about:blank");
             } else
@@ -324,183 +339,185 @@ public class LearnFragment extends Fragment {
 
         }
         check.setOnClickListener(v -> {
-            Log.i("BUtton","check");
+            Log.i("BUtton", "check");
             //animate(check);
             check.setVisibility(View.GONE);
             ll.setVisibility(View.VISIBLE);
             //dontknow.setVisibility(View.VISIBLE);
             //know.setVisibility(View.VISIBLE);
             //learned.setVisibility(View.VISIBLE);
-            if (revers) {
+            if (learn.revers) {
                 web.loadDataWithBaseURL(null, append(curr_card.getAvers()), "text/html",
                         "utf-8", "about:blank");
             } else {
                 web.loadDataWithBaseURL(null, append(checkCard(curr_card).getRevers()), "text/html",
                         "utf-8", "about:blank");
             }
-            i = i +1;
+            learn.i = learn.i + 1;
 
         });
         again.setOnClickListener(v -> {
-            i = 0;
+            learn.i = 0;
             list = new ArrayList<>();
-            if (parent)
-                list = MyDB.getParentCards(subj, id);
+            if (learn.parent)
+                list = MyDB.getParentCards(learn.subj, learn.id);
             else
-                list = MyDB.getChildCards(subj, title, id);
-            curr_card = list.get(i);
-            if (revers) {
+                list = MyDB.getChildCards(learn.subj, learn.title, learn.id);
+            curr_card = list.get(learn.i);
+            if (learn.revers) {
                 web.loadDataWithBaseURL(null, append(curr_card.getRevers()), "text/html",
                         "utf-8", "about:blank");
             } else
                 web.loadDataWithBaseURL(null, append(curr_card.getAvers()), "text/html",
                         "utf-8", "about:blank");
-            c = "/"+list.size();
+            c = "/" + list.size();
             count.setVisibility(View.VISIBLE);
-            count.setText(String.valueOf(i + 1) + c);
+            count.setText(String.valueOf(learn.i + 1) + c);
             again.setVisibility(View.GONE);
             check.setVisibility(View.VISIBLE);
             ll.setVisibility(View.GONE);
         });
 
         dontknow.setOnClickListener(v -> {
-            Log.i("BUtton","dont");
-            wrongs++;
+            Log.i("BUtton", "dont");
+            learn.wrong++;
             check.setVisibility(View.VISIBLE);
             //dontknow.setVisibility(View.GONE);
             //know.setVisibility(View.GONE);
             //learned.setVisibility(View.GONE);
             ll.setVisibility(View.GONE);
-            if (curr_card.getRevers().length() == 1){
-                wrong.append("<tr><td>"+checkCard(curr_card).getRevers()+"</td></tr><tr>\n" +
+            if (curr_card.getRevers().length() == 1) {
+                wrongs.append("<tr><td>" + checkCard(curr_card).getRevers() + "</td></tr><tr>\n" +
                         "        <td colspan=\"2\" class=\"divider\"><hr /></td>\n" +
                         "    </tr>");
             } else {
-                wrong.append("<tr><td>"+curr_card.getAvers()+"</td><td class=\"line\">"+curr_card.getRevers()+"</td></tr><tr>\n" +
+                wrongs.append("<tr><td>" + curr_card.getAvers() + "</td><td class=\"line\">" + curr_card.getRevers() + "</td></tr><tr>\n" +
                         "        <td colspan=\"2\" class=\"divider\"><hr /></td>\n" +
                         "    </tr>");
             }
             //web.setText(list.get(i).getAvers());
-            if (i == list.size()){
+            if (learn.i == list.size()) {
                 check.setVisibility(View.GONE);
                 ll.setVisibility(View.GONE);
                 count.setVisibility(View.GONE);
                 again.setVisibility(View.VISIBLE);
-                web.loadDataWithBaseURL(null, showWrong(wrong.toString()), "text/html",
+                web.loadDataWithBaseURL(null, showWrong(wrongs.toString()), "text/html",
                         "utf-8", "about:blank");
-                if (!MainActivity.logged && MainActivity.show) {
+                if (!MainActivity.main.logged && MainActivity.main.show) {
                     new AlertDialog.Builder(rootview.getContext())
                             .setTitle("Хотите войти или зарегистрироваться?")
                             .setMessage("Для сохранения статистики на сервере необходимо авторизироваться или зарегистрироваться")
                             .setPositiveButton("Да", (dialog, which) -> startActivity(new Intent(getActivity(), LoginActivity.class)))
-                            .setNegativeButton("Позже", (dialog, which) -> MainActivity.show = false)
+                            .setNegativeButton("Позже", (dialog, which) -> MainActivity.main.show = false)
                             .show();
                 }
             } else {
-                curr_card = list.get(i);
-                if (revers) {
+                curr_card = list.get(learn.i);
+                if (learn.revers) {
                     web.loadDataWithBaseURL(null, append(curr_card.getRevers()), "text/html",
                             "utf-8", "about:blank");
                 } else {
                     web.loadDataWithBaseURL(null, append(curr_card.getAvers()), "text/html",
                             "utf-8", "about:blank");
                 }
-                count.setText((i + 1) +c);
+                count.setText((learn.i + 1) + c);
             }
         });
 
         know.setOnClickListener(v -> {
-            Log.i("BUtton","know");
-            right++;
+            Log.i("BUtton", "know");
+            learn.right++;
             check.setVisibility(View.VISIBLE);
             //dontknow.setVisibility(View.GONE);
             //know.setVisibility(View.GONE);
             //learned.setVisibility(View.GONE);
             ll.setVisibility(View.GONE);
-            new updateCard().execute(new params(subj, curr_card.getId(), 1, curr_card.getResult()));
+            new updateCard().execute(new params(learn.subj, curr_card.getId(), 1, curr_card.getResult()));
             //MyDB.updateCard(subj, curr_card.getId(), 1, curr_card.getResult());
-            if (i == list.size()){
-                web.loadDataWithBaseURL(null, showWrong(wrong.toString()), "text/html",
+            if (learn.i == list.size()) {
+                web.loadDataWithBaseURL(null, showWrong(wrongs.toString()), "text/html",
                         "utf-8", "about:blank");
                 check.setVisibility(View.GONE);
                 count.setVisibility(View.GONE);
                 again.setVisibility(View.VISIBLE);
-                if (!MainActivity.logged && MainActivity.show) {
+                if (!MainActivity.main.logged && MainActivity.main.show) {
                     new AlertDialog.Builder(rootview.getContext())
                             .setTitle("Хотите войти или зарегистрироваться?")
                             .setMessage("Для сохранения статистики на сервере необходимо авторизироваться или зарегистрироваться")
                             .setPositiveButton("Да", (dialog, which) -> startActivity(new Intent(getActivity(), LoginActivity.class)))
-                            .setNegativeButton("Позже", (dialog, which) -> MainActivity.show = false)
+                            .setNegativeButton("Позже", (dialog, which) -> MainActivity.main.show = false)
                             .show();
                 }
             } else {
-                curr_card = list.get(i);
-                if (revers) {
+                curr_card = list.get(learn.i);
+                if (learn.revers) {
                     web.loadDataWithBaseURL(null, append(curr_card.getRevers()), "text/html",
                             "utf-8", "about:blank");
                 } else {
                     web.loadDataWithBaseURL(null, append(curr_card.getAvers()), "text/html",
                             "utf-8", "about:blank");
                 }
-                count.setText((i + 1) +c);
+                count.setText((learn.i + 1) + c);
             }
         });
 
         learned.setOnClickListener(v -> {
-            Log.i("BUtton","learned");
-            right++;
+            Log.i("BUtton", "learned");
+            learn.right++;
             check.setVisibility(View.VISIBLE);
             //dontknow.setVisibility(View.GONE);
             //know.setVisibility(View.GONE);
             //learned.setVisibility(View.GONE);
             ll.setVisibility(View.GONE);
-            new updateCard().execute(new params(subj, curr_card.getId(), 4, curr_card.getResult()));
+            new updateCard().execute(new params(learn.subj, curr_card.getId(), 4, curr_card.getResult()));
             //MyDB.updateCard(subj, curr_card.getId(), 4, curr_card.getResult());
-            if (i == list.size()){
-                web.loadDataWithBaseURL(null, showWrong(wrong.toString()), "text/html",
+            if (learn.i == list.size()) {
+                web.loadDataWithBaseURL(null, showWrong(wrongs.toString()), "text/html",
                         "utf-8", "about:blank");
                 check.setVisibility(View.GONE);
                 count.setVisibility(View.GONE);
                 again.setVisibility(View.VISIBLE);
-                if (!MainActivity.logged && MainActivity.show) {
+                if (!MainActivity.main.logged && MainActivity.main.show) {
                     new AlertDialog.Builder(rootview.getContext())
                             .setTitle("Хотите войти или зарегистрироваться?")
                             .setMessage("Для сохранения статистики на сервере необходимо авторизироваться или зарегистрироваться")
                             .setPositiveButton("Да", (dialog, which) -> startActivity(new Intent(getActivity(), LoginActivity.class)))
-                            .setNegativeButton("Позже", (dialog, which) -> MainActivity.show = false)
+                            .setNegativeButton("Позже", (dialog, which) -> MainActivity.main.show = false)
                             .show();
                 }
 
             } else {
-                curr_card = list.get(i);
-                if (revers) {
+                curr_card = list.get(learn.i);
+                if (learn.revers) {
                     web.loadDataWithBaseURL(null, append(curr_card.getRevers()), "text/html",
                             "utf-8", "about:blank");
                 } else {
                     web.loadDataWithBaseURL(null, append(curr_card.getAvers()), "text/html",
                             "utf-8", "about:blank");
                 }
-                count.setText((i + 1) +c);
+                count.setText((learn.i + 1) + c);
             }
         });
 
-        Log.i("count  ",String.valueOf(getFragmentManager().getBackStackEntryCount()));
+        Log.i("count  ", String.valueOf(getFragmentManager().getBackStackEntryCount()));
         return rootview;
     }
-    private String append(String s){
-       return strBody+s+"</body></html>";
+
+    private String append(String s) {
+        return strBody + s + "</body></html>";
     }
-    private String showWrong(String table){
-        table = table+"</table>";
+
+    private String showWrong(String table) {
+        table = table + "</table>";
         String style = "<style> .line {\n" +
                 "  border-left: thin solid #000000;\n" +
                 "  padding: 2px;\n" +
                 "}</style>";
-        String html = "<html>"+style+"<body><div><p align='center'>Стопка закончилась</p><p></p><p>Верных ответов: "+
-                right+"</p>";
-        if (wrongs != 0){
-            html = html +"<p>Неверных ответов: "+ wrongs+"</p><br>";
-            html = html +"<strong>Допущенные ошибки</strong>"+table + "</div></body></html>";
+        String html = "<html>" + style + "<body><div><p align='center'>Стопка закончилась</p><p></p><p>Верных ответов: " +
+                learn.right + "</p>";
+        if (learn.wrong != 0) {
+            html = html + "<p>Неверных ответов: " + learn.wrong + "</p><br>";
+            html = html + "<strong>Допущенные ошибки</strong>" + table + "</div></body></html>";
         }
         return html;
     }
@@ -510,39 +527,14 @@ public class LearnFragment extends Fragment {
         }
     }*/
 
-    public void animate(View v){
-        v.animate()
-                .alpha(1.0f)
-                .setDuration(200)
-                .setListener(new Animator.AnimatorListener() {
-                    @Override
-                    public void onAnimationStart(Animator animation) {
 
-                    }
-
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        v.setVisibility(View.GONE);
-                    }
-
-                    @Override
-                    public void onAnimationCancel(Animator animation) {
-
-                    }
-
-                    @Override
-                    public void onAnimationRepeat(Animator animation) {
-
-                    }
-                });
-    }
-
-    private class params{
+    private class params {
         String subj;
         int id;
         int result;
         int old_result;
-        public params(String subj, int id, int result, int old_result){
+
+        public params(String subj, int id, int result, int old_result) {
             this.subj = subj;
             this.id = id;
             this.result = result;
@@ -558,27 +550,26 @@ public class LearnFragment extends Fragment {
         }
     }
 
-    public Card checkCard(Card card){
+    public Card checkCard(Card card) {
         String avers = card.getAvers()
-                .replace("<div align=\"justify\" width=\"100%\" class=\"pbody\"><p class=\"left_margin\">","")
-                .replace("</div>","");
+                .replace("<div align=\"justify\" width=\"100%\" class=\"pbody\"><p class=\"left_margin\">", "")
+                .replace("</div>", "");
         String revers = card.getRevers()
-                .replace("<div align=\"justify\" width=\"100%\" class=\"pbody\"><p class=\"left_margin\">","")
-                .replace("</div>","");
+                .replace("<div align=\"justify\" width=\"100%\" class=\"pbody\"><p class=\"left_margin\">", "")
+                .replace("</div>", "");
         revers = revers.toUpperCase();
 
         String fin = avers.replace("_", revers);
         //Log.i("fin", fin);
-        if (revers.length()==1) {
+        if (revers.length() == 1) {
             card.setRevers(card.getAvers().replace(avers, fin));
         }
         //Log.i("BUKVA_ED", card.getRevers());
         return card;
     }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        AppBarLayout apbar = AppBarLayout.class.cast(getActivity().findViewById(R.id.apbar));
-        apbar.setExpanded(false);
     }
 }

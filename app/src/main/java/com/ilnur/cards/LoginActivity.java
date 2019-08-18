@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.PersistableBundle;
+import android.telecom.Call;
 import android.text.Html;
 import android.text.SpannableStringBuilder;
 import android.text.style.BackgroundColorSpan;
@@ -20,6 +21,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
@@ -28,24 +30,57 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.github.rubensousa.raiflatbutton.RaiflatButton;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.gson.Gson;
+import com.ilnur.cards.forStateSaving.ActivityState;
+import com.ilnur.cards.forStateSaving.AppState;
+import com.ilnur.cards.forStateSaving.logActState;
 
 import org.jsoup.Jsoup;
 
 import java.io.IOException;
 
+import static com.ilnur.cards.MainActivity.db;
 import static com.ilnur.cards.MainActivity.user;
 
 public class LoginActivity extends AppCompatActivity {
+    logActState logState;
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        ActivityState activityState = new ActivityState("log", new Gson().toJson(logState));
+        MainActivity.appState.activities[1] = activityState;
+        db.updateActState(activityState);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        MainActivity.appState.activities[1] = null;
+        db.deleteActState("log");
+    }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login_activity);
+
+        if (MainActivity.appState.activities[1] == null) {
+            logState = new logActState();
+            MainActivity.appState.activities[1] = new ActivityState("log", new Gson().toJson(logState));
+            MainActivity.db.updateActState(MainActivity.appState.activities[1]);
+        } else {
+            logState = new Gson().fromJson(MainActivity.appState.activities[1].data, logActState.class);
+        }
+
         AppCompatButton close = findViewById(R.id.not_now);
         ImageView close_kr = findViewById(R.id.close_krest);
         close_kr.setOnClickListener(v -> finish());
         close.setOnClickListener(v -> {
             this.setVisible(false);
-            finish();
+            MainActivity.appState.activities[1] = null;
+            db.deleteActState("log");
+            this.finish();
         });
         TextView tv = findViewById(R.id.resh_kart);
         ImageView iv = findViewById(R.id.lable);
@@ -63,6 +98,7 @@ public class LoginActivity extends AppCompatActivity {
             if (event.getAction() == KeyEvent.ACTION_DOWN &&
                     (keyCode == KeyEvent.KEYCODE_ENTER)) {
                 user.setLogin(login.getText().toString());
+                logState.login = login.getText().toString();
                 return true;
             }
             return false;
@@ -70,6 +106,7 @@ public class LoginActivity extends AppCompatActivity {
         login.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 user.setLogin(login.getText().toString());
+                logState.login = login.getText().toString();
                 //signIn.performClick();
                 return true;
             }
@@ -88,6 +125,7 @@ public class LoginActivity extends AppCompatActivity {
         password.setOnKeyListener((View v, int keyCode, KeyEvent event) -> {
             if (event.getAction() == KeyEvent.ACTION_DOWN && (keyCode == KeyEvent.KEYCODE_ENTER)) {
                 user.setPassword(password.getText().toString());
+                logState.password = password.getText().toString();
                 return true;
             }
             return false;
@@ -95,6 +133,7 @@ public class LoginActivity extends AppCompatActivity {
         password.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 user.setPassword(password.getText().toString());
+                logState.password = password.getText().toString();
                 signIn.performClick();
                 return true;
             }
@@ -103,7 +142,9 @@ public class LoginActivity extends AppCompatActivity {
 
         signIn.setOnClickListener(v -> {
             user.setLogin(login.getText().toString());
+            logState.login = login.getText().toString();
             user.setPassword(password.getText().toString());
+            logState.password = password.getText().toString();
             TextInputLayout logg = findViewById(R.id.login_lay);
             TextInputLayout pass = findViewById(R.id.password_lay);
             if ((user.getLogin().equals("") || user.getLogin() == null) &&
@@ -122,7 +163,7 @@ public class LoginActivity extends AppCompatActivity {
                 pass.setError(er);
                 password.requestFocus();
             } else if (checkValid(true)) {
-                MainActivity.logged = true;
+                MainActivity.main.logged = true;
                 try {
                     InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
@@ -133,7 +174,10 @@ public class LoginActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "Авторизация прошла успешно", Toast.LENGTH_SHORT).show();
                 Runnable sync = MainActivity.db::syncSubj;
                 new Thread(sync).start();
+                MainActivity.appState.activities[1] = null;
+                db.deleteActState("log");
                 this.finish();
+                //overridePendingTransition(R.anim.exit_to_left, R.anim.enter_from_right);
             }
 
         });
@@ -174,5 +218,11 @@ public class LoginActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), "Введенные вами логин и пароль не" +
                     " являются действительными", Toast.LENGTH_SHORT).show();
         return false;
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        //overridePendingTransition(R.anim.fade_out, R.anim.fade_in);
     }
 }

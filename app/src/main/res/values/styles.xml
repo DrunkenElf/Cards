@@ -8,6 +8,7 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:textColor">#212121</item>
         <item name="android:datePickerDialogTheme" tools:targetApi="lollipop">@style/DialogTheme</item>
+        <item name="android:windowAnimationStyle">@style/Animation.MyDialog</item>
     </style>
 
     <style name="AppTheme.Login" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -16,12 +17,28 @@
         <item name="android:windowFullscreen">false</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:windowAnimationStyle">@style/Animation.MyDialog</item>
     </style>
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">true</item>
         <item name="windowNoTitle">true</item>
+        <item name="android:windowAnimationStyle">@style/Animation.MyDialog</item>
     </style>
 
+    <style name="Animation.MyDialog" parent="@android:style/Animation.Activity">
+        <item name="android:activityOpenEnterAnimation">
+            @anim/fade_in</item>
+        <item name="android:activityOpenExitAnimation">
+            @anim/fade_out</item>
+        <item name="android:activityCloseEnterAnimation">
+            @anim/fade_in</item>
+        <item name="android:activityCloseExitAnimation">
+            @anim/fade_out</item>
+    </style>
+
+    <!--<style name="Theme.MyDialog" parent="android:Theme.Dialog">
+        <item name="android:windowAnimationStyle">@style/Animation.MyDialog</item>
+    </style>-->
 
     <style name="DialogTheme" parent="Theme.AppCompat.Light.Dialog">
         <item name="colorAccent">@color/colorPrimary</item>
