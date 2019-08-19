@@ -257,10 +257,18 @@ public class LearnFragment extends Fragment {
         //wrong.append("<table>");
 
         //if (savedInstanceState == null || !savedInstanceState.containsKey("learn")) {
-        if (learn.parent) {
+        if (learn.cards != null && learn.cards.length>0){
+            list = MyDB.getCardsById(learn.subj, learn.cards);
+        } else if (learn.parent) {
             list = MyDB.getParentCards(learn.subj, learn.id);
         } else {
             list = MyDB.getChildCards(learn.subj, learn.title, learn.id);
+        }
+        if (learn.cards == null || learn.cards.length == 0) {
+            learn.cards = new int[list.size()];
+            for (int j = 0; j < list.size(); j++) {
+                learn.cards[j] = list.get(j).getId();
+            }
         }
         //}
         /*for (Card c: list){

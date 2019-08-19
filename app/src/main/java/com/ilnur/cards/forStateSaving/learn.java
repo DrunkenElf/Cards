@@ -24,6 +24,8 @@ public class learn {
     public int right = 0;
     @SerializedName("wrong")
     public int wrong = 0;
+    @SerializedName("cards")
+    public int[] cards;
 
     public learn(String subj, int id, String title, boolean revers, boolean parent, int i, String wrongs){
         this.subj = subj;

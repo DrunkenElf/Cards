@@ -78,6 +78,11 @@ public class RegisterActivity extends AppCompatActivity {
         MainActivity.appState.activities[2] = activityState;
         db.updateActState(activityState);
     }
+    void saveAct(){
+        ActivityState activityState = new ActivityState("reg", new Gson().toJson(regState));
+        MainActivity.appState.activities[2] = activityState;
+        db.updateActState(activityState);
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -86,7 +91,7 @@ public class RegisterActivity extends AppCompatActivity {
         setTitle("Решу ЕГЭ. Карточки");
 
         if (MainActivity.appState.activities[2] == null) {
-            regState = new regActState();
+            regState = new regActState(" "," "," "," "," "," "," "," ");
             MainActivity.appState.activities[2] = new ActivityState("reg", new Gson().toJson(regState));
             MainActivity.db.updateActState(MainActivity.appState.activities[2]);
         } else {
@@ -125,12 +130,29 @@ public class RegisterActivity extends AppCompatActivity {
         AppCompatButton enter = findViewById(R.id.reg_but);
 
 
+        if (regState.month.length()>1 && regState.year.length()>1 && regState.day.length()>1)
+            date.setText(regState.day +"/"+regState.month+"/"+regState.year);
+        if (regState.name1.length()>1)
+            name.setText(regState.name1);
+        if (regState.password.length()>1)
+            pas.setText(regState.password);
+        if (regState.password1.length()>1)
+            pasAgain.setText(regState.password1);
+        if (regState.surname1.length()>1)
+            surname.setText(regState.surname1);
+        if (regState.username.length()>1)
+            mail.setText(regState.username);
+
+
+
+
         //adding listeners to editTexts
         //listener for mail
         mail.setOnKeyListener((v, keyCode, event) -> {
             if (event.getAction() == KeyEvent.ACTION_DOWN &&
                     (keyCode == KeyEvent.KEYCODE_ENTER)) {
                 regState.username = mail.getText().toString();
+                saveAct();
                 return true;
             }
             return false;
@@ -138,6 +160,7 @@ public class RegisterActivity extends AppCompatActivity {
         mail.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 regState.username = mail.getText().toString();
+
                 //signIn.performClick();
                 return true;
             }
@@ -149,6 +172,7 @@ public class RegisterActivity extends AppCompatActivity {
             if (event.getAction() == KeyEvent.ACTION_DOWN &&
                     (keyCode == KeyEvent.KEYCODE_ENTER)) {
                 regState.name1 = name.getText().toString();
+                saveAct();
                 return true;
             }
             return false;
@@ -167,6 +191,7 @@ public class RegisterActivity extends AppCompatActivity {
             if (event.getAction() == KeyEvent.ACTION_DOWN &&
                     (keyCode == KeyEvent.KEYCODE_ENTER)) {
                 regState.surname1 = surname.getText().toString();
+                saveAct();
                 return true;
             }
             return false;
@@ -185,6 +210,7 @@ public class RegisterActivity extends AppCompatActivity {
             if (event.getAction() == KeyEvent.ACTION_DOWN &&
                     (keyCode == KeyEvent.KEYCODE_ENTER)) {
                 regState.password = pas.getText().toString();
+                saveAct();
                 return true;
             }
             return false;
@@ -203,6 +229,7 @@ public class RegisterActivity extends AppCompatActivity {
             if (event.getAction() == KeyEvent.ACTION_DOWN &&
                     (keyCode == KeyEvent.KEYCODE_ENTER)) {
                 regState.password1 = pasAgain.getText().toString();
+                saveAct();
                 return true;
             }
             return false;
@@ -259,6 +286,7 @@ public class RegisterActivity extends AppCompatActivity {
                 regState.day = String.valueOf(dayOfMonth);
                 regState.month = String.valueOf(month);
                 regState.year = String.valueOf(year);
+                onSaveInstanceState(savedInstanceState);
                 RegisterActivity.this.updateLable(date, calendar);
             }
         };

@@ -48,4 +48,22 @@ public class regActState {
         this.status = status;
         this.valid = valid;
     }
+
+    public regActState(String username,
+                       String name1,
+                       String surname1,
+                       String password,
+                       String password1,
+                       String day,
+                       String month,
+                       String year){
+        this.username = username;
+        this.name1 = name1;
+        this.surname1 = surname1;
+        this.password = password;
+        this.password1 = password1;
+        this.day = day;
+        this.month = month;
+        this.year = year;
+    }
 }

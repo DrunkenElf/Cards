@@ -48,6 +48,13 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
+
+        ActivityState activityState = new ActivityState("log", new Gson().toJson(logState));
+        MainActivity.appState.activities[1] = activityState;
+        db.updateActState(activityState);
+    }
+
+    void saveAct() {
         ActivityState activityState = new ActivityState("log", new Gson().toJson(logState));
         MainActivity.appState.activities[1] = activityState;
         db.updateActState(activityState);
@@ -66,12 +73,13 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.login_activity);
 
         if (MainActivity.appState.activities[1] == null) {
-            logState = new logActState();
+            logState = new logActState(" ", " ");
             MainActivity.appState.activities[1] = new ActivityState("log", new Gson().toJson(logState));
             MainActivity.db.updateActState(MainActivity.appState.activities[1]);
         } else {
             logState = new Gson().fromJson(MainActivity.appState.activities[1].data, logActState.class);
         }
+
 
         AppCompatButton close = findViewById(R.id.not_now);
         ImageView close_kr = findViewById(R.id.close_krest);
@@ -92,7 +100,12 @@ public class LoginActivity extends AppCompatActivity {
         AppCompatButton register = findViewById(R.id.register);
 
         //register.setAlpha(0.0f);
-
+        Log.i("LOGIN", logState.login);
+        Log.i("PASSWORD", logState.password);
+        if (logState.login.length() > 1)
+            login.setText(logState.login);
+        if (logState.password.length() > 1)
+            login.setText(logState.password);
 
         login.setOnKeyListener((v, keyCode, event) -> {
             if (event.getAction() == KeyEvent.ACTION_DOWN &&
@@ -126,6 +139,7 @@ public class LoginActivity extends AppCompatActivity {
             if (event.getAction() == KeyEvent.ACTION_DOWN && (keyCode == KeyEvent.KEYCODE_ENTER)) {
                 user.setPassword(password.getText().toString());
                 logState.password = password.getText().toString();
+                //saveAct();
                 return true;
             }
             return false;
@@ -134,6 +148,7 @@ public class LoginActivity extends AppCompatActivity {
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 user.setPassword(password.getText().toString());
                 logState.password = password.getText().toString();
+                //saveAct();
                 signIn.performClick();
                 return true;
             }

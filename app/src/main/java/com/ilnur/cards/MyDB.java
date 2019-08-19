@@ -82,7 +82,7 @@ public class MyDB extends SQLiteOpenHelper {
         try {
             Field field = CursorWindow.class.getDeclaredField("sCursorWindowSize");
             field.setAccessible(true);
-            field.set(null, 4096 * 1024);
+            field.set(null, 3072 * 1024);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -429,6 +429,29 @@ public class MyDB extends SQLiteOpenHelper {
             cursor.moveToNext();
         }
         cursor.close();
+        return list;
+    }
+
+    public static ArrayList<Card> getCardsById(String parent, int[] ids){
+        if (parent.contains(" "))
+            parent = parent.replace(" ", "_");
+        ArrayList<Card> list = new ArrayList<>();
+        Cursor cursor;
+        Card tmp;
+        for (int i: ids){
+            cursor = sqdb.rawQuery("SELECT id, avers, revers, result, result_stamp FROM " + parent + "_card " +
+                    "WHERE id = ?", new String[]{String.valueOf(i)});
+            cursor.moveToFirst();
+            tmp = new Card();
+            tmp.setId(cursor.getInt(0));
+            tmp.setAvers(cursor.getString(1));
+            tmp.setRevers(cursor.getString(2));
+            tmp.setResult(cursor.getInt(3));
+            tmp.setResult_stamp(cursor.getString(4));
+            list.add(tmp);
+            cursor.close();
+        }
+
         return list;
     }
 
@@ -1082,7 +1105,7 @@ public class MyDB extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         Cursor cursor;
 
-        Log.i("adding", subj_name);
+        //Log.i("adding", subj_name);
         cursor = sqdb.rawQuery("SELECT added FROM subj WHERE name = ?", new String[]{subj_name});
         cursor.moveToFirst();
         int isAdded = cursor.getInt(0);
@@ -1121,7 +1144,7 @@ public class MyDB extends SQLiteOpenHelper {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                Log.i("adding", subj_name + " " + temp.getTitle());
+                //Log.i("adding", subj_name + " " + temp.getTitle());
 
                 bis = resp.bodyStream();
                 isr = new InputStreamReader(bis);
@@ -1184,7 +1207,7 @@ public class MyDB extends SQLiteOpenHelper {
                 //Log.i("rand", new Random(9999999).toString());
                 String style = Jsoup.connect("https://ege.sdamgia.ru/mobile_cards/style.css?v=" + String.valueOf(new Random().nextInt(9999999)))
                         .ignoreContentType(true).get().select("body").text();
-                Log.i("STYLE", "-- " + style);
+                //Log.i("STYLE", "-- " + style);
                 try {
                     //Log.i("STYLE", style);
                     if (!getStyle(null, sqdb1, style_orig1, style_names1).equals(style))
