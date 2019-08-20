@@ -19,7 +19,6 @@ import com.ilnur.cards.Category_Buttons.Cat_butt_rev;
 import com.ilnur.cards.Category_Buttons.Binders.Cat_butt_rev_binder;
 import com.ilnur.cards.Category_Buttons.Cat_head;
 import com.ilnur.cards.Category_Buttons.Binders.Cat_head_binder;
-import com.ilnur.cards.Json.Card;
 import com.ilnur.cards.Json.Category;
 import com.ilnur.cards.MainActivity;
 import com.ilnur.cards.MyDB;
@@ -60,9 +59,6 @@ public class ButListFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        //MainActivity.main.fragments.remove(MainActivity.main.fragments.size()-1);
-        //MainActivity.main.addFragment(new FragmentState("btn", new Gson().toJson(btn)));
-        //db.updateActState(new ActivityState("main", new Gson().toJson(MainActivity.main)));
         for (Iterator<FragmentState> iterator = MainActivity.main.fragments.iterator(); iterator.hasNext(); ) {
             FragmentState s = iterator.next();
             if (s.name.equals("btn")) {
@@ -227,20 +223,11 @@ public class ButListFragment extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        /*outState.putCharSequence("subj", subj);
-        outState.putCharSequence("title", title);
-        outState.putInt("id", id);
-        outState.putParcelableArrayList("key", list);*/
     }
     //also save state
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        /*if (savedInstanceState != null){
-            subj = savedInstanceState.getString("subj");
-            title = savedInstanceState.getString("title");
-            id = savedInstanceState.getInt("id");
-        }*/
     }
 
 
@@ -248,25 +235,7 @@ public class ButListFragment extends Fragment {
     @Override
     public void onViewStateRestored(Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
-        /*if (savedInstanceState != null){
-            subj = savedInstanceState.getString("subj");
-            title = savedInstanceState.getString("title");
-            id = savedInstanceState.getInt("id");
-        }*/
     }
     // async to load huge pages to hashmap
-    /*private class loadHugePageBtn extends AsyncTask<Void, Void, Void>{
-        @Override
-        protected Void doInBackground(Void... voids) {
-            Log.i("loadBtn", subj+"//"+id);
-            // key - subj+//+id
-            if (!MyDB.hugePages.containsKey(subj+"//"+id)) {
-                Log.i("loadBtn", subj+"//"+id + " not contains");
-                ArrayList<Card> temp = MyDB.getParentCardsWatch(subj, id);
-                MyDB.hugePages.put(subj + "//" + id, temp);
-                Log.i("loadBtn", subj+"//"+id + " added");
-            }
-            return null;
-        }
-    }*/
+
 }

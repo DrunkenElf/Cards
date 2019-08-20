@@ -87,7 +87,6 @@ public class ListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View rootview = inflater.inflate(R.layout.list_fragment, container, false);
         //getActivity().setTitle(title);
-        MainActivity.current_tag = "list";
         setRetainInstance(true);
         /*if (savedInstanceState != null) {
             list.mas = savedInstanceState.getStringArray("mas");
@@ -135,17 +134,17 @@ public class ListFragment extends Fragment {
             public boolean onClick(TreeNode node, RecyclerView.ViewHolder holder) {
                 //Log.i("on click", "click");
                 Cat_head head = (Cat_head) node.getContent();
-                ArrayList<Category> cats = MyDB.getSubCatNames(list.title, head.getTitle());
+                ArrayList<Category> cats = db.getSubCatNames(list.title, head.getTitle());
                 if (!node.isLeaf()) {
 
                     if (!cats.isEmpty()) {
                         MainActivity.main.exit = false;
                         ButListFragment blf = new ButListFragment();
 
-                        boolean checkRever = MyDB.checkRevers(list.title, head.getTitle());
+                        boolean checkRever = db.checkRevers(list.title, head.getTitle());
 
-                        int id_tittle = MyDB.getParentId(list.title, head.getTitle());
-                        btn btn = new btn(list.title, id_tittle, head.getTitle(), MyDB.getSubCatNames(
+                        int id_tittle = db.getParentId(list.title, head.getTitle());
+                        btn btn = new btn(list.title, id_tittle, head.getTitle(), db.getSubCatNames(
                                 list.title, head.getTitle()), checkRever);
                         blf.setBtn(db, btn);
                         blf.setArguments(savedInstanceState);
@@ -165,11 +164,11 @@ public class ListFragment extends Fragment {
                         MainActivity.main.exit = false;
                         ButListFragment blf = new ButListFragment();
 
-                        boolean checkRever = MyDB.checkRevers(list.title, head.getTitle());
+                        boolean checkRever = db.checkRevers(list.title, head.getTitle());
 
-                        int id_tittle = MyDB.getParentId(list.title, head.getTitle());
+                        int id_tittle = db.getParentId(list.title, head.getTitle());
 
-                        btn btn = new btn(list.title, id_tittle, head.getTitle(), MyDB.getSubCatNames(
+                        btn btn = new btn(list.title, id_tittle, head.getTitle(), db.getSubCatNames(
                                 list.title, head.getTitle()), checkRever);
                         blf.setBtn(db, btn);
                         blf.setArguments(savedInstanceState);
@@ -203,14 +202,14 @@ public class ListFragment extends Fragment {
         for (String s : list.mas) {
             TreeNode<Cat_head> head = new TreeNode<>(new Cat_head(s));
             nodes.add(head);
-            if (MyDB.getSubCatNames(list.title, s).isEmpty() || MyDB.getSubCatNames(list.title, s) == null) {
+            if (db.getSubCatNames(list.title, s).isEmpty() || db.getSubCatNames(list.title, s) == null) {
                 //Log.i("break", s);
-                if (MyDB.checkRevers(list.title, s)) {
+                if (db.checkRevers(list.title, s)) {
                     TreeNode<Cat_butt_rev> tmp = new TreeNode<>(new Cat_butt_rev(list.title, s,
-                            MyDB.getParentId(list.title, s), context));
+                            db.getParentId(list.title, s), context));
                     head.addChild(tmp);
                 } else {
-                    TreeNode<Cat_butt> tmp = new TreeNode<>(new Cat_butt(list.title, s, MyDB.getParentId(list.title, s), context));
+                    TreeNode<Cat_butt> tmp = new TreeNode<>(new Cat_butt(list.title, s, db.getParentId(list.title, s), context));
                     head.addChild(tmp);
                 }
             }

@@ -1,12 +1,8 @@
 package com.ilnur.cards.Fragments;
 
-import android.animation.Animator;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.CursorIndexOutOfBoundsException;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -14,19 +10,15 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.github.rubensousa.raiflatbutton.RaiflatButton;
 import com.github.rubensousa.raiflatbutton.RaiflatImageButton;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.gson.Gson;
-import com.ilnur.cards.Adapters.AdapterWatch;
 import com.ilnur.cards.Json.Card;
 import com.ilnur.cards.LoginActivity;
 import com.ilnur.cards.MainActivity;
@@ -38,8 +30,6 @@ import com.ilnur.cards.forStateSaving.learn;
 
 import net.opacapp.multilinecollapsingtoolbar.CollapsingToolbarLayout;
 
-import org.jsoup.Jsoup;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -47,7 +37,6 @@ import java.util.Iterator;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 
 public class LearnFragment extends Fragment {
@@ -187,7 +176,6 @@ public class LearnFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View rootview = inflater.inflate(R.layout.learn_lay, container, false);
-        MainActivity.current_tag = "learn";
         setRetainInstance(true);
         //getActivity().setTitle(title);
 
@@ -215,12 +203,12 @@ public class LearnFragment extends Fragment {
         //} else {
         //SQLiteDatabase sqdb =
         try {
-            if (!db.getStyle(null, MyDB.instance.getReadableDatabase(), MyDB.style_orig, MyDB.style_names)
-                    .equals("") && db.getStyle(null, MyDB.instance.getReadableDatabase(), MyDB.style_orig, MyDB.style_names) != null)
+            if (!db.getStyle(null, db.getReadableDatabase(), MyDB.style_orig, MyDB.style_names)
+                    .equals("") && db.getStyle(null, db.instance.getReadableDatabase(), MyDB.style_orig, MyDB.style_names) != null)
                 //strBody = "<html><head><meta name=\\\"viewport\\\" content=\\\"width=device-width; user-scalable=no; initial-scale=7.0; minimum-scale=5.0; maximum-scale=7.0; target-densityDpi=device-dpi;\\\"/><style>" + MyDB.getStyle(null);
                 strBody = "<html><head><meta name=\\\"viewport\\\" content=\\\"width=device-width\\\"/><style>" +
                         //strBody = "<html><head><style>" +
-                        db.getStyle(null, MyDB.instance.getReadableDatabase(), MyDB.style_orig, MyDB.style_names);
+                        db.getStyle(null, db.instance.getReadableDatabase(), MyDB.style_orig, MyDB.style_names);
         } catch (CursorIndexOutOfBoundsException e) {
             e.printStackTrace();
             //strBody = "<html><head><meta name=\\\"viewport\\\" content=\\\"width=device-width; user-scalable=no; initial-scale=7.0; minimum-scale=5.0; maximum-scale=7.0; target-densityDpi=device-dpi;\\\"/><style>";
@@ -228,9 +216,9 @@ public class LearnFragment extends Fragment {
             //strBody = "<html><head><style>";
         }
         try {
-            if (!db.getStyle(learn.subj, MyDB.instance.getReadableDatabase(), MyDB.style_orig, MyDB.style_names).equals("") &&
-                    db.getStyle(learn.subj, MyDB.instance.getReadableDatabase(), MyDB.style_orig, MyDB.style_names) != null)
-                strBody = strBody + db.getStyle(learn.subj, MyDB.instance.getReadableDatabase(), MyDB.style_orig, MyDB.style_names) +
+            if (!db.getStyle(learn.subj, db.instance.getReadableDatabase(), MyDB.style_orig, MyDB.style_names).equals("") &&
+                    db.getStyle(learn.subj, db.instance.getReadableDatabase(), MyDB.style_orig, MyDB.style_names) != null)
+                strBody = strBody + db.getStyle(learn.subj, db.instance.getReadableDatabase(), MyDB.style_orig, MyDB.style_names) +
                         "</style></head><body>";
         } catch (CursorIndexOutOfBoundsException e) {
             e.printStackTrace();
@@ -258,11 +246,11 @@ public class LearnFragment extends Fragment {
 
         //if (savedInstanceState == null || !savedInstanceState.containsKey("learn")) {
         if (learn.cards != null && learn.cards.length>0){
-            list = MyDB.getCardsById(learn.subj, learn.cards);
+            list = db.getCardsById(learn.subj, learn.cards);
         } else if (learn.parent) {
-            list = MyDB.getParentCards(learn.subj, learn.id);
+            list = db.getParentCards(learn.subj, learn.id);
         } else {
-            list = MyDB.getChildCards(learn.subj, learn.title, learn.id);
+            list = db.getChildCards(learn.subj, learn.title, learn.id);
         }
         if (learn.cards == null || learn.cards.length == 0) {
             learn.cards = new int[list.size()];
@@ -368,9 +356,9 @@ public class LearnFragment extends Fragment {
             learn.i = 0;
             list = new ArrayList<>();
             if (learn.parent)
-                list = MyDB.getParentCards(learn.subj, learn.id);
+                list = db.getParentCards(learn.subj, learn.id);
             else
-                list = MyDB.getChildCards(learn.subj, learn.title, learn.id);
+                list = db.getChildCards(learn.subj, learn.title, learn.id);
             curr_card = list.get(learn.i);
             if (learn.revers) {
                 web.loadDataWithBaseURL(null, append(curr_card.getRevers()), "text/html",
@@ -553,7 +541,7 @@ public class LearnFragment extends Fragment {
     public class updateCard extends AsyncTask<params, Void, Void> {
         @Override
         protected Void doInBackground(params... params) {
-            MyDB.updateCard(params[0].subj, params[0].id, params[0].result, params[0].old_result);
+            db.updateCard(params[0].subj, params[0].id, params[0].result, params[0].old_result);
             return null;
         }
     }

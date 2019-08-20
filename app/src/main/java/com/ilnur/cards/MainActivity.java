@@ -49,15 +49,15 @@ import com.ilnur.cards.forStateSaving.watch;
 import org.jsoup.Jsoup;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.Iterator;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, ComponentCallbacks2 {
     public static User user;
-    public static boolean onCreate = true;
     public static boolean addsub = false;
     public static boolean syncsub = false;
-    public static Fragment current;
-    public static String current_tag;
     public Context context;
     public static MyDB db;
     static Toolbar toolbar;
@@ -68,209 +68,84 @@ public class MainActivity extends AppCompatActivity
     NavigationView navigationView;
     public static AppState appState;
     public static mainActState main;
-    public ActivityState mainState;
 
-    //public static SharedPreferences msettings;
-
-    @Override
-    protected void onStart() {
-        Log.i("Start", "Created");
-        super.onStart();
-        /*if (db == null) {
-            db = new MyDB(this);
-            db.init(db, false);
-        }
-        if (appState == null) {
-            appState = new AppState(db);
-        }
-        if (appState.activities[0] != null) {
-            changeNavHead(main.logged);
-            main = new Gson().fromJson(appState.activities[0].data, mainActState.class);
-
-            if (appState.activities[1] != null) {
-                subj subj = new Gson().fromJson(main.fragments.get(0).data, com.ilnur.cards.forStateSaving.subj.class);
-                SubjFragment subjFragment = new SubjFragment();
-                //subjFragment.setArguments(savedInstanceState);
-                subjFragment.setState(db, subj);
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.parent, subjFragment)
-                        .addToBackStack("subj")
-                        .commit();
-                startActivity(new Intent(this, LoginActivity.class));
-            } else if (appState.activities[2] != null) {
-                subj subj = new Gson().fromJson(main.fragments.get(0).data, com.ilnur.cards.forStateSaving.subj.class);
-                SubjFragment subjFragment = new SubjFragment();
-                //subjFragment.setArguments(savedInstanceState);
-                subjFragment.setState(db, subj);
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.parent, subjFragment)
-                        .addToBackStack("subj")
-                        .commit();
-                startActivity(new Intent(this, RegisterActivity.class));
-            } else {
-                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                for (FragmentState state : main.fragments) {
-                    switch (state.name) {
-                        case "subj":
-                            subj subj = new Gson().fromJson(state.data, com.ilnur.cards.forStateSaving.subj.class);
-                            SubjFragment subjFragment = new SubjFragment();
-                            //subjFragment.setArguments(savedInstanceState);
-                            subjFragment.setState(db, subj);
-                            transaction
-                                    .replace(R.id.parent, subjFragment)
-                                    .addToBackStack("subj");
-                            break;
-                        case "list":
-                            list list1 = new Gson().fromJson(state.data, list.class);
-                            ListFragment listFragment = new ListFragment();
-                            //listFragment.setArguments(savedInstanceState);
-                            listFragment.setTitle(db, list1);
-                            transaction.replace(R.id.parent, listFragment).addToBackStack("list");
-                            break;
-                        case "btn":
-                            btn button = new Gson().fromJson(state.data, btn.class);
-                            ButListFragment btnFragment = new ButListFragment();
-                            //btnFragment.setArguments(savedInstanceState);
-                            btnFragment.setBtn(db, button);
-                            transaction.replace(R.id.parent, btnFragment).addToBackStack("btn");
-                            break;
-                        case "learn":
-                            LearnFragment lf = new LearnFragment();
-                            //lf.setArguments(savedInstanceState);
-                            learn learnState = new Gson().fromJson(state.data, learn.class);
-                            lf.setLearnFragment(db, learnState);
-                            transaction.replace(R.id.parent, lf).addToBackStack("learn");
-                            break;
-                        case "watch":
-                            WatchFragment1 wf = new WatchFragment1();
-                            watch watch = new Gson().fromJson(state.data, com.ilnur.cards.forStateSaving.watch.class);
-                            wf.setWatchFragment(db, watch);
-                            //wf.setArguments(savedInstanceState);
-                            transaction.replace(R.id.parent, wf).addToBackStack("watch");
-                            break;
-                    }
-                }
-                transaction.commit();
-            }
-
-        }*/
-    }
 
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         //outState.putBoolean("a",);
         Log.i("onSAvem", "Created");
         super.onSaveInstanceState(outState);
-        /*if (main != null && appState != null && db != null) {
-            ActivityState mainState = new ActivityState("main", new Gson().toJson(main));
-            appState.activities[0] = mainState;
-            db.updateActState(mainState);
-        }*/
     }
 
-    @Override
-    public void onRestoreInstanceState(Bundle savedInstanceState, PersistableBundle persistentState) {
-        Log.i("onRstoreInst", "Created");
-        super.onRestoreInstanceState(savedInstanceState, persistentState);
-        if (appState != null && appState.activities[0] != null) {
-            changeNavHead(main.logged);
-            appState.fetchActs();
-            main = new Gson().fromJson(appState.activities[0].data, mainActState.class);
-            if (main.fragments.size() > 1) {
-                addAllFrag(savedInstanceState);
-            } else if (appState.activities[1] != null) {
-                subj subj = new Gson().fromJson(main.fragments.get(0).data, com.ilnur.cards.forStateSaving.subj.class);
-                SubjFragment subjFragment = new SubjFragment();
-                subjFragment.setArguments(savedInstanceState);
-                subjFragment.setState(db, subj);
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.parent, subjFragment)
-                        .addToBackStack("subj")
-                        .commit();
-                startActivity(new Intent(this, LoginActivity.class));
-            } else if (appState.activities[2] != null) {
-                subj subj = new Gson().fromJson(main.fragments.get(0).data, com.ilnur.cards.forStateSaving.subj.class);
-                SubjFragment subjFragment = new SubjFragment();
-                subjFragment.setArguments(savedInstanceState);
-                subjFragment.setState(db, subj);
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.parent, subjFragment)
-                        .addToBackStack("subj")
-                        .commit();
-                startActivity(new Intent(this, RegisterActivity.class));
-            } else {
-                addAllFrag(savedInstanceState);
-            }
-
-        }
-    }
 
     public void addAllFrag(Bundle savedInstanceState) {
         FragmentTransaction transaction;
-        for (FragmentState state : main.fragments) {
+        for (Iterator<FragmentState> iterator = MainActivity.main.fragments.iterator(); iterator.hasNext(); ) {
+            FragmentState state = iterator.next();
             transaction = getSupportFragmentManager().beginTransaction();
+            Log.i("NAME", state.name);
             switch (state.name) {
                 case "subj":
                     //if (getSupportFragmentManager().getFragment(savedInstanceState, "subj") == null) {
-                        subj subj = new Gson().fromJson(state.data, com.ilnur.cards.forStateSaving.subj.class);
-                        Log.i("addAll subj", subj.subjects.length + "");
-                        SubjFragment subjFragment = new SubjFragment();
-                        subjFragment.setState(db, subj);
-                        subjFragment.setRetainInstance(true);
-                        subjFragment.setArguments(savedInstanceState);
-                        transaction
-                                .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.from_left, R.anim.to_right)
-                                .replace(R.id.parent, subjFragment)
-                                .addToBackStack("subj")
-                                .commit();
+                    subj subj = new Gson().fromJson(state.data, com.ilnur.cards.forStateSaving.subj.class);
+                    Log.i("addAll subj", subj.subjects.length + "");
+                    SubjFragment subjFragment = new SubjFragment();
+                    subjFragment.setState(db, subj);
+                    subjFragment.setRetainInstance(true);
+                    subjFragment.setArguments(savedInstanceState);
+                    transaction
+                            .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.from_left, R.anim.to_right)
+                            .replace(R.id.parent, subjFragment)
+                            .addToBackStack("subj")
+                            .commit();
                     //}
                     break;
                 case "list":
                     //if (getSupportFragmentManager().getFragment(savedInstanceState, "list") == null) {
-                        list list1 = new Gson().fromJson(state.data, list.class);
-                        ListFragment listFragment = new ListFragment();
-                        listFragment.setTitle(db, list1);
-                        listFragment.setArguments(savedInstanceState);
-                        transaction
-                                .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.from_left, R.anim.to_right)
-                                .replace(R.id.parent, listFragment)
-                                .addToBackStack("list")
-                                .commit();
+                    list list1 = new Gson().fromJson(state.data, list.class);
+                    ListFragment listFragment = new ListFragment();
+                    listFragment.setTitle(db, list1);
+                    listFragment.setArguments(savedInstanceState);
+                    transaction
+                            .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.from_left, R.anim.to_right)
+                            .replace(R.id.parent, listFragment)
+                            .addToBackStack("list")
+                            .commit();
                     //}
                     break;
                 case "btn":
                     //if (getSupportFragmentManager().getFragment(savedInstanceState, "btn") == null) {
-                        btn button = new Gson().fromJson(state.data, btn.class);
-                        ButListFragment btnFragment = new ButListFragment();
-                        btnFragment.setBtn(db, button);
-                        btnFragment.setArguments(savedInstanceState);
-                        transaction
-                                .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.from_left, R.anim.to_right)
-                                .replace(R.id.parent, btnFragment)
-                                .addToBackStack("btn").commit();
+                    btn button = new Gson().fromJson(state.data, btn.class);
+                    ButListFragment btnFragment = new ButListFragment();
+                    btnFragment.setBtn(db, button);
+                    btnFragment.setArguments(savedInstanceState);
+                    transaction
+                            .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.from_left, R.anim.to_right)
+                            .replace(R.id.parent, btnFragment)
+                            .addToBackStack("btn").commit();
                     //}
                     break;
                 case "learn":
                     //if (getSupportFragmentManager().getFragment(savedInstanceState, "learn") == null) {
-                        LearnFragment lf = new LearnFragment();
-                        learn learnState = new Gson().fromJson(state.data, learn.class);
-                        lf.setLearnFragment(db, learnState);
-                        lf.setArguments(savedInstanceState);
-                        transaction
-                                .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.from_left, R.anim.to_right)
-                                .replace(R.id.parent, lf)
-                                .addToBackStack("learn").commit();
+                    LearnFragment lf = new LearnFragment();
+                    learn learnState = new Gson().fromJson(state.data, learn.class);
+                    lf.setLearnFragment(db, learnState);
+                    lf.setArguments(savedInstanceState);
+                    transaction
+                            .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.from_left, R.anim.to_right)
+                            .replace(R.id.parent, lf)
+                            .addToBackStack("learn").commit();
                     //}
                     break;
                 case "watch":
                     //if (getSupportFragmentManager().getFragment(savedInstanceState, "watch") == null) {
-                        WatchFragment1 wf = new WatchFragment1();
-                        watch watch = new Gson().fromJson(state.data, com.ilnur.cards.forStateSaving.watch.class);
-                        wf.setWatchFragment(db, watch);
-                        wf.setArguments(savedInstanceState);
-                        transaction
-                                .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.from_left, R.anim.to_right)
-                                .replace(R.id.parent, wf).addToBackStack("watch").commit();
+                    WatchFragment1 wf = new WatchFragment1();
+                    watch watch = new Gson().fromJson(state.data, com.ilnur.cards.forStateSaving.watch.class);
+                    wf.setWatchFragment(db, watch);
+                    wf.setArguments(savedInstanceState);
+                    transaction
+                            .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.from_left, R.anim.to_right)
+                            .replace(R.id.parent, wf).addToBackStack("watch").commit();
                     //}
                     break;
             }
@@ -280,150 +155,26 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onStateNotSaved() {
-        Log.i("StateNotSaved", "Created");
-        super.onStateNotSaved();
-    }
-
-    @Override
-    public void onLowMemory() {
-        Log.i("onLowMem", "main");
-        super.onLowMemory();
-    }
-
-    @Override
-    public void onTrimMemory(int level) {
-        Log.i("onTrimMem", "main");
-        switch (level) {
-            case ComponentCallbacks2.TRIM_MEMORY_BACKGROUND:
-                Log.i("memBack", "asd");
-                break;
-            case ComponentCallbacks2.TRIM_MEMORY_COMPLETE:
-                Log.i("memCom", "asd");
-                break;
-            case ComponentCallbacks2.TRIM_MEMORY_MODERATE:
-                Log.i("memMod", "asd");
-                break;
-            case ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN:
-                Log.i("memUiHid", "asd");
-                System.gc();
-                Runtime.getRuntime().gc();
-                break;
-            case ComponentCallbacks2.TRIM_MEMORY_RUNNING_CRITICAL:
-                Log.i("memRunCrit", "asd");
-                break;
-            case ComponentCallbacks2.TRIM_MEMORY_RUNNING_LOW:
-                Log.i("memRunLow", "asd");
-                break;
-            case ComponentCallbacks2.TRIM_MEMORY_RUNNING_MODERATE:
-                Log.i("memRunMod", "asd");
-                break;
-        }
-        super.onTrimMemory(level);
-    }
-
-    ///onSa
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        Log.i("Pause", "Created");
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        Log.i("Stop", "Created");
-    }
-
-    @Override
     protected void onResume() {
         super.onResume();
         Log.i("Ressume", "Created");
         changeNavHead(main.logged);
-        Log.i("count  ", String.valueOf(getSupportFragmentManager().getBackStackEntryCount()));
-    }
-
-    @Override
-    protected void onRestart() {
-        super.onRestart();
-        Log.i("Ressume", "Created");
-
-    }
-
-    /*@Override
-    protected void onSaveInstanceState(@NonNull Bundle outState) {
-        Log.i("SaveInstanceMain", "Created");
-        super.onSaveInstanceState(outState);
-        //if (current_tag!=null && current!=null)
-        //    getSupportFragmentManager().putFragment(outState, current_tag, current);
-    }*/
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        Log.i("Rstore main", "Created");
-        super.onRestoreInstanceState(savedInstanceState);
-        /*if (appState != null && appState.activities[0] != null) {
-            changeNavHead(main.logged);
-            appState.fetchActs();
-            main = new Gson().fromJson(appState.activities[0].data, mainActState.class);
-            if (main.fragments.size() > 1) {
-                addAllFrag(savedInstanceState);
-            } else if (appState.activities[1] != null) {
-                subj subj = new Gson().fromJson(main.fragments.get(0).data, com.ilnur.cards.forStateSaving.subj.class);
-                SubjFragment subjFragment = new SubjFragment();
-                subjFragment.setArguments(savedInstanceState);
-                subjFragment.setState(db, subj);
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.parent, subjFragment)
-                        .addToBackStack("subj")
-                        .commit();
-                if(!main.logged)
-                    startActivity(new Intent(this, LoginActivity.class));
-            } else if (appState.activities[2] != null) {
-                subj subj = new Gson().fromJson(main.fragments.get(0).data, com.ilnur.cards.forStateSaving.subj.class);
-                SubjFragment subjFragment = new SubjFragment();
-                subjFragment.setArguments(savedInstanceState);
-                subjFragment.setState(db, subj);
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.parent, subjFragment)
-                        .addToBackStack("subj")
-                        .commit();
-                startActivity(new Intent(this, RegisterActivity.class));
-            } else {
-                addAllFrag(savedInstanceState);
-            }
-
-        }*/
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.i("MainActivity", "Created");
+        Log.i("onCreate", "Main");
         setContentView(R.layout.activity_main);
-
-        /*msettings = getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
-        if (msettings.contains(PREFERENCES_LOG) && msettings.contains(PREFERENCES_PAS) &&
-                msettings.contains(PREFERENCES_SES)) {
-            user.setLogin(msettings.getString(PREFERENCES_LOG, ""));
-            user.setSession_id(msettings.getString(PREFERENCES_SES, ""));
-            user.setPassword(msettings.getString(PREFERENCES_PAS, ""));
-            logged = true;
-        }*/
-
 
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        Log.v("ONCREAATE", "YEYS");
         apbar = findViewById(R.id.apbar);
         apbar.setExpanded(false);
 
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
-        //ImageLoaderConfiguration conf = new ImageLoaderConfig
-        //ImageLoader.getInstance().init(ImageLoaderConfiguration.createDefault(getApplicationContext()));
 
         drawer = findViewById(R.id.drawer_layout);
         toggle = new ActionBarDrawerToggle(
@@ -434,151 +185,14 @@ public class MainActivity extends AppCompatActivity
 
         navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        bar = getSupportActionBar();
 
         if (appState != null && appState.activities[0] != null && db != null &&
                 getSupportFragmentManager().getBackStackEntryCount() > 1) {
-            Log.i("RESTORE", "onCreate");
-            //appState.fetchActs();
-            Log.i("main data RESTORE befor", main.fragments.get(0).data);
-            main = new Gson().fromJson(appState.activities[0].data, mainActState.class);
-            Log.i("maindata RESTORE aft1", main.fragments.get(0).data);
-            Log.i("maindata RESTORE aft2", appState.activities[0].data);
-            changeNavHead(main.logged);
-            //enableBackBtn(false);
-            //appState.fetchActs();
-            //main = new Gson().fromJson(appState.activities[0].data, mainActState.class);
-            if (main.fragments.size() > 1 && appState.activities[1] == null) {
-                Log.d("addAll", "in RESTORE");
-                addAllFrag(savedInstanceState);
-            } else if (appState.activities[1] != null) {
-                addAllFrag(savedInstanceState);
-                if (!main.logged)
-                    startActivity(new Intent(this, LoginActivity.class));
-            } else if (appState.activities[2] != null) {
-                /*subj subj = new Gson().fromJson(main.fragments.get(0).data, com.ilnur.cards.forStateSaving.subj.class);
-                SubjFragment subjFragment = new SubjFragment();
-                subjFragment.setArguments(savedInstanceState);
-                subjFragment.setState(db, subj);
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.parent, subjFragment)
-                        .addToBackStack("subj")
-                        .commit();*/
-                startActivity(new Intent(this, RegisterActivity.class));
-            } /*else {
-                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                for (FragmentState state : main.fragments) {
-                    switch (state.name) {
-                        case "subj":
-                            subj subj = new Gson().fromJson(state.data, com.ilnur.cards.forStateSaving.subj.class);
-                            SubjFragment subjFragment = new SubjFragment();
-                            subjFragment.setArguments(savedInstanceState);
-                            subjFragment.setState(db, subj);
-                            transaction
-                                    .replace(R.id.parent, subjFragment)
-                                    .addToBackStack("subj");
-                            break;
-                        case "list":
-                            list list1 = new Gson().fromJson(state.data, list.class);
-                            ListFragment listFragment = new ListFragment();
-                            listFragment.setArguments(savedInstanceState);
-                            listFragment.setTitle(db, list1);
-                            transaction.replace(R.id.parent, listFragment).addToBackStack("list");
-                            break;
-                        case "btn":
-                            btn button = new Gson().fromJson(state.data, btn.class);
-                            ButListFragment btnFragment = new ButListFragment();
-                            btnFragment.setArguments(savedInstanceState);
-                            btnFragment.setBtn(db, button);
-                            transaction.replace(R.id.parent, btnFragment).addToBackStack("btn");
-                            break;
-                        case "learn":
-                            LearnFragment lf = new LearnFragment();
-                            lf.setArguments(savedInstanceState);
-                            learn learnState = new Gson().fromJson(state.data, learn.class);
-                            lf.setLearnFragment(db, learnState);
-                            transaction.replace(R.id.parent, lf).addToBackStack("learn");
-                            break;
-                        case "watch":
-                            WatchFragment1 wf = new WatchFragment1();
-                            watch watch = new Gson().fromJson(state.data, com.ilnur.cards.forStateSaving.watch.class);
-                            wf.setWatchFragment(db, watch);
-                            wf.setArguments(savedInstanceState);
-                            transaction.replace(R.id.parent, wf).addToBackStack("watch");
-                            break;
-                    }
-                }
-                transaction.commit();
-            }*/
 
+            restoreState(savedInstanceState);
         } else {
-            Log.i("ELSE", "start");
-            //main
-            if (db == null) {
-                db = new MyDB(this);
-                db.init(db, false);
-                user = MyDB.getUser();
-            }
-
-            if (appState == null)
-                appState = new AppState(db);
-
-            if (appState.activities[2] != null){
-                main = new mainActState();
-                SubjFragment subjFragment = new SubjFragment();
-                subj subj = new subj(new String[]{"Русский язык", "Физика", "Математика", "Английский язык", "История"});
-                subjFragment.setState(db, subj);
-                main.addFragment(new FragmentState("subj", new Gson().toJson(subj)));
-                subjFragment.setRetainInstance(true);
-                //subjFragment.setArguments(savedInstanceState);
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.parent, subjFragment)
-                        .addToBackStack("subj")
-                        .commit();
-                Log.i("STACK ELSE", getSupportFragmentManager().getBackStackEntryCount() + "");
-                //MainActivity.main.addFragment(new FragmentState("subj", new Gson().toJson(subj)));
-                db.updateActState(new ActivityState("main", new Gson().toJson(MainActivity.main)));
-                if (!main.logged)
-                    startActivity(new Intent(this, RegisterActivity.class));
-            }else if (appState.activities[1] != null){
-                main = new mainActState();
-                SubjFragment subjFragment = new SubjFragment();
-                subj subj = new subj(new String[]{"Русский язык", "Физика", "Математика", "Английский язык", "История"});
-                subjFragment.setState(db, subj);
-                main.addFragment(new FragmentState("subj", new Gson().toJson(subj)));
-                subjFragment.setRetainInstance(true);
-                //subjFragment.setArguments(savedInstanceState);
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.parent, subjFragment)
-                        .addToBackStack("subj")
-                        .commit();
-                Log.i("STACK ELSE", getSupportFragmentManager().getBackStackEntryCount() + "");
-                //MainActivity.main.addFragment(new FragmentState("subj", new Gson().toJson(subj)));
-                db.updateActState(new ActivityState("main", new Gson().toJson(MainActivity.main)));
-                if (!main.logged)
-                    startActivity(new Intent(this, LoginActivity.class));
-            } else if (appState.activities[0] != null) {
-                main = new Gson().fromJson(appState.activities[0].data, mainActState.class);
-                Log.d("AddAll", "ELSE");
-                addAllFrag(savedInstanceState);
-            }  else {
-                main = new mainActState();
-                SubjFragment subjFragment = new SubjFragment();
-                subj subj = new subj(new String[]{"Русский язык", "Физика", "Математика", "Английский язык", "История"});
-                subjFragment.setState(db, subj);
-                main.addFragment(new FragmentState("subj", new Gson().toJson(subj)));
-                subjFragment.setRetainInstance(true);
-                //subjFragment.setArguments(savedInstanceState);
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.parent, subjFragment)
-                        .addToBackStack("subj")
-                        .commit();
-                Log.i("STACK ELSE", getSupportFragmentManager().getBackStackEntryCount() + "");
-                //MainActivity.main.addFragment(new FragmentState("subj", new Gson().toJson(subj)));
-                db.updateActState(new ActivityState("main", new Gson().toJson(MainActivity.main)));
-                if (!main.logged)
-                    startActivity(new Intent(this, LoginActivity.class));
-            }
-            //enableBackBtn(false);
+            firstCreate(savedInstanceState);
         }
 
         if (user.getLogin() == null) {
@@ -592,75 +206,138 @@ public class MainActivity extends AppCompatActivity
                 main.logged = true;
             } else {
                 main.logged = false;
-                if (user.getLogin() != null && user.getPassword() != null && user.getSession_id() != null)
+                if (user.getLogin() != null && user.getPassword() != null && user.getSession_id() != null) {
                     main.logged = true;
+                }
                     /*if (msettings.contains(PREFERENCES_LOG))
                         logged = true;*/
             }
         }
 
-        // first creation
-            /*if (appState.activities[0] == null) {
-                SubjFragment subjFragment = new SubjFragment();
-                subjFragment.setRetainInstance(true);
-                subj subj = new subj(new String[]{"Русский язык", "Физика", "Математика", "Английский язык", "История"});
-                subjFragment.setState(db, subj);
-                main.addFragment(new FragmentState("subj", new Gson().toJson(subj)));
-                subjFragment.setArguments(savedInstanceState);
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.parent, subjFragment)
-                        .addToBackStack("subj")
-                        .commit();
-                ActivityState mainState = new ActivityState("main", new Gson().toJson(MainActivity.main));
-                appState.activities[0] = mainState;
-                db.updateActState(mainState);
-                if (!main.logged)
-                    startActivity(new Intent(this, LoginActivity.class));
-                *//*ActivityState mainState = new ActivityState("main", new Gson().toJson(main));
-                appState.activities[0] = mainState;
-                db.updateActState(mainState);*//*
-            }*/
 
 
         changeNavHead(main.logged);
-            /*if (!main.logged && appState.activities[0]) {
-                if (appState.activities[1] == null) {
-                    Intent logAct = new Intent(this, LoginActivity.class);
-                    startActivity(logAct);
-                }
-            }*/
 
-        if (!isNetworkConnected()) {
+        if (isNetworkAvailable()) {
+            Log.i("add subj", "started");
+            db.add();
+        } else {
             Toast.makeText(getApplicationContext(), "Подключение к интернету отсутствует, скачивание данных невозможно",
                     Toast.LENGTH_LONG).show();
-        } else {
             //add subjects
-            if (!main.logged) {
-                Log.i("add subj", "started");
-                    /*Runnable addSubh = () -> db.add();
-                    Thread add = new Thread(addSubh);
-                    add.setName("add");
-                    add.start();*/
-                db.add();
-                //MyDB.add();
-                    /*MainActivity.this.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-
-                        }
-                    });*/
-            }
+            //if (!main.logged) {
+            //Log.i("add subj", "started");
+            //db.add();
+            //}
         }
 
         Log.i("STACK", getSupportFragmentManager().getBackStackEntryCount() + "");
 
-        //show login activity if you're not logged
-
-        bar = getSupportActionBar();
         if (main.fragments.size()>1)
             enableBackBtn(true);
         else
             enableBackBtn(false);
+    }
+
+    private void firstCreate(Bundle savedInstanceState){
+        Log.i("firstCreate", "start");
+        //main
+        if (db == null) {
+            db = new MyDB(this);
+            db.init(db, false);
+            user = db.getUser();
+        }
+
+        if (appState == null)
+            appState = new AppState(db);
+
+        if (appState.activities[2] != null){
+            main = new mainActState();
+            SubjFragment subjFragment = new SubjFragment();
+            subj subj = new subj(new String[]{"Русский язык", "Физика", "Математика", "Английский язык", "История"});
+            subjFragment.setState(db, subj);
+            main.addFragment(new FragmentState("subj", new Gson().toJson(subj)));
+            subjFragment.setRetainInstance(true);
+            //subjFragment.setArguments(savedInstanceState);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.parent, subjFragment)
+                    .addToBackStack("subj")
+                    .commit();
+            Log.i("STACK ELSE", getSupportFragmentManager().getBackStackEntryCount() + "");
+            //MainActivity.main.addFragment(new FragmentState("subj", new Gson().toJson(subj)));
+            db.updateActState(new ActivityState("main", new Gson().toJson(main)));
+            if (!main.logged)
+                startActivity(new Intent(this, RegisterActivity.class));
+        }else if (appState.activities[1] != null){
+            main = new mainActState();
+            SubjFragment subjFragment = new SubjFragment();
+            subj subj = new subj(new String[]{"Русский язык", "Физика", "Математика", "Английский язык", "История"});
+            subjFragment.setState(db, subj);
+            main.addFragment(new FragmentState("subj", new Gson().toJson(subj)));
+            subjFragment.setRetainInstance(true);
+            //subjFragment.setArguments(savedInstanceState);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.parent, subjFragment)
+                    .addToBackStack("subj")
+                    .commit();
+            Log.i("STACK ELSE", getSupportFragmentManager().getBackStackEntryCount() + "");
+            //MainActivity.main.addFragment(new FragmentState("subj", new Gson().toJson(subj)));
+            db.updateActState(new ActivityState("main", new Gson().toJson(main)));
+            if (!main.logged)
+                startActivity(new Intent(this, LoginActivity.class));
+        } else if (appState.activities[0] != null) {
+            main = new Gson().fromJson(appState.activities[0].data, mainActState.class);
+            Log.d("AddAll", "ELSE");
+            addAllFrag(savedInstanceState);
+        }  else {
+            main = new mainActState();
+            SubjFragment subjFragment = new SubjFragment();
+            subj subj = new subj(new String[]{"Русский язык", "Физика", "Математика", "Английский язык", "История"});
+            subjFragment.setState(db, subj);
+            main.addFragment(new FragmentState("subj", new Gson().toJson(subj)));
+            subjFragment.setRetainInstance(true);
+            //subjFragment.setArguments(savedInstanceState);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.parent, subjFragment)
+                    .addToBackStack("subj")
+                    .commit();
+            Log.i("STACK ELSE", getSupportFragmentManager().getBackStackEntryCount() + "");
+            //MainActivity.main.addFragment(new FragmentState("subj", new Gson().toJson(subj)));
+            db.updateActState(new ActivityState("main", new Gson().toJson(main)));
+            if (!main.logged)
+                startActivity(new Intent(this, LoginActivity.class));
+        }
+    }
+
+    private void restoreState(Bundle savedInstanceState){
+        Log.i("RESTORE", "onCreate");
+        //appState.fetchActs();
+        Log.i("main data RESTORE befor", main.fragments.get(0).data);
+        main = new Gson().fromJson(appState.activities[0].data, mainActState.class);
+        Log.i("maindata RESTORE aft1", main.fragments.get(0).data);
+        Log.i("maindata RESTORE aft2", appState.activities[0].data);
+        changeNavHead(main.logged);
+        //enableBackBtn(false);
+        //appState.fetchActs();
+        //main = new Gson().fromJson(appState.activities[0].data, mainActState.class);
+        if (main.fragments.size() > 1 && appState.activities[1] == null) {
+            Log.d("addAll", "in RESTORE");
+            addAllFrag(savedInstanceState);
+        } else if (appState.activities[1] != null) {
+            addAllFrag(savedInstanceState);
+            if (!main.logged)
+                startActivity(new Intent(this, LoginActivity.class));
+        } else if (appState.activities[2] != null) {
+                /*subj subj = new Gson().fromJson(main.fragments.get(0).data, com.ilnur.cards.forStateSaving.subj.class);
+                SubjFragment subjFragment = new SubjFragment();
+                subjFragment.setArguments(savedInstanceState);
+                subjFragment.setState(db, subj);
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.parent, subjFragment)
+                        .addToBackStack("subj")
+                        .commit();*/
+            startActivity(new Intent(this, RegisterActivity.class));
+        }
     }
 
     public void enableBackBtn(boolean enable) {
@@ -669,45 +346,28 @@ public class MainActivity extends AppCompatActivity
             toggle.setDrawerIndicatorEnabled(false);
             bar.setDisplayHomeAsUpEnabled(true);
             //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            if (!main.isRegistered) {
+            //if (!main.isRegistered) {
                 toggle.setToolbarNavigationClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         onBackPressed();
                     }
                 });
-                main.isRegistered = true;
-            }
+                //main.isRegistered = true;
+            //}
         } else {
             drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
             bar.setDisplayHomeAsUpEnabled(false);
             //getSupportActionBar().setDisplayHomeAsUpEnabled(false);
             toggle.setDrawerIndicatorEnabled(true);
             toggle.setToolbarNavigationClickListener(null);
-            main.isRegistered = false;
-        }
-    }
-
-
-    class Param {
-        Context context;
-        boolean logged;
-        NavigationView nav;
-
-        public Param(Context context, boolean logged, NavigationView nav) {
-            this.context = context;
-            this.logged = logged;
-            this.nav = nav;
+            //main.isRegistered = false;
         }
     }
 
     public void changeNavHead(boolean logged) {
         Log.i("CCCC", "" + navigationView.getHeaderCount());
         if (logged) {
-
-           /* navigationView.removeHeaderView(navigationView.getHeaderView(0));
-            if (navigationView.getHeaderCount()>0)
-                navigationView.removeHeaderView(navigationView.getHeaderView(0));*/
             navigationView.removeHeaderView(navigationView.getHeaderView(0));
             //navigationView;
             View navheader = navigationView.inflateHeaderView(R.layout.nav_header_sucsess);
@@ -722,7 +382,7 @@ public class MainActivity extends AppCompatActivity
             logout.setOnClickListener(v -> {
                 main.logged = false;
                 navigationView.removeHeaderView(navheader);
-                MyDB.removeUser(user.getLogin());
+                db.removeUser(user.getLogin());
                 user.setLogin(null);
                 user.setPassword(null);
                 user.setSession_id(null);
@@ -730,10 +390,6 @@ public class MainActivity extends AppCompatActivity
             });
 
         } else {
-
-            /*navigationView.removeHeaderView(navigationView.getHeaderView(0));
-            if (navigationView.getHeaderCount()>0)
-                navigationView.removeHeaderView(navigationView.getHeaderView(0));*/
             navigationView.removeHeaderView(navigationView.getHeaderView(0));
             View navheader = navigationView.inflateHeaderView(R.layout.nav_header_login);
             navigationView.removeHeaderView(navigationView.getHeaderView(0));
@@ -772,12 +428,7 @@ public class MainActivity extends AppCompatActivity
             String session_id = resp.split(" ")[2];
             session_id = session_id.replaceAll("\"", "").replace("}}", "");
             user.setSession_id(session_id);
-            /*SharedPreferences.Editor edit = msettings.edit();
-            edit.putString(PREFERENCES_LOG, user.getLogin());
-            edit.putString(PREFERENCES_PAS, user.getPassword());
-            edit.putString(PREFERENCES_SES, user.getSession_id());
-            edit.apply();*/
-            MyDB.updateUser(user.getLogin(), user.getPassword(), user.getSession_id());
+            db.updateUser(user.getLogin(), user.getPassword(), user.getSession_id());
             Log.i("Session_ID", session_id);
             return true;
         }
@@ -787,10 +438,18 @@ public class MainActivity extends AppCompatActivity
         return false;
     }
 
-    private boolean isNetworkConnected() {
-        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        return cm.getActiveNetworkInfo() != null;
+    public static boolean isNetworkAvailable () {
+        boolean success = false;
+        try {
+            URL url = new URL("https://google.com");
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setConnectTimeout(10000);
+            connection.connect();
+            success = connection.getResponseCode() == 200;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return success;
     }
 
     // subj, learn, watch, btn, list
@@ -807,7 +466,7 @@ public class MainActivity extends AppCompatActivity
                 Toast.makeText(this, "Нажмите ещё раз, чтобы выйти", Toast.LENGTH_SHORT).show();
                 main.exit = true;
             } else {
-                if (main.isRegistered && getSupportFragmentManager().getBackStackEntryCount() == 2)
+                if (getSupportFragmentManager().getBackStackEntryCount() == 2)
                     enableBackBtn(false);
                 FragmentManager manager = getSupportFragmentManager();
                 Log.d("BACK COUNt", getSupportFragmentManager().getBackStackEntryCount() +"");
@@ -815,37 +474,14 @@ public class MainActivity extends AppCompatActivity
                     String tag = manager.getBackStackEntryAt(manager.getBackStackEntryCount() - 1).getName();
                     Log.d("BACK REMOVE", tag);
                     manager.popBackStack(tag, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                    MainActivity.main.deleteFragment();
-                    db.updateActState(new ActivityState("main", new Gson().toJson(MainActivity.main)));
+                    main.deleteFragment();
+                    db.updateActState(new ActivityState("main", new Gson().toJson(main)));
                 }
                 //getSupportFragmentManager().
                 //super.onBackPressed();
             }
         }
     }
-
-    /*@Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }*/
-
-   /* @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-       *//* if (id == R.id.action_settings) {
-            return true;
-        }*//*
-
-        return super.onOptionsItemSelected(item);
-    }*/
-
 
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {

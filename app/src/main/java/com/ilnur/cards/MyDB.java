@@ -55,12 +55,12 @@ public class MyDB extends SQLiteOpenHelper {
     //public static String[] style_names = {"rus","soch","math", "inf", "phys", "hist", "chem", "bio", "geo", "soc"};
     //public static String[] style_orig = {"Русский язык","Итоговое сочинение","Математика",
     //"Информатика", "Физика", "История", "Химия", "Биология", "География", "Обществознание"};
-    private static String myPath;
-    private static SQLiteDatabase sqdb;
+    private String myPath;
+    private SQLiteDatabase sqdb;
     private static int version = 1;
-    public static MyDB instance;
-    private static ContentValues values;
-    public static final pair[] pairs = {new pair("rus", "Русский_язык"),
+    public MyDB instance;
+    private ContentValues values;
+    public final pair[] pairs = {new pair("rus", "Русский_язык"),
             new pair("phys", "Физика"), new pair("math", "Математика"),
             new pair("en", "Английский_язык"), new pair("hist", "История")};
 
@@ -139,24 +139,16 @@ public class MyDB extends SQLiteOpenHelper {
         }
     }
 
-    public class AsyncExec extends AsyncTask<Void, Void, Void>{
-        String param;
-        ActivityState state = null;
-        String activity = null;
-        public AsyncExec(String param, ActivityState state){
-            this.param = param;
-            this.state = state;
-        }
-        public AsyncExec(String param, String activity){
-            this.param = param;
-            this.activity = activity;
-        }
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-            switch (param) {
-                case "update":
-                    //updateActState(state);
+    public void UpdateOrDelete(String param, String activity, ActivityState state, SQLiteDatabase sqdb){
+        Thread util = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if (activity != null){
+                    //delete
+                    Log.i("AsyncDelete", activity);
+                    sqdb.delete("appState", "activity = ?", new String[]{activity});
+                } else if (state!=null){
+                    Log.i("AsyncUpdate", state.activity);
                     ContentValues values = new ContentValues();
                     values.put("activity", state.activity);
                     values.put("data", state.data);
@@ -164,35 +156,28 @@ public class MyDB extends SQLiteOpenHelper {
                     if (status == 0)
                         sqdb.insertWithOnConflict("appState", null, values, SQLiteDatabase.CONFLICT_IGNORE);
                     values.clear();
-                    break;
-                case "delete":
-                    deleteActState(activity);
-                    sqdb.delete("appState", "activity = ?", new String[]{activity});
-                    break;
+                }
             }
-            return null;
-        }
+        });
+        util.start();
+
     }
 
     public void updateActState(ActivityState state) {
-        Log.i("updAct", state.activity);
-        ContentValues values = new ContentValues();
-        values.put("activity", state.activity);
-        values.put("data", state.data);
-        int status = sqdb.update("appState", values, "activity = ?", new String[]{state.activity});
-        if (status == 0)
-            sqdb.insertWithOnConflict("appState", null, values, SQLiteDatabase.CONFLICT_IGNORE);
-        values.clear();
-        //new AsyncExec("update", state).execute();
+        final String param = "update";
+        final SQLiteDatabase sqdb1 = sqdb;
+        UpdateOrDelete(param, null, state, sqdb1);
     }
 
     public void deleteActState(String activity) {
-        //new AsyncExec("delete", activity);
+        final String param = "update";
+        final String activity1 = activity;
+        final SQLiteDatabase sqdb1 = sqdb;
+        UpdateOrDelete(param, activity, null, sqdb1);
         Log.i("delete", activity);
-        sqdb.delete("appState", "activity = ?", new String[]{activity});
     }
 
-    public static User getUser() {
+    public User getUser() {
         //SQLiteDatabase sqdb = instance.getReadableDatabase();
         Cursor cursor = sqdb.rawQuery("SELECT login, password, session_id FROM user", null);
         if (cursor.moveToFirst()) {
@@ -207,8 +192,8 @@ public class MyDB extends SQLiteOpenHelper {
         }
     }
 
-    public static void updateUser(String login, String password, String session_id) {
-        SQLiteDatabase sqdb = instance.getWritableDatabase();
+    public void updateUser(String login, String password, String session_id) {
+        //SQLiteDatabase sqdb = instance.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("login", login);
         values.put("password", password);
@@ -219,12 +204,12 @@ public class MyDB extends SQLiteOpenHelper {
         values.clear();
     }
 
-    public static void removeUser(String old_login) {
+    public void removeUser(String old_login) {
         //SQLiteDatabase sqdb = instance.getWritableDatabase();
         sqdb.delete("user", "login = ?", new String[]{old_login});
     }
 
-    public static String[] getCatNames(String predmet) {
+    public String[] getCatNames(String predmet) {
         //SQLiteDatabase sqdb = instance.getReadableDatabase();
         if (predmet.contains(" "))
             predmet = predmet.replace(" ", "_");
@@ -261,7 +246,7 @@ public class MyDB extends SQLiteOpenHelper {
     //Алгебра (все карточки)
     //Вероятности событий
 
-    public static boolean checkRevers(String parent, String title) {
+    public boolean checkRevers(String parent, String title) {
         //SQLiteDatabase sqdb = instance.getReadableDatabase();
         if (parent.contains(" "))
             parent = parent.replace(" ", "_");
@@ -273,7 +258,7 @@ public class MyDB extends SQLiteOpenHelper {
     }
 
     //sync - done
-    public static void updateWatchCard(String parent, int card_id, int result, int old_result) {
+    public void updateWatchCard(String parent, int card_id, int result, int old_result) {
         //SQLiteDatabase sqdb = instance.getReadableDatabase();
         // 0 -dont; 1-know
         if (old_result == 4) {
@@ -304,7 +289,7 @@ public class MyDB extends SQLiteOpenHelper {
     }
 
     //sync - done
-    public static void updateCard(String parent, int card_id, int result, int old_result) {
+    public void updateCard(String parent, int card_id, int result, int old_result) {
         //SQLiteDatabase sqdb = instance.getReadableDatabase();
         // 0 -dont; 1-know
         if (old_result == 4) {
@@ -335,7 +320,7 @@ public class MyDB extends SQLiteOpenHelper {
     }
 
     //to get parent id
-    public static int getParentId(String parent, String title) {
+    public int getParentId(String parent, String title) {
         //SQLiteDatabase sqdb = instance.getReadableDatabase();
         if (parent.contains(" "))
             parent = parent.replace(" ", "_");
@@ -347,7 +332,7 @@ public class MyDB extends SQLiteOpenHelper {
         return id;
     }
 
-    public static SparseArray<Card> getParentCardsWatch(String parent, int id) {
+    public SparseArray<Card> getParentCardsWatch(String parent, int id) {
         //SQLiteDatabase sqdb = instance.getReadableDatabase();
         if (parent.contains(" "))
             parent = parent.replace(" ", "_");
@@ -408,7 +393,7 @@ public class MyDB extends SQLiteOpenHelper {
         return list;
     }
 
-    public static SparseArray<Card> getChildCardsWatch(String parent, String title, int id) {
+    public SparseArray<Card> getChildCardsWatch(String parent, String title, int id) {
         //SQLiteDatabase sqdb = instance.getReadableDatabase();
         if (parent.contains(" "))
             parent = parent.replace(" ", "_");
@@ -432,13 +417,13 @@ public class MyDB extends SQLiteOpenHelper {
         return list;
     }
 
-    public static ArrayList<Card> getCardsById(String parent, int[] ids){
+    public ArrayList<Card> getCardsById(String parent, int[] ids) {
         if (parent.contains(" "))
             parent = parent.replace(" ", "_");
         ArrayList<Card> list = new ArrayList<>();
         Cursor cursor;
         Card tmp;
-        for (int i: ids){
+        for (int i : ids) {
             cursor = sqdb.rawQuery("SELECT id, avers, revers, result, result_stamp FROM " + parent + "_card " +
                     "WHERE id = ?", new String[]{String.valueOf(i)});
             cursor.moveToFirst();
@@ -455,7 +440,7 @@ public class MyDB extends SQLiteOpenHelper {
         return list;
     }
 
-    public static ArrayList<Card> getParentCards(String parent, int id) {
+    public ArrayList<Card> getParentCards(String parent, int id) {
         //SQLiteDatabase sqdb = instance.getReadableDatabase();
         if (parent.contains(" "))
             parent = parent.replace(" ", "_");
@@ -640,7 +625,7 @@ public class MyDB extends SQLiteOpenHelper {
         return finished;
     }
 
-    public static ArrayList<Card> getChildCards(String parent, String title, int id) {
+    public ArrayList<Card> getChildCards(String parent, String title, int id) {
         //SQLiteDatabase sqdb = instance.getReadableDatabase();
         if (parent.contains(" "))
             parent = parent.replace(" ", "_");
@@ -736,7 +721,7 @@ public class MyDB extends SQLiteOpenHelper {
         return list;
     }
 
-    public static ArrayList<Category> getSubCatNames(String parent, String title) {
+    public ArrayList<Category> getSubCatNames(String parent, String title) {
         //SQLiteDatabase sqdb = instance.getReadableDatabase();
         if (parent.contains(" "))
             parent = parent.replace(" ", "_");
@@ -798,7 +783,7 @@ public class MyDB extends SQLiteOpenHelper {
         return i;
     }
 
-    private static String getLink(String subj) {
+    private String getLink(String subj) {
         String ret = null;
         for (pair p : pairs) {
             if (p.subj_db.equals(subj)) {
@@ -809,7 +794,7 @@ public class MyDB extends SQLiteOpenHelper {
         return ret;
     }
 
-    private static ArrayList<Category> InsertionSort(ArrayList<Category> list) {
+    private ArrayList<Category> InsertionSort(ArrayList<Category> list) {
         Comparator<Category> comparator = (o1, o2) -> {
             if (o1.getOrder() == 0 && o2.getOrder() == 0) {
                 //if (o1.getTitle().length() > o2.getTitle().length()) return 1;
@@ -867,7 +852,7 @@ public class MyDB extends SQLiteOpenHelper {
         return list;
     }
 
-    private static class pair {
+    private class pair {
         private String link;
         private String subj_db;
 
@@ -909,8 +894,6 @@ public class MyDB extends SQLiteOpenHelper {
     //when you logged in & push sync button || after adding
     public void syncSubj() {
         SQLiteDatabase sqdb1 = sqdb;
-        final String[] style_orig1 = style_orig;
-        final String[] style_names1 = style_names;
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -921,7 +904,7 @@ public class MyDB extends SQLiteOpenHelper {
                             .ignoreContentType(true).get().select("body").text();
 
                     try {
-                        if (!getStyle(null, sqdb1, style_orig1, style_names1).equals(style))
+                        if (!getStyle(null, sqdb1, style_orig, style_names).equals(style))
                             updateStyle("1", style, sqdb1);
 
                     } catch (IndexOutOfBoundsException e) {
@@ -1140,7 +1123,7 @@ public class MyDB extends SQLiteOpenHelper {
             if (isChanged) {
                 try {
                     resp = Jsoup.connect(cards + temp.getId()).ignoreContentType(true)
-                            .maxBodySize(0).timeout(2000000).method(Connection.Method.GET).execute();
+                            .maxBodySize(0).timeout(200000).method(Connection.Method.GET).execute();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -1178,7 +1161,7 @@ public class MyDB extends SQLiteOpenHelper {
     }
 
 
-    static class MyExecutor implements Executor {
+    class MyExecutor implements Executor {
         boolean parallel;
 
         public MyExecutor(boolean parallel) {
@@ -1272,7 +1255,7 @@ public class MyDB extends SQLiteOpenHelper {
         }
     }
 
-    public static boolean isSubjSynced(String parent) {
+    public boolean isSubjSynced(String parent) {
         Cursor cursor = sqdb.rawQuery("SELECT added_with_log FROM subj WHERE name = ?", new String[]{parent});
         cursor.moveToFirst();
         int id = cursor.getInt(0);
@@ -1315,7 +1298,7 @@ public class MyDB extends SQLiteOpenHelper {
         values.clear();
     }
 
-    private static void copyDb() {
+    private void copyDb() {
         InputStream inputStream = null;
         try {
             inputStream = acontext.getAssets().open("database/" + dbname);
@@ -1353,7 +1336,7 @@ public class MyDB extends SQLiteOpenHelper {
         Log.i("Copy", "FINISH");
     }
 
-    private static boolean checkdb() {
+    private boolean checkdb() {
         SQLiteDatabase checkDB = null;
         try {
             checkDB = SQLiteDatabase.openDatabase(myPath + dbname, null, SQLiteDatabase.OPEN_READONLY);

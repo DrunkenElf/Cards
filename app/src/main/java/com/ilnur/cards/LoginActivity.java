@@ -128,10 +128,8 @@ public class LoginActivity extends AppCompatActivity {
 
         register.setOnClickListener(v -> {
             startActivity(new Intent(this, RegisterActivity.class));
-            if (MainActivity.onCreate) {
+
                 finish();
-                MainActivity.onCreate = false;
-            }
         });
 
 
@@ -225,7 +223,7 @@ public class LoginActivity extends AppCompatActivity {
             edit.putString(PREFERENCES_PAS, user.getPassword());
             edit.putString(PREFERENCES_SES, user.getSession_id());
             edit.apply();*/
-            MyDB.updateUser(user.getLogin(), user.getPassword(), user.getSession_id());
+            db.updateUser(user.getLogin(), user.getPassword(), user.getSession_id());
             Log.i("Session_ID", session_id);
             return true;
         }

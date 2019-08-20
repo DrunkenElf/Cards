@@ -36,7 +36,7 @@ import androidx.fragment.app.Fragment;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import static com.ilnur.cards.MainActivity.appState;
+
 
 public class SubjFragment extends Fragment {
     private MyDB db;
@@ -106,7 +106,7 @@ public class SubjFragment extends Fragment {
         gridView.setOnItemClickListener((parent, view, position, id) -> {
             MainActivity.main.exit = false;
 
-            String[] mas = MyDB.getCatNames(subj.subjects[position]);
+            String[] mas = db.getCatNames(subj.subjects[position]);
             if (mas.length == 0){
                 Toast.makeText(rootview.getContext(), "Этот предмет все еще добавляется", Toast.LENGTH_SHORT).show();
                 //MyDB.addCurrent(subjects[position]);
@@ -115,9 +115,9 @@ public class SubjFragment extends Fragment {
                 if (mas.length == 1 && db.isSubjAdded(mas[0])){
                     //MainActivity.exit = false;
                     ButListFragment blf = new ButListFragment();
-                    boolean checkRever = MyDB.checkRevers(subj.subjects[position], mas[0]);
-                    int id_tittle = MyDB.getParentId(subj.subjects[position], mas[0]);
-                    btn btn = new btn(subj.subjects[position], id_tittle, mas[0], MyDB.getSubCatNames(
+                    boolean checkRever = db.checkRevers(subj.subjects[position], mas[0]);
+                    int id_tittle = db.getParentId(subj.subjects[position], mas[0]);
+                    btn btn = new btn(subj.subjects[position], id_tittle, mas[0], db.getSubCatNames(
                             subj.subjects[position], mas[0]), checkRever);
 
                     blf.setBtn(db,btn);

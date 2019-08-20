@@ -460,12 +460,7 @@ public class RegisterActivity extends AppCompatActivity {
                         String session_id = resp.split(" ")[2];
                         session_id = session_id.replaceAll("\"", "").replace("}}", "");
                         user.setSession_id(session_id);
-                        /*SharedPreferences.Editor edit = msettings.edit();
-                        edit.putString(PREFERENCES_LOG, user.getLogin());
-                        edit.putString(PREFERENCES_PAS, user.getPassword());
-                        edit.putString(PREFERENCES_SES, user.getSession_id());
-                        edit.apply();*/
-                        MyDB.updateUser(user.getLogin(), user.getPassword(), user.getSession_id());
+                        db.updateUser(user.getLogin(), user.getPassword(), user.getSession_id());
                         Log.i("Session_ID", session_id);
                     }
                     dialog.cancel();
@@ -500,12 +495,6 @@ public class RegisterActivity extends AppCompatActivity {
                 regState.password + "&name=" + regState.name1 +
                 "&sname=" + regState.surname1 + "&hash=" +
                 MD5(hash + regState.username) + "&protocolVersion=1";
-        /*if (getDate() !=null){
-            parameters = parameters.concat("&birthdate=" + getDate());
-        }
-        if (status != null) {
-            parameters = parameters.concat("&status=" + status);
-        }*/
         HttpsURLConnection connection = (HttpsURLConnection) new URL(link).openConnection();
         connection.setRequestMethod("POST");
         connection.setDoInput(true);

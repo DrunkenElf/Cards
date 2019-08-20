@@ -39,7 +39,7 @@ public class Cat_butt_binder extends TreeViewBinder<Cat_butt_binder.ViewHolder> 
         FragmentManager manager = ((AppCompatActivity) cat.getContext()).getSupportFragmentManager();
         holder.learn.setOnClickListener(v -> {
             LearnFragment lf = new LearnFragment();
-            learn learn = new learn(cat.getSubj(), cat.getId(), cat.getTitle(), true, false);
+            learn learn = new learn(cat.getSubj(), cat.getId(), cat.getTitle(), false, false);
             lf.setLearnFragment(db, learn);
             lf.setArguments(bundle);
             manager.beginTransaction()

@@ -203,17 +203,6 @@ public class WatchFragment1 extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        /*if (secondpart != null && web1 != null){
-            web1.loadDataWithBaseURL(null, secondpart, "text/html", "utf-8", "auto:black");
-        }*/
-        /*if (secondpart != null && web1 != null) {
-            web1.post(new Runnable() {
-                @Override
-                public void run() {
-                    web1.loadDataWithBaseURL(null, secondpart, "text/html", "utf-8", "auto:black");
-                }
-            });
-        }*/
         Log.i("Watch", "viewcreated");
         addContent(flag);
         for (Iterator<FragmentState> iterator = MainActivity.main.fragments.iterator(); iterator.hasNext(); ) {
@@ -234,7 +223,6 @@ public class WatchFragment1 extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View rootview = inflater.inflate(R.layout.watch_lay1, container, false);
         Log.i("Watch", "create");
-        MainActivity.current_tag = "watch";
         //getActivity().setContentView(R.layout.watch_lay1);
 
         setRetainInstance(true);
@@ -279,9 +267,9 @@ public class WatchFragment1 extends Fragment {
                     Log.i("page", " contains");
                     Log.i("page", list.get(0).getAvers());
                 } else*/
-                    list = MyDB.getParentCardsWatch(watch.subj, watch.id);
+                    list = db.getParentCardsWatch(watch.subj, watch.id);
             } else
-                list = MyDB.getChildCardsWatch(watch.subj, watch.title, watch.id);
+                list = db.getChildCardsWatch(watch.subj, watch.title, watch.id);
         }
 
         if (watch.parent && list.size() > 50 && watch.subj.equals("История") && (list.get(0).getAvers().getBytes().length > 90000 ||
@@ -323,18 +311,6 @@ public class WatchFragment1 extends Fragment {
 
         }*/
     }
-
-    /*private class loadHugePageWatch extends AsyncTask<Void, Void, Void>{
-        @Override
-        protected Void doInBackground(Void... voids) {
-            Log.i("loadWatch", subj+"//"+id);
-            if (!MyDB.hugePages.containsKey(subj+"//"+id)) {
-                MyDB.hugePages.put(subj + "//" + id, list);
-                Log.i("loadWatch", subj+"//"+id + " not contains");
-            }
-            return null;
-        }
-    }*/
 
     private void addContent(boolean flag) {
         if (flag) {
@@ -461,6 +437,7 @@ public class WatchFragment1 extends Fragment {
     }
 
     private void modifyToolbar() {
+        Log.i("MODIFY", watch.title);
         CollapsingToolbarLayout col = CollapsingToolbarLayout.class.cast(getActivity().findViewById(R.id.collapsing_toolbar));
         col.setTitle(watch.title);
         col.setExpandedTitleMarginBottom((int) getContext().getResources().getDimension(R.dimen.margin_title_col));
@@ -479,7 +456,7 @@ public class WatchFragment1 extends Fragment {
 
         @Override
         protected Void doInBackground(params... params) {
-            MyDB.updateWatchCard(params[0].subj, params[0].id, params[0].result, params[0].old_result);
+            db.updateWatchCard(params[0].subj, params[0].id, params[0].result, params[0].old_result);
             return null;
         }
     }
