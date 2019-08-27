@@ -24,6 +24,7 @@
                 android:id="@+id/reg_lay_mail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:transitionGroup="true"
                 app:errorEnabled="true"
                 app:errorTextAppearance="@style/MyErrorText">
 
@@ -44,6 +45,7 @@
                 android:id="@+id/reg_lay_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:transitionGroup="true"
                 app:errorEnabled="true"
                 app:errorTextAppearance="@style/MyErrorText">
 
@@ -64,6 +66,7 @@
                 android:id="@+id/reg_lay_surname"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:transitionGroup="true"
                 app:errorEnabled="true"
                 app:errorTextAppearance="@style/MyErrorText">
 
@@ -84,6 +87,7 @@
                 android:id="@+id/reg_lay_pass"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:transitionGroup="true"
                 app:errorEnabled="true"
                 app:errorTextAppearance="@style/MyErrorText">
 
@@ -105,6 +109,7 @@
                 android:id="@+id/reg_lay_pass_again"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:transitionGroup="true"
                 app:errorEnabled="true"
                 app:errorTextAppearance="@style/MyErrorText">
 
@@ -125,6 +130,7 @@
                 android:id="@+id/reg_lay_date"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:transitionGroup="true"
                 app:errorEnabled="true"
                 app:errorTextAppearance="@style/MyErrorText">
 
@@ -150,6 +156,7 @@
                 <androidx.appcompat.widget.AppCompatSpinner
                     android:id="@+id/spinner"
                     android:layout_width="match_parent"
+                    android:transitionGroup="true"
                     android:layout_height="48dp"
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp"

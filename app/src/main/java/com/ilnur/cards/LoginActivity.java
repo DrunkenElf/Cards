@@ -1,7 +1,9 @@
 package com.ilnur.cards;
 
+import android.app.ActivityOptions;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.telecom.Call;
@@ -9,7 +11,10 @@ import android.text.Html;
 import android.text.SpannableStringBuilder;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
+
+import android.transition.Slide;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
@@ -44,6 +49,7 @@ import static com.ilnur.cards.MainActivity.user;
 
 public class LoginActivity extends AppCompatActivity {
     logActState logState;
+    ActivityOptions options = null;
 
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
@@ -63,15 +69,55 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+        Log.i("onBACKPRESS", "DONE");
         MainActivity.appState.activities[1] = null;
         db.deleteActState("log");
+    }
+    private void setupAnim(){
+        if (Build.VERSION.SDK_INT >= 21) {
+            Slide toRight = new Slide();
+            toRight.setSlideEdge(Gravity.RIGHT);
+            toRight.setDuration(500);
+
+            Slide toLeft = new Slide();
+            toLeft.setSlideEdge(Gravity.LEFT);
+            toLeft.setDuration(500);
+
+            Slide toTop = new Slide();
+            toTop.setSlideEdge(Gravity.TOP);
+            toTop.setDuration(500);
+
+            Slide toBot = new Slide();
+            toBot.setSlideEdge(Gravity.BOTTOM);
+            toBot.setDuration(500);
+
+            //WebView.enableSlowWholeDocumentDraw();
+            //когда переходишь на новую
+            getWindow().setExitTransition(toLeft);
+            getWindow().setEnterTransition(toRight);
+
+            //когда нажимаешь с другого назад и открываешь со старого
+            getWindow().setReturnTransition(toRight);
+            getWindow().setReenterTransition(toRight);
+
+        }
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        /*getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
+        Explode explodeAnimation = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            explodeAnimation = new Explode();
+            explodeAnimation.setDuration(1000);
+            getWindow().setEnterTransition(explodeAnimation);
+            getWindow().setReenterTransition(explodeAnimation);  // When MainActivity Re-enter the Screen
+            getWindow().setExitTransition(explodeAnimation);
+            getWindow().setAllowReturnTransitionOverlap(false);
+        }*/
+        setupAnim();
         setContentView(R.layout.login_activity);
-
         if (MainActivity.appState.activities[1] == null) {
             logState = new logActState(" ", " ");
             MainActivity.appState.activities[1] = new ActivityState("log", new Gson().toJson(logState));
@@ -83,12 +129,13 @@ public class LoginActivity extends AppCompatActivity {
 
         AppCompatButton close = findViewById(R.id.not_now);
         ImageView close_kr = findViewById(R.id.close_krest);
-        close_kr.setOnClickListener(v -> finish());
+        close_kr.setOnClickListener(v -> onBackPressed()/*finish()*/);
         close.setOnClickListener(v -> {
-            this.setVisible(false);
-            MainActivity.appState.activities[1] = null;
+            //this.setVisible(false);
+            /*MainActivity.appState.activities[1] = null;
             db.deleteActState("log");
-            this.finish();
+            finish();*/
+            onBackPressed();
         });
         TextView tv = findViewById(R.id.resh_kart);
         ImageView iv = findViewById(R.id.lable);
@@ -126,10 +173,16 @@ public class LoginActivity extends AppCompatActivity {
             return false;
         });
 
-        register.setOnClickListener(v -> {
-            startActivity(new Intent(this, RegisterActivity.class));
+        /*if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            options = ActivityOptions.makeSceneTransitionAnimation(this);
+        }*/
 
-                finish();
+        register.setOnClickListener(v -> {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                options = ActivityOptions.makeSceneTransitionAnimation(this);
+            }
+            startActivity(new Intent(this, RegisterActivity.class), options.toBundle());
+                //finish();
         });
 
 

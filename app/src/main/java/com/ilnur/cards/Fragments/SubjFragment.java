@@ -1,8 +1,11 @@
 package com.ilnur.cards.Fragments;
 
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
+import android.transition.Slide;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,6 +35,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -105,6 +109,17 @@ public class SubjFragment extends Fragment {
 
         gridView.setOnItemClickListener((parent, view, position, id) -> {
             MainActivity.main.exit = false;
+            Slide toRight = null;
+            Slide toLeft = null;
+            if (Build.VERSION.SDK_INT >= 21) {
+                toRight = new Slide();
+                toRight.setSlideEdge(Gravity.RIGHT);
+                toRight.setDuration(500);
+
+                toLeft = new Slide();
+                toLeft.setSlideEdge(Gravity.LEFT);
+                toLeft.setDuration(500);
+            }
 
             String[] mas = db.getCatNames(subj.subjects[position]);
             if (mas.length == 0){
@@ -122,12 +137,18 @@ public class SubjFragment extends Fragment {
 
                     blf.setBtn(db,btn);
                     blf.setArguments(savedInstanceState);
+                   /* blf.setEnterTransition(toRight);
+                    blf.setExitTransition(toLeft);
+                    blf.setReenterTransition(toRight);
+                    blf.setReturnTransition(toRight);*/
                     // load huge page to hashmap
                     //new loadHugePageSubj(subjects[position], id_tittle).execute();
-
+                    //FragmentTransaction trans = getFragmentManager().beginTransaction();
                     //Log.i("POs", mas[position]);
+                    //for (View v: )
                     getFragmentManager().beginTransaction()
                             .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.from_left, R.anim.to_right)
+                            //.setReorderingAllowed(true)
                             .replace(R.id.parent, blf)
                             .addToBackStack("btn")
                             .commit();
@@ -142,8 +163,17 @@ public class SubjFragment extends Fragment {
                     list listState = new list(subj.subjects[position], mas);
                     lf.setTitle(db, listState);
                     lf.setArguments(savedInstanceState);
+                    /*lf.setEnterTransition(toRight);
+                    lf.setExitTransition(toLeft);
+                    lf.setReenterTransition(toRight);
+                    lf.setReturnTransition(toRight);
+                    FragmentTransaction trans = getFragmentManager().beginTransaction();*/
+                    //Log.i("POs", mas[position]);
+                    //for (View v: lf.getActivity().find)
+
                     getFragmentManager().beginTransaction()
                             .setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.from_left, R.anim.to_right)
+                            //.setReorderingAllowed(true)
                             .replace(R.id.parent, lf)
                             .addToBackStack("list")
                             .commit();

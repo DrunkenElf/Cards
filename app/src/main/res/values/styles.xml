@@ -6,9 +6,21 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:textColor">#212121</item>
+        <item name="android:textColor">@color/white</item>
         <item name="android:datePickerDialogTheme" tools:targetApi="lollipop">@style/DialogTheme</item>
-        <item name="android:windowAnimationStyle">@style/Animation.MyDialog</item>
+        <item name="android:windowActivityTransitions" tools:targetApi="lollipop">true</item>
+        <item name="android:windowContentTransitions" tools:targetApi="lollipop">true</item>
+        <item name="android:windowAllowEnterTransitionOverlap" tools:targetApi="lollipop">false</item>
+        <item name="android:windowAllowReturnTransitionOverlap" tools:targetApi="lollipop">false</item>
+        <!--<item name="android:windowEnterTransition" tools:targetApi="lollipop">@transition/act_slide</item>
+        <item name="android:windowExitTransition" tools:targetApi="lollipop">@transition/act_slide</item>
+        <item name="android:windowAllowEnterTransitionOverlap" tools:targetApi="lollipop">true</item>
+        <item name="android:windowAllowReturnTransitionOverlap" tools:targetApi="lollipop">false</item>-->
+        <!--<item name="android:windowEnterTransition" tools:targetApi="lollipop">@transition/act_slide</item>
+        <item name="android:windowExitTransition" tools:targetApi="lollipop">@transition/act_slide</item>-->
+  <!--      <item name="android:windowAllowEnterTransitionOverlap" tools:targetApi="lollipop">true</item>
+        <item name="android:windowAllowReturnTransitionOverlap" tools:targetApi="lollipop">true</item>-->
+                <!--<item name="android:windowAnimationStyle">@style/Animation.MyDialog</item>-->
     </style>
 
     <style name="AppTheme.Login" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -17,12 +29,26 @@
         <item name="android:windowFullscreen">false</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:windowAnimationStyle">@style/Animation.MyDialog</item>
+        <!--<item name="android:windowActivityTransitions" tools:targetApi="lollipop">true</item>
+        <item name="android:windowContentTransitions" tools:targetApi="lollipop">true</item>
+        <item name="android:windowEnterTransition" tools:targetApi="lollipop">@transition/act_slide</item>
+        <item name="android:windowExitTransition" tools:targetApi="lollipop">@transition/act_slide</item>
+        <item name="android:windowAllowEnterTransitionOverlap" tools:targetApi="lollipop">true</item>
+        <item name="android:windowAllowReturnTransitionOverlap" tools:targetApi="lollipop">false</item>-->
+
+        <!--<item name="android:windowAnimationStyle">@style/Animation.MyDialog</item>-->
     </style>
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">true</item>
         <item name="windowNoTitle">true</item>
-        <item name="android:windowAnimationStyle">@style/Animation.MyDialog</item>
+        <!--<item name="android:windowActivityTransitions" tools:targetApi="lollipop">true</item>
+        <item name="android:windowContentTransitions" tools:targetApi="lollipop">true</item>
+        <item name="android:windowEnterTransition" tools:targetApi="lollipop">@transition/act_slide</item>
+        <item name="android:windowExitTransition" tools:targetApi="lollipop">@transition/act_slide</item>
+        <item name="android:windowAllowEnterTransitionOverlap" tools:targetApi="lollipop">true</item>
+        <item name="android:windowAllowReturnTransitionOverlap" tools:targetApi="lollipop">false</item>-->
+
+        <!--<item name="android:windowAnimationStyle">@style/Animation.MyDialog</item>-->
     </style>
 
     <style name="Animation.MyDialog" parent="@android:style/Animation.Activity">
@@ -35,6 +61,10 @@
         <item name="android:activityCloseExitAnimation">
             @anim/fade_out</item>
     </style>
+   <!-- <style name="WindowAnim">
+        <item name="android:windowEnterAnimation">@transition/act_slide</item>
+        <item name="android:windowExitAnimation">@transition/act_explode</item>
+    </style>-->
 
     <!--<style name="Theme.MyDialog" parent="android:Theme.Dialog">
         <item name="android:windowAnimationStyle">@style/Animation.MyDialog</item>

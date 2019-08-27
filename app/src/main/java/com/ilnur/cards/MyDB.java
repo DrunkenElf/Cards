@@ -171,7 +171,6 @@ public class MyDB extends SQLiteOpenHelper {
 
     public void deleteActState(String activity) {
         final String param = "update";
-        final String activity1 = activity;
         final SQLiteDatabase sqdb1 = sqdb;
         UpdateOrDelete(param, activity, null, sqdb1);
         Log.i("delete", activity);

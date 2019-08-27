@@ -1,15 +1,24 @@
 package com.ilnur.cards;
 
+import android.app.ActivityOptions;
 import android.content.ComponentCallbacks2;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.os.StrictMode;
+import android.transition.Explode;
+import android.transition.Slide;
+import android.transition.Transition;
+import android.transition.TransitionInflater;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,6 +34,8 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+
+
 
 import com.github.rubensousa.raiflatbutton.RaiflatButton;
 import com.google.android.material.appbar.AppBarLayout;
@@ -49,8 +60,6 @@ import com.ilnur.cards.forStateSaving.watch;
 import org.jsoup.Jsoup;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.Iterator;
 
 public class MainActivity extends AppCompatActivity
@@ -161,10 +170,38 @@ public class MainActivity extends AppCompatActivity
         changeNavHead(main.logged);
     }
 
+    private void setupAnim(){
+        if (Build.VERSION.SDK_INT >= 21) {
+            Slide toRight = new Slide();
+            toRight.setSlideEdge(Gravity.RIGHT);
+            toRight.setDuration(500);
+
+            Slide toLeft = new Slide();
+            toLeft.setSlideEdge(Gravity.LEFT);
+            toLeft.setDuration(500);
+
+            Slide toTop = new Slide();
+            toTop.setSlideEdge(Gravity.TOP);
+            toTop.setDuration(500);
+
+            Slide toBot = new Slide();
+            toBot.setSlideEdge(Gravity.BOTTOM);
+            toBot.setDuration(500);
+
+            getWindow().setExitTransition(toRight);
+            getWindow().setEnterTransition(toRight);
+            getWindow().setReturnTransition(toRight);
+            getWindow().setReenterTransition(toRight);
+        }
+    }
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.i("onCreate", "Main");
+        setupAnim();
         setContentView(R.layout.activity_main);
 
         toolbar = findViewById(R.id.toolbar);
@@ -188,20 +225,17 @@ public class MainActivity extends AppCompatActivity
         bar = getSupportActionBar();
 
         if (appState != null && appState.activities[0] != null && db != null &&
-                getSupportFragmentManager().getBackStackEntryCount() > 1) {
-
+                getSupportFragmentManager().getBackStackEntryCount() > 1)
             restoreState(savedInstanceState);
-        } else {
+        else
             firstCreate(savedInstanceState);
-        }
+
 
         if (user.getLogin() == null) {
             main.logged = false;
         } else {
             Log.i("OLD_SESSION", user.getSession_id());
             if (checkValid(false)) {
-                //значит все валидно
-                //запуск добавления предметов
                 Toast.makeText(getApplicationContext(), "Вы вошли под логином " + user.getLogin(), Toast.LENGTH_SHORT).show();
                 main.logged = true;
             } else {
@@ -215,33 +249,26 @@ public class MainActivity extends AppCompatActivity
         }
 
 
-
         changeNavHead(main.logged);
 
         if (isNetworkAvailable()) {
             Log.i("add subj", "started");
             db.add();
-        } else {
+        } else
             Toast.makeText(getApplicationContext(), "Подключение к интернету отсутствует, скачивание данных невозможно",
                     Toast.LENGTH_LONG).show();
-            //add subjects
-            //if (!main.logged) {
-            //Log.i("add subj", "started");
-            //db.add();
-            //}
-        }
+
 
         Log.i("STACK", getSupportFragmentManager().getBackStackEntryCount() + "");
 
-        if (main.fragments.size()>1)
+        if (main.fragments.size() > 1)
             enableBackBtn(true);
         else
             enableBackBtn(false);
     }
 
-    private void firstCreate(Bundle savedInstanceState){
+    private void firstCreate(Bundle savedInstanceState) {
         Log.i("firstCreate", "start");
-        //main
         if (db == null) {
             db = new MyDB(this);
             db.init(db, false);
@@ -251,93 +278,80 @@ public class MainActivity extends AppCompatActivity
         if (appState == null)
             appState = new AppState(db);
 
-        if (appState.activities[2] != null){
+        if (appState.activities[2] != null) {
             main = new mainActState();
             SubjFragment subjFragment = new SubjFragment();
             subj subj = new subj(new String[]{"Русский язык", "Физика", "Математика", "Английский язык", "История"});
             subjFragment.setState(db, subj);
             main.addFragment(new FragmentState("subj", new Gson().toJson(subj)));
             subjFragment.setRetainInstance(true);
-            //subjFragment.setArguments(savedInstanceState);
+
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.parent, subjFragment)
                     .addToBackStack("subj")
                     .commit();
             Log.i("STACK ELSE", getSupportFragmentManager().getBackStackEntryCount() + "");
-            //MainActivity.main.addFragment(new FragmentState("subj", new Gson().toJson(subj)));
             db.updateActState(new ActivityState("main", new Gson().toJson(main)));
-            if (!main.logged)
+            if (!main.logged) {
                 startActivity(new Intent(this, RegisterActivity.class));
-        }else if (appState.activities[1] != null){
+            }
+        } else if (appState.activities[1] != null) {
             main = new mainActState();
             SubjFragment subjFragment = new SubjFragment();
             subj subj = new subj(new String[]{"Русский язык", "Физика", "Математика", "Английский язык", "История"});
             subjFragment.setState(db, subj);
             main.addFragment(new FragmentState("subj", new Gson().toJson(subj)));
             subjFragment.setRetainInstance(true);
-            //subjFragment.setArguments(savedInstanceState);
+
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.parent, subjFragment)
                     .addToBackStack("subj")
                     .commit();
             Log.i("STACK ELSE", getSupportFragmentManager().getBackStackEntryCount() + "");
-            //MainActivity.main.addFragment(new FragmentState("subj", new Gson().toJson(subj)));
             db.updateActState(new ActivityState("main", new Gson().toJson(main)));
             if (!main.logged)
                 startActivity(new Intent(this, LoginActivity.class));
+
         } else if (appState.activities[0] != null) {
             main = new Gson().fromJson(appState.activities[0].data, mainActState.class);
             Log.d("AddAll", "ELSE");
             addAllFrag(savedInstanceState);
-        }  else {
+        } else {
             main = new mainActState();
             SubjFragment subjFragment = new SubjFragment();
             subj subj = new subj(new String[]{"Русский язык", "Физика", "Математика", "Английский язык", "История"});
             subjFragment.setState(db, subj);
             main.addFragment(new FragmentState("subj", new Gson().toJson(subj)));
             subjFragment.setRetainInstance(true);
-            //subjFragment.setArguments(savedInstanceState);
+
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.parent, subjFragment)
                     .addToBackStack("subj")
                     .commit();
             Log.i("STACK ELSE", getSupportFragmentManager().getBackStackEntryCount() + "");
-            //MainActivity.main.addFragment(new FragmentState("subj", new Gson().toJson(subj)));
             db.updateActState(new ActivityState("main", new Gson().toJson(main)));
             if (!main.logged)
                 startActivity(new Intent(this, LoginActivity.class));
+
         }
     }
 
-    private void restoreState(Bundle savedInstanceState){
+    private void restoreState(Bundle savedInstanceState) {
         Log.i("RESTORE", "onCreate");
-        //appState.fetchActs();
-        Log.i("main data RESTORE befor", main.fragments.get(0).data);
         main = new Gson().fromJson(appState.activities[0].data, mainActState.class);
-        Log.i("maindata RESTORE aft1", main.fragments.get(0).data);
-        Log.i("maindata RESTORE aft2", appState.activities[0].data);
+
         changeNavHead(main.logged);
-        //enableBackBtn(false);
-        //appState.fetchActs();
-        //main = new Gson().fromJson(appState.activities[0].data, mainActState.class);
+
         if (main.fragments.size() > 1 && appState.activities[1] == null) {
             Log.d("addAll", "in RESTORE");
             addAllFrag(savedInstanceState);
         } else if (appState.activities[1] != null) {
             addAllFrag(savedInstanceState);
             if (!main.logged)
-                startActivity(new Intent(this, LoginActivity.class));
-        } else if (appState.activities[2] != null) {
-                /*subj subj = new Gson().fromJson(main.fragments.get(0).data, com.ilnur.cards.forStateSaving.subj.class);
-                SubjFragment subjFragment = new SubjFragment();
-                subjFragment.setArguments(savedInstanceState);
-                subjFragment.setState(db, subj);
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.parent, subjFragment)
-                        .addToBackStack("subj")
-                        .commit();*/
-            startActivity(new Intent(this, RegisterActivity.class));
-        }
+                startActivity(new Intent(this, LoginActivity.class)/*, options.toBundle()*/);
+        } else if (appState.activities[2] != null)
+            startActivity(new Intent(this, RegisterActivity.class)/*, options.toBundle()*/);
+
     }
 
     public void enableBackBtn(boolean enable) {
@@ -345,23 +359,18 @@ public class MainActivity extends AppCompatActivity
             drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
             toggle.setDrawerIndicatorEnabled(false);
             bar.setDisplayHomeAsUpEnabled(true);
-            //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            //if (!main.isRegistered) {
-                toggle.setToolbarNavigationClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        onBackPressed();
-                    }
-                });
-                //main.isRegistered = true;
-            //}
+
+            toggle.setToolbarNavigationClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onBackPressed();
+                }
+            });
         } else {
             drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
             bar.setDisplayHomeAsUpEnabled(false);
-            //getSupportActionBar().setDisplayHomeAsUpEnabled(false);
             toggle.setDrawerIndicatorEnabled(true);
             toggle.setToolbarNavigationClickListener(null);
-            //main.isRegistered = false;
         }
     }
 
@@ -369,12 +378,9 @@ public class MainActivity extends AppCompatActivity
         Log.i("CCCC", "" + navigationView.getHeaderCount());
         if (logged) {
             navigationView.removeHeaderView(navigationView.getHeaderView(0));
-            //navigationView;
             View navheader = navigationView.inflateHeaderView(R.layout.nav_header_sucsess);
             navigationView.removeHeaderView(navigationView.getHeaderView(0));
             navigationView.addHeaderView(navheader);
-            ImageView iv = navheader.findViewById(R.id.nav_icon);
-            TextView title = navheader.findViewById(R.id.nav_title);
 
             TextView info = navheader.findViewById(R.id.info);
             AppCompatButton logout = navheader.findViewById(R.id.log_out);
@@ -399,7 +405,11 @@ public class MainActivity extends AppCompatActivity
             enter.setOnClickListener(v -> {
                 //user.setLogin(login.getText().toString());
                 //user.setPassword(password.getText().toString());
-                startActivity(new Intent(this, LoginActivity.class));
+                ActivityOptions options = null;
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                    options = ActivityOptions.makeSceneTransitionAnimation(this);
+                }
+                startActivity(new Intent(this, LoginActivity.class), options.toBundle());
 
             });
 
@@ -438,28 +448,23 @@ public class MainActivity extends AppCompatActivity
         return false;
     }
 
-    public static boolean isNetworkAvailable () {
-        boolean success = false;
-        try {
-            URL url = new URL("https://google.com");
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setConnectTimeout(10000);
-            connection.connect();
-            success = connection.getResponseCode() == 200;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return success;
+    public boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED
+                || connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED) {
+            return true;
+        } else
+            return false;
     }
 
     // subj, learn, watch, btn, list
     @Override
     public void onBackPressed() {
         if (main.exit) {
+            db.deleteActState("main");
             this.finish();
         } else {
             DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-            //Log.i("COUNT", String.valueOf(getSupportFragmentManager().getBackStackEntryCount()));
             if (drawer.isDrawerOpen(GravityCompat.START)) {
                 drawer.closeDrawer(GravityCompat.START);
             } else if (getSupportFragmentManager().getBackStackEntryCount() == 1) {
@@ -469,7 +474,7 @@ public class MainActivity extends AppCompatActivity
                 if (getSupportFragmentManager().getBackStackEntryCount() == 2)
                     enableBackBtn(false);
                 FragmentManager manager = getSupportFragmentManager();
-                Log.d("BACK COUNt", getSupportFragmentManager().getBackStackEntryCount() +"");
+                Log.d("BACK COUNt", getSupportFragmentManager().getBackStackEntryCount() + "");
                 if (getSupportFragmentManager().getBackStackEntryCount() > 1) {
                     String tag = manager.getBackStackEntryAt(manager.getBackStackEntryCount() - 1).getName();
                     Log.d("BACK REMOVE", tag);
@@ -477,11 +482,11 @@ public class MainActivity extends AppCompatActivity
                     main.deleteFragment();
                     db.updateActState(new ActivityState("main", new Gson().toJson(main)));
                 }
-                //getSupportFragmentManager().
-                //super.onBackPressed();
             }
         }
     }
+
+
 
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {

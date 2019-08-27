@@ -6,13 +6,20 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.wifi.WifiConfiguration;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.InputType;
 import android.text.method.LinkMovementMethod;
+import android.transition.Explode;
+import android.transition.Slide;
+import android.transition.Transition;
+import android.transition.TransitionInflater;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.Window;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -84,12 +91,38 @@ public class RegisterActivity extends AppCompatActivity {
         db.updateActState(activityState);
     }
 
+    private void setupAnim(){
+        Transition exit = TransitionInflater.from(this).inflateTransition(R.transition.act_slide);
+        Transition enter = TransitionInflater.from(this).inflateTransition(R.transition.act_explode);
+
+        if (Build.VERSION.SDK_INT >= 21) {
+            //WebView.enableSlowWholeDocumentDraw();
+            getWindow().setExitTransition(exit);
+            getWindow().setEnterTransition(enter);
+        }
+    }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            //getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
+            Slide toRight = new Slide();
+            toRight.setSlideEdge(Gravity.RIGHT);
+            toRight.setDuration(500);
+
+            Slide toLeft = new Slide();
+            toLeft.setSlideEdge(Gravity.LEFT);
+            toLeft.setDuration(500);
+
+            //WebView.enableSlowWholeDocumentDraw();
+            getWindow().setExitTransition(toRight);
+            getWindow().setEnterTransition(toLeft);
+            //getWindow().setReturnTransition(toLeft);
+        }
         setContentView(R.layout.register_lay);
         setTitle("Решу ЕГЭ. Карточки");
-
+        //setupAnim();
         if (MainActivity.appState.activities[2] == null) {
             regState = new regActState(" "," "," "," "," "," "," "," ");
             MainActivity.appState.activities[2] = new ActivityState("reg", new Gson().toJson(regState));

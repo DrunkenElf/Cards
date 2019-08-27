@@ -50,6 +50,7 @@
             android:id="@+id/login_lay"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:transitionGroup="true"
             app:errorTextAppearance="@style/MyErrorText"
             app:errorEnabled="true">
 
@@ -70,6 +71,7 @@
             android:id="@+id/password_lay"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:transitionGroup="true"
             app:errorTextAppearance="@style/MyErrorText"
             app:errorEnabled="true">
 

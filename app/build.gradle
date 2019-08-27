@@ -57,5 +57,6 @@ dependencies {
     //implementation 'me.biubiubiu.justifytext:library:1.1'
     //implementation 'com.github.bluejamesbond:textjustify-android:2.1.6'
     implementation 'com.github.bumptech.glide:glide:4.9.0'
+    implementation "com.andkulikov:transitionseverywhere:2.1.0-beta01"
     //implementation 'com.vk:androidsdk:1.6.5'
 }
