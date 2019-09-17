@@ -136,7 +136,6 @@ public class ListFragment extends Fragment {
                 Cat_head head = (Cat_head) node.getContent();
                 ArrayList<Category> cats = db.getSubCatNames(list.title, head.getTitle());
                 if (!node.isLeaf()) {
-
                     if (!cats.isEmpty()) {
                         MainActivity.main.exit = false;
                         ButListFragment blf = new ButListFragment();

@@ -102,14 +102,14 @@ public class SubjFragment extends Fragment {
         apbar.setExpanded(false);
 
         final GridView gridView = rootview.findViewById(R.id.subj_list);
-        SubjAdapter adapter = new SubjAdapter(getContext(), subj.subjects);
+        SubjAdapter adapter = new SubjAdapter(getContext(), subj.subjects, db, main, savedInstanceState);
         //ListView lv = rootview.findViewById(R.id.list_subj);
         //lv.setAdapter(adapter);
         gridView.setAdapter(adapter);
 
-        gridView.setOnItemClickListener((parent, view, position, id) -> {
-            MainActivity.main.exit = false;
-            Slide toRight = null;
+        //gridView.setOnItemClickListener((parent, view, position, id) -> {
+            /*MainActivity.main.exit = false;
+            *//*Slide toRight = null;
             Slide toLeft = null;
             if (Build.VERSION.SDK_INT >= 21) {
                 toRight = new Slide();
@@ -119,7 +119,7 @@ public class SubjFragment extends Fragment {
                 toLeft = new Slide();
                 toLeft.setSlideEdge(Gravity.LEFT);
                 toLeft.setDuration(500);
-            }
+            }*//*
 
             String[] mas = db.getCatNames(subj.subjects[position]);
             if (mas.length == 0){
@@ -137,10 +137,10 @@ public class SubjFragment extends Fragment {
 
                     blf.setBtn(db,btn);
                     blf.setArguments(savedInstanceState);
-                   /* blf.setEnterTransition(toRight);
+                   *//* blf.setEnterTransition(toRight);
                     blf.setExitTransition(toLeft);
                     blf.setReenterTransition(toRight);
-                    blf.setReturnTransition(toRight);*/
+                    blf.setReturnTransition(toRight);*//*
                     // load huge page to hashmap
                     //new loadHugePageSubj(subjects[position], id_tittle).execute();
                     //FragmentTransaction trans = getFragmentManager().beginTransaction();
@@ -152,9 +152,9 @@ public class SubjFragment extends Fragment {
                             .replace(R.id.parent, blf)
                             .addToBackStack("btn")
                             .commit();
-                    /*ActivityState mainState = new ActivityState("main", new Gson().toJson(MainActivity.main));
+                    *//*ActivityState mainState = new ActivityState("main", new Gson().toJson(MainActivity.main));
                     appState.activities[0] = mainState;
-                    db.updateActState(mainState);*/
+                    db.updateActState(mainState);*//*
                     MainActivity.main.addFragment(new FragmentState("btn", new Gson().toJson(btn)));
                     db.updateActState(new ActivityState("main", new Gson().toJson(MainActivity.main)));
                     //MainActivity.appState.activities[0] = Ma
@@ -163,11 +163,11 @@ public class SubjFragment extends Fragment {
                     list listState = new list(subj.subjects[position], mas);
                     lf.setTitle(db, listState);
                     lf.setArguments(savedInstanceState);
-                    /*lf.setEnterTransition(toRight);
+                    *//*lf.setEnterTransition(toRight);
                     lf.setExitTransition(toLeft);
                     lf.setReenterTransition(toRight);
                     lf.setReturnTransition(toRight);
-                    FragmentTransaction trans = getFragmentManager().beginTransaction();*/
+                    FragmentTransaction trans = getFragmentManager().beginTransaction();*//*
                     //Log.i("POs", mas[position]);
                     //for (View v: lf.getActivity().find)
 
@@ -180,9 +180,9 @@ public class SubjFragment extends Fragment {
                     MainActivity.main.addFragment(new FragmentState("list", new Gson().toJson(listState)));
                     db.updateActState(new ActivityState("main", new Gson().toJson(MainActivity.main)));
                 }
-            }
+            }*/
 
-        });
+        //});
         Log.i("count  ",String.valueOf(getFragmentManager().getBackStackEntryCount()));
         return rootview;
     }

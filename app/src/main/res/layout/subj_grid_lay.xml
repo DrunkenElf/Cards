@@ -2,13 +2,16 @@
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/card_grid"
     android:layout_width="match_parent"
     android:layout_height="90dp"
     android:orientation="vertical"
-    app:cardBackgroundColor="@color/wh"
+    android:background="@color/colorPrimaryLight"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?android:attr/selectableItemBackground"
     app:cardUseCompatPadding="true"
-    app:cardCornerRadius="0dp"
-    app:cardElevation="4dp">
+    app:cardCornerRadius="8dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -57,7 +60,7 @@
             android:gravity="center_vertical"
             android:maxLines="2"
             android:text="My name is LOL"
-            android:textSize="16sp"
+            android:textSize="18sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/outside"
             app:layout_constraintTop_toTopOf="parent" />
