@@ -1,7 +1,9 @@
 package com.ilnur.cards;
 
+import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.wifi.WifiConfiguration;
@@ -51,6 +53,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigInteger;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
@@ -70,21 +73,39 @@ public class RegisterActivity extends AppCompatActivity {
     private final String hash = "quaeweSio7aingoo6wa1xoochethieJ6eishieph1eishai6Gi";
     private final String link = "https://ege.sdamgia.ru/api?type=register";
     public regActState regState;
+    private boolean isLogged = false;
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
-        MainActivity.appState.activities[2] = null;
-        db.deleteActState("reg");
+        if (isLogged){
+            MainActivity.appState.activities[2] = null;
+            MainActivity.appState.activities[1] = null;
+            db.deleteActState("reg");
+            db.deleteActState("log");
+            super.onBackPressed();
+            //super.onBackPressed();
+        } else {
+            //super.onBackPressed();
+            MainActivity.appState.activities[2] = null;
+            db.deleteActState("reg");
+            super.onBackPressed();
+        }
     }
 
     @Override
-    protected void onSaveInstanceState(@NonNull Bundle outState) {
+    protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         ActivityState activityState = new ActivityState("reg", new Gson().toJson(regState));
         MainActivity.appState.activities[2] = activityState;
         db.updateActState(activityState);
     }
+
+    private void saveStateEmptyBundle(){
+        ActivityState activityState = new ActivityState("reg", new Gson().toJson(regState));
+        MainActivity.appState.activities[2] = activityState;
+        db.updateActState(activityState);
+    }
+
     void saveAct(){
         ActivityState activityState = new ActivityState("reg", new Gson().toJson(regState));
         MainActivity.appState.activities[2] = activityState;
@@ -319,7 +340,8 @@ public class RegisterActivity extends AppCompatActivity {
                 regState.day = String.valueOf(dayOfMonth);
                 regState.month = String.valueOf(month);
                 regState.year = String.valueOf(year);
-                onSaveInstanceState(savedInstanceState);
+                //onSaveInstanceState(savedInstanceState);
+                saveStateEmptyBundle();
                 RegisterActivity.this.updateLable(date, calendar);
             }
         };
@@ -502,12 +524,17 @@ public class RegisterActivity extends AppCompatActivity {
                     Runnable sync = MainActivity.db::syncSubj;
                     new Thread(sync).start();
                     MainActivity.appState.activities[2] = null;
+                    MainActivity.appState.activities[1] = null;
                     db.deleteActState("reg");
+                    db.deleteActState("log");
                     finish();
+                    //onBackPressed();
+                    //onBackPressed();
                     //overridePendingTransition(R.anim.exit_to_left, R.anim.enter_from_right);
             }
         }
     }
+
 
     public String getDate() {
         return regState.day + "/" + regState.month + "/" + regState.year;
@@ -524,19 +551,19 @@ public class RegisterActivity extends AppCompatActivity {
     //signing up
     private String signUp() throws IOException {
         //String hash = "quaeweSio7aingoo6wa1xoochethieJ6eishieph1eishai6Gi";
-        String parameters = "username=" + regState.username + "&password=" +
-                regState.password + "&name=" + regState.name1 +
-                "&sname=" + regState.surname1 + "&hash=" +
+        String parameters = "username=" +regState.username + "&password=" +
+                regState.password + "&name=" + URLEncoder.encode(regState.name1, "UTF-8") +
+                "&sname=" + URLEncoder.encode(regState.surname1, "UTF-8") + "&hash=" +
                 MD5(hash + regState.username) + "&protocolVersion=1";
         HttpsURLConnection connection = (HttpsURLConnection) new URL(link).openConnection();
         connection.setRequestMethod("POST");
         connection.setDoInput(true);
         connection.setDoOutput(true);
+        connection.setRequestProperty("Content-Length", "" + Integer.toString(parameters.getBytes().length));
 
         byte[] data = null;
         InputStream is = null;
 
-        connection.setRequestProperty("Content-Length", "" + parameters.getBytes().length);
         OutputStream os = connection.getOutputStream();
         data = parameters.getBytes("UTF-8");
         os.write(data);

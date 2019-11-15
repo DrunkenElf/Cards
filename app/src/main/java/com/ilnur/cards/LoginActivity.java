@@ -70,6 +70,8 @@ public class LoginActivity extends AppCompatActivity {
     public void onBackPressed() {
         super.onBackPressed();
         Log.i("onBACKPRESS", "DONE");
+        Runnable sync = () -> db.syncSubj();
+        new Thread(sync).start();
         MainActivity.appState.activities[1] = null;
         db.deleteActState("log");
     }
@@ -181,6 +183,7 @@ public class LoginActivity extends AppCompatActivity {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
                 options = ActivityOptions.makeSceneTransitionAnimation(this);
             }
+            finish();
             startActivity(new Intent(this, RegisterActivity.class), options.toBundle());
                 //finish();
         });
@@ -242,7 +245,7 @@ public class LoginActivity extends AppCompatActivity {
                 new Thread(sync).start();
                 MainActivity.appState.activities[1] = null;
                 db.deleteActState("log");
-                this.finish();
+                finish();
                 //overridePendingTransition(R.anim.exit_to_left, R.anim.enter_from_right);
             }
 
@@ -289,6 +292,7 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     public void finish() {
         super.finish();
+        // //super.onBackPressed();
         //overridePendingTransition(R.anim.fade_out, R.anim.fade_in);
     }
 }

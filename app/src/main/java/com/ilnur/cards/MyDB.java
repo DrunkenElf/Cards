@@ -17,6 +17,7 @@ import android.util.SparseArray;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.internal.bind.SqlDateTypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.ilnur.cards.Json.Card;
@@ -139,15 +140,15 @@ public class MyDB extends SQLiteOpenHelper {
         }
     }
 
-    public void UpdateOrDelete(String param, String activity, ActivityState state, SQLiteDatabase sqdb){
+    public void UpdateOrDelete(String param, String activity, ActivityState state, SQLiteDatabase sqdb) {
         Thread util = new Thread(new Runnable() {
             @Override
             public void run() {
-                if (activity != null){
+                if (activity != null) {
                     //delete
                     Log.i("AsyncDelete", activity);
                     sqdb.delete("appState", "activity = ?", new String[]{activity});
-                } else if (state!=null){
+                } else if (state != null) {
                     Log.i("AsyncUpdate", state.activity);
                     ContentValues values = new ContentValues();
                     values.put("activity", state.activity);
@@ -927,10 +928,10 @@ public class MyDB extends SQLiteOpenHelper {
         MyExecutor executor = new MyExecutor(false);
 
         for (pair p : pairs) {
-            if (MainActivity.main.logged) {
-                PushSubj task = new PushSubj(p, MainActivity.user.getSession_id(), sqdb);
-                executor.execute(task);
-            }
+            //if (MainActivity.main.logged) {
+            PushSubj task = new PushSubj(p, MainActivity.user.getSession_id(), sqdb);
+            executor.execute(task);
+            //}
         }
     }
 
@@ -949,16 +950,16 @@ public class MyDB extends SQLiteOpenHelper {
 
         @Override
         public void run() {
-            if (isSubjAdded(p.subj_db) && !isSubjSynced(p.subj_db)) {
+            if (isSubjAdded(p.subj_db) && !isSubjSynced(p.subj_db) && session_id != null) {
                 Cursor cursor = sqdb.rawQuery("SELECT id, result FROM " + p.subj_db + "_card" + " WHERE result != ?", new String[]{"0"});
                 cursor.moveToFirst();
                 Connection.Response response;
                 String link;
                 while (!cursor.isAfterLast()) {
                     try {
-                        link = "https://" + p.link +
-                                "-ege.sdamgia.ru/api?protocolVersion=1&type=card_result&id=" + cursor.getInt(0) + "&result=" +
-                                cursor.getInt(1) + "&session=" + session_id;
+                            link = "https://" + p.link +
+                                    "-ege.sdamgia.ru/api?protocolVersion=1&type=card_result&id=" + cursor.getInt(0) + "&result=" +
+                                    cursor.getInt(1) + "&session=" + session_id;
                         response = Jsoup.connect(link).ignoreContentType(true)
                                 .method(Connection.Method.GET).execute();
                         Log.i("link", link);
@@ -1032,11 +1033,18 @@ public class MyDB extends SQLiteOpenHelper {
             /*resp = Jsoup.connect(cards+temp.getId()).ignoreContentType(true)
                     .maxBodySize(0).timeout(20000000).get().select("body").html();*/
                             //Log.i("data", data);
-                            tmp = new Gson().fromJson(reader, StupCard.class);
+                            try {
+                                tmp = new Gson().fromJson(reader, StupCard.class);
+                            } catch (JsonSyntaxException e) {
+                                tmp = null;
+                            }
                             updCat(temp, p.subj_db, sqdb1);
-                            if (tmp.getData() != null) {
-                                for (Card s : tmp.getData()) {
-                                    updCard(s, p.subj_db, sqdb1);
+                            if (tmp != null) {
+                                checkForExistence(temp.getId(), p.subj_db, tmp.getData());
+                                if (tmp.getData() != null) {
+                                    for (Card s : tmp.getData()) {
+                                        updCard(s, p.subj_db, sqdb1);
+                                    }
                                 }
                             }
                         }
@@ -1048,11 +1056,50 @@ public class MyDB extends SQLiteOpenHelper {
                         sqdb1.update("subj", values, "name = ?", new String[]{p.subj_db});
                         values.clear();
                     }
+                    new Handler().post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(acontext, p.subj_db.replaceAll("_", " ") + " обновлен", Toast.LENGTH_SHORT).show();
+                        }
+                    });
 
                     cursor.close();
+
                 }
             }).start();
         }
+    }
+
+    public void checkForExistence(int category_id, String parent, Card[] cards) {
+        Cursor cursor = sqdb.rawQuery("SELECT id FROM " + parent
+                + "_card" + " WHERE category_id = ?", new String[]{String.valueOf(category_id)});
+        cursor.moveToFirst();
+        //Log.d("CURS_COUNT", ""+cursor.getCount());
+        //Log.d("CHECKING", "CAT_ID "+parent+category_id);
+        if (cursor.getCount() > 0) {
+            while (!cursor.isAfterLast()) {
+                boolean found = false;
+                //int id = 0;
+                //Log.d("WoRkInG", parent+"33 == "+cursor.getInt(0)+" "+category_id);
+                for (Card s : cards) {
+                    if (cursor.getInt(0) == s.getId()) {
+                        found = true;
+                        //Log.d("NOT DELETE", "FOUND"+s.getId()+" "+category_id);
+                        //id = s.getId();
+                        break;
+                    }
+                }
+                if (!found) {
+                    //if (id != 0) {
+                    sqdb.delete(parent + "_card", "id=?", new String[]{String.valueOf(cursor.getInt(0))});
+                    //Log.d("DELETE", "delete" + cursor.getInt(0));
+                    //}
+                }
+                cursor.moveToNext();
+            }
+        }
+        cursor.close();
+
     }
 
 
@@ -1109,8 +1156,9 @@ public class MyDB extends SQLiteOpenHelper {
             if (isAdded == 1) {
                 cursor = sqdb.rawQuery("SELECT stamp FROM " + subj_name + "_cat" + " WHERE id = ?",
                         new String[]{String.valueOf(temp.getId())});
-                if (cursor.getCount() > 1) {
+                if (cursor.getCount() > 0) {
                     cursor.moveToFirst();
+                    Log.d("CAT_STAMP", temp.getStamp() + " " + cursor.getString(0));
                     if (!String.valueOf(temp.getStamp()).equals(cursor.getString(0))) {
                         isChanged = true;
                     }
@@ -1133,11 +1181,19 @@ public class MyDB extends SQLiteOpenHelper {
                 reader = new JsonReader(isr);
                 reader.setLenient(true);
                 //Log.i("data", data);
-                tmp = new Gson().fromJson(reader, StupCard.class);
+                try {
+                    tmp = new Gson().fromJson(reader, StupCard.class);
+                } catch (JsonSyntaxException e) {
+                    tmp = null;
+                }
                 updCat(temp, subj_name, sqdb);
-                if (tmp.getData() != null) {
-                    for (Card s : tmp.getData()) {
-                        updCard(s, subj_name, sqdb);
+                if (tmp != null)
+                    checkForExistence(temp.getId(), subj_name, tmp.getData());
+                if (tmp != null) {
+                    if (tmp.getData() != null) {
+                        for (Card s : tmp.getData()) {
+                            updCard(s, subj_name, sqdb);
+                        }
                     }
                 }
             }
@@ -1174,6 +1230,7 @@ public class MyDB extends SQLiteOpenHelper {
             else
                 command.run();
         }
+
     }
 
     public void add() {
@@ -1218,20 +1275,20 @@ public class MyDB extends SQLiteOpenHelper {
 
         MyExecutor executor = new MyExecutor(true);
         for (pair p : pairs) {
-            if (!isSubjAdded(p.subj_db)) {
-                //addCurrent(p.subj_db);
-                final SQLiteDatabase sqdb = instance.getWritableDatabase();
-                final String subj_db = p.subj_db;
-                final String link = p.link;
-                Runnable run = new Runnable() {
-                    @Override
-                    public void run() {
-                        Process.setThreadPriority(Process.THREAD_PRIORITY_MORE_FAVORABLE);
-                        addCurrent(subj_db, sqdb, link);
-                    }
-                };
-                executor.execute(run);
-            }
+            //if (!isSubjAdded(p.subj_db)) {
+            //addCurrent(p.subj_db);
+            final SQLiteDatabase sqdb = instance.getWritableDatabase();
+            final String subj_db = p.subj_db;
+            final String link = p.link;
+            Runnable run = new Runnable() {
+                @Override
+                public void run() {
+                    Process.setThreadPriority(Process.THREAD_PRIORITY_MORE_FAVORABLE);
+                    addCurrent(subj_db, sqdb, link);
+                }
+            };
+            executor.execute(run);
+            //}
         }
     }
 

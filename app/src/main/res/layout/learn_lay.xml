@@ -43,7 +43,7 @@
 
     <LinearLayout
         android:id="@+id/buttons"
-        android:alpha="0.35"
+        android:alpha="0.40"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginBottom="50dp"
@@ -57,9 +57,11 @@
 
         <com.github.rubensousa.raiflatbutton.RaiflatButton
             android:id="@+id/dontkn"
+            android:foreground="?android:attr/selectableItemBackground"
             android:background="@color/wrong"
             android:textColor="@color/wrong_sym"
             android:gravity="bottom|center_horizontal"
+            style="@style/Base.Widget.AppCompat.Button.Colored"
             android:paddingBottom="100dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -69,7 +71,9 @@
         <com.github.rubensousa.raiflatbutton.RaiflatButton
             android:id="@+id/know"
             android:background="@color/right"
+            style="@style/Base.Widget.AppCompat.Button.Colored"
             android:textColor="@color/right_sym"
+            android:foreground="?android:attr/selectableItemBackground"
             android:gravity="bottom|center_horizontal"
             android:paddingBottom="100dp"
             android:layout_width="match_parent"
@@ -83,6 +87,8 @@
             android:background="@color/know"
             android:textColor="@color/know_sym"
             android:gravity="bottom|center_horizontal"
+            style="@style/Base.Widget.AppCompat.Button.Colored"
+            android:foreground="?android:attr/selectableItemBackground"
             android:paddingBottom="100dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

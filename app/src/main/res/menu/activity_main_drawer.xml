@@ -9,6 +9,10 @@
             android:icon="@drawable/ic_sync_black_24dp"
             android:title="Синронизировать карточки" />
         <item
+            android:id="@+id/nav_update"
+            android:icon="@drawable/ic_sync_black_24dp"
+            android:title="Проверить обновления" />
+        <item
             android:id="@+id/nav_save"
             android:icon="@drawable/ic_add_black_24dp"
             android:title="Добавить карточки" />

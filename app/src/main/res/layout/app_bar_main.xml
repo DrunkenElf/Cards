@@ -13,9 +13,7 @@
         android:fitsSystemWindows="true"
         android:theme="@style/AppTheme.AppBarOverlay">
 
-        <!--app:expandedTitleMarginBottom="20dp"
-        app:expandedTitleMarginEnd="64dp"
-        app:expandedTitleMarginStart="48dp"-->
+
         <net.opacapp.multilinecollapsingtoolbar.CollapsingToolbarLayout
             android:id="@+id/collapsing_toolbar"
             android:layout_width="match_parent"

@@ -234,6 +234,8 @@ public class MainActivity extends AppCompatActivity
         } else {
             Log.i("OLD_SESSION", user.getSession_id());
             if (checkValid(false)) {
+                /*if (db.isAlladded())
+                    db.syncSubj();*/
                 Toast.makeText(getApplicationContext(), "Вы вошли под логином " + user.getLogin(), Toast.LENGTH_SHORT).show();
                 main.logged = true;
             } else {
@@ -251,12 +253,14 @@ public class MainActivity extends AppCompatActivity
 
         if (isNetworkAvailable()) {
             Log.i("add subj", "started");
-            db.add();
+            /*if (!db.isAlladded())
+                db.add();*/
         } else
             Toast.makeText(getApplicationContext(), "Подключение к интернету отсутствует, скачивание данных невозможно",
                     Toast.LENGTH_LONG).show();
 
-
+        Runnable sync = () -> db.syncSubj();
+        new Thread(sync).start();
         Log.i("STACK", getSupportFragmentManager().getBackStackEntryCount() + "");
 
         if (main.fragments.size() > 1)
@@ -496,7 +500,7 @@ public class MainActivity extends AppCompatActivity
                 Runnable sync = db::syncSubj;
                 new Thread(sync).start();
             } else if (main.logged && syncsub) {
-                Toast.makeText(getApplicationContext(), "Карточку уже синхронизируются", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Карточки уже синхронизируются", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(getApplicationContext(), "Для синхронизации необходима авторизация", Toast.LENGTH_SHORT).show();
             }
@@ -507,6 +511,10 @@ public class MainActivity extends AppCompatActivity
             } else {
                 Toast.makeText(getApplicationContext(), "Предметы уже добавляются", Toast.LENGTH_SHORT).show();
             }
+        } else if (id == R.id.nav_update){
+            Runnable sync = () -> db.add();
+            new Thread(sync).start();
+            Toast.makeText(getApplicationContext(), "Запуск обновления", Toast.LENGTH_SHORT).show();
         }
 
         /*if (id == R.id.nav_stats) {
